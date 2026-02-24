@@ -1,0 +1,200 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Store {
+  id             String    @id @default(cuid())
+  name           String
+  slug           String    @unique
+  description    String?
+  logo           String?
+  website        String
+  affiliateUrl   String?
+  cashbackRate   String?   // e.g., "Upto 10.2%"
+  cashbackType   String?   // "percentage", "flat", "voucher"
+  offerCount     Int       @default(0)
+  isActive       Boolean   @default(true)
+  isFeatured     Boolean   @default(false)
+  seoTitle       String?
+  seoDescription String?
+  aboutContent   String?   // Rich SEO content
+  faqContent     String?   // FAQ JSON
+  coupons        Coupon[]
+  storeCategories StoreCategory[]
+  campaignLinks   CampaignLink[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model Category {
+  id              String           @id @default(cuid())
+  name            String
+  slug            String           @unique
+  description     String?
+  icon            String?
+  image           String?
+  isActive        Boolean          @default(true)
+  isFeatured      Boolean          @default(false)
+  displayOrder    Int              @default(0)
+  parentId        String?
+  parent          Category?        @relation("CategoryChildren", fields: [parentId], references: [id])
+  children        Category[]       @relation("CategoryChildren")
+  storeCategories StoreCategory[]
+  coupons         Coupon[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+model StoreCategory {
+  id         String   @id @default(cuid())
+  storeId    String
+  store      Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([storeId, categoryId])
+}
+
+model Coupon {
+  id            String    @id @default(cuid())
+  title         String
+  description   String?
+  code          String?   // Null for "Get Deal" type
+  type          String    @default("coupon") // "coupon", "deal"
+  discountType  String    // "percentage", "flat", "freebie"
+  discountValue String?   // e.g., "80% Off", "₹500 Off"
+  affiliateUrl  String
+  image         String?   // Banner image URL
+  termsConditions String?
+  expiresAt     DateTime?
+  isVerified    Boolean   @default(false)
+  isExclusive   Boolean   @default(false)
+  isFeatured    Boolean   @default(false)
+  usageCount    Int       @default(0)
+  displayOrder  Int       @default(0)
+  storeId       String
+  store         Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  bank          String?   // Bank name for bank offers (e.g., "HDFC", "SBI")
+  categoryId    String?
+  category      Category? @relation(fields: [categoryId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Banner {
+  id        String   @id @default(cuid())
+  imageUrl  String
+  link      String
+  title     String?
+  isActive  Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String   // Hashed with bcrypt
+  name      String?
+  posts     BlogPost[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SiteSettings {
+  id             String   @id @default(cuid())
+  siteName       String   @default("CouponHub")
+  siteTagline    String?
+  siteLogo       String?
+  siteDescription String?
+  contactEmail   String?
+  socialLinks    String?  // JSON string
+  footerContent  String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+// Campaign Link Masking for Ads
+model CampaignLink {
+  id            String   @id @default(cuid())
+  name          String              // Campaign name (e.g., "Flipkart Sale Jan 2024")
+  slug          String   @unique    // URL slug (e.g., "flipkart-sale" -> /go/flipkart-sale)
+  destinationUrl String             // Actual affiliate URL to redirect to
+  
+  // Optional metadata
+  store         Store?   @relation(fields: [storeId], references: [id])
+  storeId       String?
+  description   String?             // Internal notes
+  
+  // Tracking
+  clicks        Int      @default(0)
+  isActive      Boolean  @default(true)
+  
+  // UTM Parameters (for tracking in analytics)
+  utmSource     String?             // e.g., "facebook", "google"
+  utmMedium     String?             // e.g., "cpc", "banner"
+  utmCampaign   String?             // e.g., "jan-sale"
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  expiresAt     DateTime?           // Optional expiry date
+}
+
+// Blog System for SEO
+model BlogPost {
+  id             String    @id @default(cuid())
+  title          String
+  slug           String    @unique
+  excerpt        String?
+  content        String    // Rich text / Markdown
+  coverImage     String?
+  
+  // SEO Metadata (AI Generated)
+  seoTitle       String?
+  seoDescription String?
+  keywords       String?   // Comma separated tags
+  
+  // Status
+  isPublished    Boolean   @default(false)
+  publishedAt    DateTime?
+  
+  // Author Relation
+  authorId       String
+  author         Admin     @relation(fields: [authorId], references: [id])
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+// Newsletter Subscription
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Auto-Crawled Viral News
+model NewsArticle {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  summary     String   // AI-generated 3-sentence summary
+  sourceUrl   String   // Original deal/article link
+  sourceName  String?  // e.g., "Reddit", "TechCrunch"
+  imageUrl    String?  // Optional image grabbed from source
+  isVerified  Boolean  @default(false) // Whether AI approved it as 'viral'
+  publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

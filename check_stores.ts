@@ -1,0 +1,1 @@
+import { prisma } from './src/lib/db'; async function main() { const stores = await prisma.store.findMany(); console.log('Total stores:', stores.length); console.log('Featured & Active:', stores.filter(s => s.isFeatured && s.isActive).length); console.log('First store:', stores[0]); } main();

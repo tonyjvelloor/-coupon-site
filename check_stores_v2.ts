@@ -1,0 +1,1 @@
+import 'dotenv/config'; import { prisma } from './src/lib/db'; async function main() { try { const stores = await prisma.store.findMany(); console.log('Total stores:', stores.length); console.log('Featured & Active:', stores.filter(s => s.isFeatured && s.isActive).length); } catch(e) { console.error(e); } } main();
