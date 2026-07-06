@@ -5,13 +5,21 @@ import bcrypt from "bcryptjs";
 async function main() {
     console.log("🌱 Starting seed...");
 
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD;
+
+    if (!adminEmail || !adminPassword) {
+        console.error("❌ Seed failed: ADMIN_EMAIL and ADMIN_PASSWORD must be provided in the environment.");
+        process.exit(1);
+    }
+
     // Create admin user
-    const hashedPassword = await bcrypt.hash("admin123", 12);
+    const hashedPassword = await bcrypt.hash(adminPassword, 12);
     const admin = await prisma.admin.upsert({
-        where: { email: "admin@couponhub.store" },
+        where: { email: adminEmail },
         update: {},
         create: {
-            email: "admin@couponhub.store",
+            email: adminEmail,
             password: hashedPassword,
             name: "Admin"
         }

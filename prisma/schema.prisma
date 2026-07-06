@@ -7,11 +7,11 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 model Store {
-  id             String    @id @default(cuid())
+  id             String    @id @default(uuid())
   name           String
   slug           String    @unique
   description    String?
@@ -42,12 +42,19 @@ model Store {
   coupons        Coupon[]
   storeCategories StoreCategory[]
   campaignLinks   CampaignLink[]
+  
+  version        Int       @default(1)
+  deletedAt      DateTime?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+
+  @@index([slug])
+  @@index([createdAt])
+  @@index([isActive])
 }
 
 model Category {
-  id              String           @id @default(cuid())
+  id              String           @id @default(uuid())
   name            String
   slug            String           @unique
   description     String?
@@ -63,22 +70,29 @@ model Category {
   children        Category[]       @relation("CategoryChildren")
   storeCategories StoreCategory[]
   coupons         Coupon[]
+  
+  deletedAt       DateTime?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
+
+  @@index([slug])
+  @@index([isActive])
 }
 
 model StoreCategory {
-  id         String   @id @default(cuid())
+  id         String   @id @default(uuid())
   storeId    String
   store      Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   @@unique([storeId, categoryId])
+  @@index([storeId])
+  @@index([categoryId])
 }
 
 model Coupon {
-  id            String    @id @default(cuid())
+  id            String    @id @default(uuid())
   title         String
   description   String?
   code          String?   // Null for "Get Deal" type
@@ -101,13 +115,21 @@ model Coupon {
   categoryId    String?
   category      Category? @relation(fields: [categoryId], references: [id])
   collections   Collection[] // Programmatic SEO collections
+  
+  version       Int       @default(1)
+  deletedAt     DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+
+  @@index([storeId])
+  @@index([categoryId])
+  @@index([expiresAt])
+  @@index([createdAt])
 }
 
 // Programmatic SEO Collections
 model Collection {
-  id              String   @id @default(cuid())
+  id              String   @id @default(uuid())
   name            String
   slug            String   @unique
   type            String   // e.g., "festival", "bank", "audience"
@@ -118,23 +140,32 @@ model Collection {
   isIndexable     Boolean  @default(true)
   priority        Float    @default(0.5) // Sitemap priority
   coupons         Coupon[]
+  
+  deletedAt       DateTime?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  @@index([slug])
+  @@index([type])
 }
 
 model Banner {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid())
   imageUrl  String
   link      String
   title     String?
   isActive  Boolean  @default(true)
   order     Int      @default(0)
+  
+  deletedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  @@index([isActive])
 }
 
 model Admin {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid())
   email     String   @unique
   password  String   // Hashed with bcrypt
   name      String?
@@ -142,12 +173,14 @@ model Admin {
   profileImage String?
   socialLinks String? // JSON string containing twitter, linkedin etc.
   posts     BlogPost[]
+  
+  deletedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model SiteSettings {
-  id             String   @id @default(cuid())
+  id             String   @id @default(uuid())
   siteName       String   @default("CouponHub")
   siteTagline    String?
   siteLogo       String?
@@ -161,7 +194,7 @@ model SiteSettings {
 
 // Campaign Link Masking for Ads
 model CampaignLink {
-  id            String   @id @default(cuid())
+  id            String   @id @default(uuid())
   name          String              // Campaign name (e.g., "Flipkart Sale Jan 2024")
   slug          String   @unique    // URL slug (e.g., "flipkart-sale" -> /go/flipkart-sale)
   destinationUrl String             // Actual affiliate URL to redirect to
@@ -180,14 +213,18 @@ model CampaignLink {
   utmMedium     String?             // e.g., "cpc", "banner"
   utmCampaign   String?             // e.g., "jan-sale"
   
+  deletedAt     DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   expiresAt     DateTime?           // Optional expiry date
+  
+  @@index([slug])
+  @@index([storeId])
 }
 
 // Blog System for SEO
 model BlogPost {
-  id             String    @id @default(cuid())
+  id             String    @id @default(uuid())
   title          String
   slug           String    @unique
   excerpt        String?
@@ -207,22 +244,29 @@ model BlogPost {
   authorId       String
   author         Admin     @relation(fields: [authorId], references: [id])
 
+  deletedAt      DateTime?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+  
+  @@index([slug])
+  @@index([authorId])
+  @@index([isPublished])
 }
 
 // Newsletter Subscription
 model Subscriber {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid())
   email     String   @unique
   isActive  Boolean  @default(true)
+  
+  deletedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 // Auto-Crawled Viral News
 model NewsArticle {
-  id          String   @id @default(cuid())
+  id          String   @id @default(uuid())
   title       String
   slug        String   @unique
   summary     String   // AI-generated 3-sentence summary
@@ -231,6 +275,11 @@ model NewsArticle {
   imageUrl    String?  // Optional image grabbed from source
   isVerified  Boolean  @default(false) // Whether AI approved it as 'viral'
   publishedAt DateTime @default(now())
+  
+  deletedAt   DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  
+  @@index([slug])
+  @@index([isVerified])
 }
