@@ -48,6 +48,7 @@ model Store {
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
   affiliatePrograms AffiliateProgram[]
+  clickEvents       ClickEvent[]
 
   @@index([slug])
   @@index([createdAt])
@@ -121,10 +122,11 @@ model Coupon {
   // Affiliate campaigns that feature this coupon
   campaigns AffiliateCampaign[]
 
-  version   Int       @default(1)
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  version     Int          @default(1)
+  deletedAt   DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  clickEvents ClickEvent[]
 
   @@index([storeId])
   @@index([categoryId])
@@ -182,9 +184,10 @@ model AffiliateCampaign {
   coupons Coupon[]
   history AffiliateCampaignHistory[]
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  deletedAt   DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  clickEvents ClickEvent[]
 
   @@index([programId])
 }
@@ -251,8 +254,9 @@ model Admin {
   posts        BlogPost[]
 
   deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  auditLogs AuditLog[]
 }
 
 model SiteSettings {
@@ -358,4 +362,92 @@ model NewsArticle {
 
   @@index([slug])
   @@index([isVerified])
+}
+
+// ---------------------------------------------------------
+// PHASE 3: Analytics & Audit
+// ---------------------------------------------------------
+
+enum ImportStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+enum AnalyticsEventType {
+  COUPON_CLICK
+  STORE_VIEW
+  SEARCH
+  NEWSLETTER_SIGNUP
+}
+
+model AnalyticsEvent {
+  id         String             @id @default(uuid())
+  type       AnalyticsEventType
+  source     String             @default("website") // website, api, admin, cron
+  version    String             @default("v1")
+  entityType String
+  entityId   String?
+  metadata   Json?
+  createdAt  DateTime           @default(now())
+
+  @@index([type, createdAt])
+  @@index([entityType, entityId])
+}
+
+model ClickEvent {
+  id String @id @default(uuid())
+
+  couponId   String?
+  coupon     Coupon?            @relation(fields: [couponId], references: [id])
+  storeId    String?
+  store      Store?             @relation(fields: [storeId], references: [id])
+  campaignId String?
+  campaign   AffiliateCampaign? @relation(fields: [campaignId], references: [id])
+
+  // Device & UTM Tracking
+  ipAddress   String?
+  userAgent   String?
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+
+  createdAt DateTime @default(now())
+
+  @@index([couponId, createdAt])
+  @@index([storeId, createdAt])
+  @@index([campaignId, createdAt])
+}
+
+model AuditLog {
+  id         String      @id @default(uuid())
+  adminId    String
+  admin      Admin       @relation(fields: [adminId], references: [id])
+  entityType String // e.g., "Coupon", "Store"
+  entityId   String
+  action     AuditAction
+  oldValue   Json?
+  newValue   Json?
+  createdAt  DateTime    @default(now())
+
+  @@index([entityType, entityId])
+  @@index([adminId, createdAt])
+}
+
+model ImportJob {
+  id            String       @id @default(uuid())
+  status        ImportStatus @default(PENDING)
+  startedAt     DateTime?
+  finishedAt    DateTime?
+  rowsProcessed Int          @default(0)
+  rowsFailed    Int          @default(0)
+  error         Json?
+  createdAt     DateTime     @default(now())
 }
