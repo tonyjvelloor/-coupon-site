@@ -27,6 +27,18 @@ model Store {
   seoDescription String?
   aboutContent   String?   // Rich SEO content
   faqContent     String?   // FAQ JSON
+  
+  // Merchant Authority Pages Extensions
+  shippingInfo   String?
+  returnPolicy   String?
+  shoppingTips   String?
+  paymentMethods String?
+  studentDiscounts String?
+  
+  // Analytics Tracking
+  clicks         Int       @default(0)
+  revenue        Float     @default(0.0)
+  
   coupons        Coupon[]
   storeCategories StoreCategory[]
   campaignLinks   CampaignLink[]
@@ -44,6 +56,8 @@ model Category {
   isActive        Boolean          @default(true)
   isFeatured      Boolean          @default(false)
   displayOrder    Int              @default(0)
+  aboutContent    String?          // Rich SEO content
+  faqContent      String?          // FAQ JSON
   parentId        String?
   parent          Category?        @relation("CategoryChildren", fields: [parentId], references: [id])
   children        Category[]       @relation("CategoryChildren")
@@ -79,14 +93,33 @@ model Coupon {
   isExclusive   Boolean   @default(false)
   isFeatured    Boolean   @default(false)
   usageCount    Int       @default(0)
+  clicks        Int       @default(0) // Analytics Tracking
   displayOrder  Int       @default(0)
   storeId       String
   store         Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
   bank          String?   // Bank name for bank offers (e.g., "HDFC", "SBI")
   categoryId    String?
   category      Category? @relation(fields: [categoryId], references: [id])
+  collections   Collection[] // Programmatic SEO collections
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+}
+
+// Programmatic SEO Collections
+model Collection {
+  id              String   @id @default(cuid())
+  name            String
+  slug            String   @unique
+  type            String   // e.g., "festival", "bank", "audience"
+  seoTitle        String?
+  seoDescription  String?
+  content         String?  // Rich SEO content
+  faqContent      String?  // FAQ JSON
+  isIndexable     Boolean  @default(true)
+  priority        Float    @default(0.5) // Sitemap priority
+  coupons         Coupon[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model Banner {
@@ -105,6 +138,9 @@ model Admin {
   email     String   @unique
   password  String   // Hashed with bcrypt
   name      String?
+  bio       String?
+  profileImage String?
+  socialLinks String? // JSON string containing twitter, linkedin etc.
   posts     BlogPost[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

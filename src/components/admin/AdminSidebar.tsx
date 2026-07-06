@@ -29,7 +29,7 @@ const menuItems = [
     { href: "/admin/coupons", label: "Coupons", icon: Ticket },
     { href: "/admin/banners", label: "Banners", icon: Megaphone },
     { href: "/admin/campaign-links", label: "Campaign Links", icon: Link2 },
-    { href: "/admin/posts", label: "Blog Posts", icon: FileText },
+    { href: "/admin/posts", label: "AI Blog", icon: FileText },
     { href: "/admin/news", label: "Viral News", icon: Newspaper }, // Added new route for Viral News
     { href: "/admin/subscribers", label: "Subscribers", icon: Mail },
     { href: "/admin/bulk-upload", label: "Bulk Upload", icon: Upload },

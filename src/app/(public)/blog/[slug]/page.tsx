@@ -3,12 +3,28 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { Calendar, User, ArrowLeft, Share2 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
+import { format } from "date-fns";
 import NewsletterSignup from "@/components/ui/NewsletterSignup";
+import { AdBannerInArticle, AdBannerSidebar } from "@/components/ui/AdBanner";
 
 interface BlogPostPageProps {
     params: {
         slug: string;
     };
+}
+
+export const revalidate = 86400; // 24 hours ISR
+
+export async function generateStaticParams() {
+    const posts = await prisma.blogPost.findMany({
+        where: { isPublished: true },
+        select: { slug: true },
+    });
+    return posts.map((post) => ({
+        slug: post.slug,
+    }));
 }
 
 // SEO Metadata
@@ -23,10 +39,38 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
         };
     }
 
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
+    const ogTitle = post.seoTitle || post.title;
+    const ogDescription = post.seoDescription || post.content.substring(0, 160);
+
     return {
-        title: post.seoTitle || post.title,
-        description: post.seoDescription || post.content.substring(0, 160),
+        title: ogTitle,
+        description: ogDescription,
         keywords: post.keywords?.split(","),
+        alternates: {
+            canonical: `${siteUrl}/blog/${post.slug}`,
+        },
+        openGraph: {
+            title: ogTitle,
+            description: ogDescription,
+            type: "article",
+            publishedTime: post.publishedAt?.toISOString(),
+            authors: post.author?.name ? [post.author.name] : undefined,
+            images: [
+                {
+                    url: post.coverImage || `${siteUrl}/api/og?title=${encodeURIComponent(post.title)}&description=${encodeURIComponent(ogDescription.substring(0, 100))}&type=blog`,
+                    width: 1200,
+                    height: 630,
+                    alt: ogTitle,
+                },
+            ],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: ogTitle,
+            description: ogDescription,
+            images: [post.coverImage || `${siteUrl}/api/og?title=${encodeURIComponent(post.title)}&description=${encodeURIComponent(ogDescription.substring(0, 100))}&type=blog`],
+        }
     };
 }
 
@@ -103,12 +147,19 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         notFound();
     }
 
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
+    
     // JSON-LD Structured Data Schema for SEO
     const jsonLd = {
         "@context": "https://schema.org",
-        "@type": "Article",
+        "@type": "BlogPosting",
+        mainEntityOfPage: {
+            "@type": "WebPage",
+            "@id": `${siteUrl}/blog/${post.slug}`
+        },
         headline: post.seoTitle || post.title,
         description: post.seoDescription || post.content.substring(0, 160),
+        image: post.coverImage ? [post.coverImage] : undefined,
         author: {
             "@type": "Person",
             name: post.author?.name || "CouponHub Editor",
@@ -118,7 +169,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             name: "CouponHub",
             logo: {
                 "@type": "ImageObject",
-                url: "https://couponhub.store/logo.png"
+                url: `${siteUrl}/logo.png`
             }
         },
         datePublished: post.publishedAt?.toISOString() || post.createdAt.toISOString(),
@@ -132,6 +183,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
+
+            <Breadcrumbs items={[
+                { name: "Blog", href: "/blog" },
+                { name: post.title }
+            ]} />
 
             {/* Article Header */}
             <div className="bg-gray-50 border-b border-gray-100">
@@ -184,6 +240,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                     <div className="lg:w-3/4">
                         <SimpleMarkdown content={post.content} />
 
+                        {/* In-article ad */}
+                        <AdBannerInArticle />
+
                         {/* Share Footer */}
                         <div className="mt-12 pt-8 border-t border-gray-100 flex items-center justify-between">
                             <div className="font-semibold text-gray-900">Share this article</div>
@@ -191,6 +250,23 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                                 <Share2 className="w-4 h-4" />
                                 Share Link
                             </button>
+                        </div>
+
+                        {/* Author Profile Box (E-E-A-T) */}
+                        <div className="mt-8 bg-gray-50 rounded-2xl p-6 border border-gray-100 flex flex-col sm:flex-row gap-6 items-center sm:items-start">
+                            <div className="w-20 h-20 bg-violet-100 rounded-full flex items-center justify-center shrink-0">
+                                {post.author.profileImage ? (
+                                    <Image src={post.author.profileImage} alt={post.author.name || "Author"} width={80} height={80} className="rounded-full object-cover" />
+                                ) : (
+                                    <User className="w-10 h-10 text-violet-500" />
+                                )}
+                            </div>
+                            <div className="text-center sm:text-left">
+                                <h3 className="text-lg font-bold text-gray-900 mb-1">Written by {post.author.name || "CouponHub Editorial Team"}</h3>
+                                <p className="text-gray-600 text-sm leading-relaxed mb-3">
+                                    {post.author.bio || "Our editorial team consists of deal experts and savings enthusiasts dedicated to finding you the best discounts online. Every post is fact-checked and verified for accuracy."}
+                                </p>
+                            </div>
                         </div>
                     </div>
 
@@ -200,6 +276,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                             {/* Premium Newsletter Signup in Sidebar */}
                             <div className="transform scale-90 origin-top">
                                 <NewsletterSignup />
+                            </div>
+
+                            {/* Sidebar Ad */}
+                            <div className="mt-6">
+                                <AdBannerSidebar />
                             </div>
                         </div>
                     </div>

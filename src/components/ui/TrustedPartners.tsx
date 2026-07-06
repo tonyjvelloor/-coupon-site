@@ -3,12 +3,12 @@
 import Image from "next/image";
 
 const partnerBrands = [
-    { name: "Amazon", logo: "https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" },
-    { name: "Flipkart", logo: "https://cdn.worldvectorlogo.com/logos/flipkart.svg" },
-    { name: "Myntra", logo: "https://aartisto.com/wp-content/uploads/2020/11/myntra.png" },
-    { name: "Swiggy", logo: "https://cdn.worldvectorlogo.com/logos/swiggy-1.svg" },
-    { name: "Zomato", logo: "https://upload.wikimedia.org/wikipedia/commons/7/75/Zomato_logo.png" },
-    { name: "Ajio", logo: "https://assets.ajio.com/static/img/Ajio-Logo.svg" },
+    { name: "Amazon", logo: "/images/stores/amazon.png" },
+    { name: "Flipkart", logo: "/images/stores/flipkart.png" },
+    { name: "Myntra", logo: "/images/stores/myntra.png" },
+    { name: "Swiggy", logo: "/images/stores/swiggy.png" },
+    { name: "Zomato", logo: "https://upload.wikimedia.org/wikipedia/commons/b/bd/Zomato_Logo.svg" },
+    { name: "Ajio", logo: "/images/stores/ajio.png" },
 ];
 
 export default function TrustedPartners() {

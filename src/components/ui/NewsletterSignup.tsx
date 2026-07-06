@@ -45,7 +45,7 @@ export default function NewsletterSignup() {
     };
 
     return (
-        <section className="py-20 relative overflow-hidden bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
+        <section className="py-12 relative overflow-hidden bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
             {/* Background Glows */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-[400px] bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 rounded-full blur-[100px] -z-10 pointer-events-none"></div>
 

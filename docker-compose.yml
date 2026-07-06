@@ -8,8 +8,6 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      # Persist the SQLite database file
-      - ./prisma/dev.db:/app/prisma/dev.db
       # Persist uploads if any (e.g., /public/uploads)
       - ./public/uploads:/app/public/uploads
     environment:

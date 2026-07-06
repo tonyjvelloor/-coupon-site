@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const outfit = Outfit({
   subsets: ["latin"],
   variable: "--font-outfit",
 });
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
 
 export const metadata: Metadata = {
   title: {
@@ -25,7 +28,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "CouponHub" }],
   creator: "CouponHub",
-  metadataBase: new URL("https://couponhub.store"),
+  metadataBase: new URL(siteUrl),
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -44,6 +47,9 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+  },
 };
 
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
@@ -57,6 +63,37 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <meta name="google-adsense-account" content="ca-pub-2697580332564903" />
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2697580332564903"
+          crossOrigin="anonymous"
+        />
+        {/* Google Analytics 4 Placeholder */}
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-XXXXXXXXXX"}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-XXXXXXXXXX"}');
+          `}
+        </Script>
+        {/* Microsoft Clarity Placeholder */}
+        <Script id="microsoft-clarity" strategy="afterInteractive">
+          {`
+            (function(c,l,a,r,i,t,y){
+                c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+                t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+                y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+            })(window, document, "clarity", "script", "${process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID || "XXXXXXXX"}");
+          `}
+        </Script>
+      </head>
       <body
         className={`${outfit.variable} font-sans antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300`}
         suppressHydrationWarning
@@ -71,12 +108,12 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "WebSite",
               name: "CouponHub",
-              url: "https://couponhub.store",
+              url: siteUrl,
               potentialAction: {
                 "@type": "SearchAction",
                 target: {
                   "@type": "EntryPoint",
-                  urlTemplate: "https://couponhub.store/search?q={search_term_string}",
+                  urlTemplate: `${siteUrl}/search?q={search_term_string}`,
                 },
                 "query-input": "required name=search_term_string",
               },
@@ -90,13 +127,20 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "Organization",
               name: "CouponHub",
-              url: "https://couponhub.store",
-              logo: "https://couponhub.store/logo.png",
+              url: siteUrl,
+              logo: `${siteUrl}/logo.png`,
               sameAs: [
                 "https://facebook.com/couponhub",
                 "https://twitter.com/couponhub",
                 "https://instagram.com/couponhub"
-              ]
+              ],
+              contactPoint: {
+                "@type": "ContactPoint",
+                telephone: "+1-800-555-0199",
+                contactType: "customer service",
+                email: "support@couponhub.store",
+                availableLanguage: ["English"]
+              }
             })
           }}
         />

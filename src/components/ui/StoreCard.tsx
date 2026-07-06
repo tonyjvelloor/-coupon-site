@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Store as StoreIcon, ChevronRight } from "lucide-react";
 
 interface StoreCardProps {
@@ -19,12 +20,13 @@ export default function StoreCard({ store }: StoreCardProps) {
             className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm hover:shadow-xl hover:border-violet-200 dark:hover:border-violet-500 transition-all duration-300 group flex flex-col items-center text-center h-full"
         >
             {/* Logo */}
-            <div className="w-20 h-20 bg-gray-50 dark:bg-white rounded-xl flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+            <div className="w-20 h-20 relative bg-gray-50 dark:bg-white rounded-xl flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
                 {store.logo ? (
-                    <img
+                    <Image
                         src={store.logo}
                         alt={store.name}
-                        className="w-16 h-16 object-contain"
+                        fill
+                        className="object-contain p-2"
                     />
                 ) : (
                     <StoreIcon className="w-10 h-10 text-gray-400" />

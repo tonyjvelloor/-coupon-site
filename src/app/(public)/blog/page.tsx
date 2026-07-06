@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     description: "Discover the best ways to save money, shopping guides, and exclusive deal analysis on the CouponHub blog.",
 };
 
-export const revalidate = 3600; // Revalidate every hour
+export const revalidate = 86400; // Revalidate every 24 hours
 
 export default async function BlogListingPage() {
     const posts = await prisma.blogPost.findMany({
@@ -18,6 +18,8 @@ export default async function BlogListingPage() {
             author: { select: { name: true } },
         },
     });
+
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
 
     return (
         <div className="bg-gray-50 min-h-screen">
@@ -93,6 +95,31 @@ export default async function BlogListingPage() {
                     </div>
                 )}
             </div>
+
+            {/* Blog Index Schema */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "Blog",
+                        name: "CouponHub Blog",
+                        url: `${siteUrl}/blog`,
+                        description: "Latest articles on saving money, best deals, and shopping hacks.",
+                        blogPost: posts.slice(0, 10).map((post) => ({
+                            "@type": "BlogPosting",
+                            headline: post.title,
+                            datePublished: post.publishedAt?.toISOString(),
+                            url: `${siteUrl}/blog/${post.slug}`,
+                            image: post.coverImage || undefined,
+                            author: {
+                                "@type": "Person",
+                                name: post.author?.name || "CouponHub"
+                            }
+                        }))
+                    })
+                }}
+            />
         </div>
     );
 }

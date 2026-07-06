@@ -9,9 +9,29 @@ import {
     Home,
 } from "lucide-react";
 import CouponCard from "@/components/ui/CouponCard";
+import { AdBannerSidebar } from "@/components/ui/AdBanner";
+import SEOTextAndFAQ from "@/components/ui/SEOTextAndFAQ";
+import InternalLinks from "@/components/ui/InternalLinks";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
+import TrendingWidget from "@/components/ui/TrendingWidget";
+import ExitIntentPopup from "@/components/ui/ExitIntentPopup";
+import StickyCouponWidget from "@/components/ui/StickyCouponWidget";
+import { Info, Truck, RefreshCw, CreditCard, GraduationCap, Clock } from "lucide-react";
 
 interface PageProps {
     params: Promise<{ slug: string }>;
+}
+
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+    const stores = await prisma.store.findMany({
+        where: { isActive: true },
+        select: { slug: true },
+    });
+    return stores.map((store) => ({
+        slug: store.slug,
+    }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -22,13 +42,33 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     if (!store) return { title: "Store Not Found" };
 
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
+    const ogTitle = store.seoTitle || `${store.name} Coupons & Promo Codes`;
+    const ogDescription = store.seoDescription || `Get the latest ${store.name} coupons, promo codes, and deals. Save up to ${store.cashbackRate || "80%"} with verified offers.`;
+    
     return {
-        title: store.seoTitle || `${store.name} Coupons & Promo Codes`,
-        description:
-            store.seoDescription ||
-            `Get the latest ${store.name} coupons, promo codes, and deals. Save up to ${store.cashbackRate || "80%"} with verified offers.`,
+        title: ogTitle,
+        description: ogDescription,
         alternates: {
-            canonical: `https://couponhub.store/stores/${store.slug}`,
+            canonical: `${siteUrl}/stores/${store.slug}`,
+        },
+        openGraph: {
+            title: ogTitle,
+            description: ogDescription,
+            images: [
+                {
+                    url: `${siteUrl}/api/og?title=${encodeURIComponent(store.name + ' Coupons')}&description=${encodeURIComponent('Save big with verified offers from ' + store.name)}&type=store${store.logo ? '&logo=' + encodeURIComponent(store.logo) : ''}`,
+                    width: 1200,
+                    height: 630,
+                    alt: `${store.name} Coupons`,
+                },
+            ],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: ogTitle,
+            description: ogDescription,
+            images: [`${siteUrl}/api/og?title=${encodeURIComponent(store.name + ' Coupons')}&description=${encodeURIComponent('Save big with verified offers from ' + store.name)}&type=store${store.logo ? '&logo=' + encodeURIComponent(store.logo) : ''}`],
         }
     };
 }
@@ -52,27 +92,25 @@ export default async function StorePage({ params }: PageProps) {
         notFound();
     }
 
-    const couponCodes = store.coupons.filter((c) => c.type === "coupon");
-    const deals = store.coupons.filter((c) => c.type === "deal");
+    const now = new Date();
+    const activeCoupons = store.coupons.filter(c => !c.expiresAt || c.expiresAt > now);
+    const expiredCoupons = store.coupons.filter(c => c.expiresAt && c.expiresAt <= now);
+
+    const couponCodes = activeCoupons.filter((c) => c.type === "coupon");
+    const deals = activeCoupons.filter((c) => c.type === "deal");
+
+    // Deal of the Day for Sticky Widget
+    const bestDeal = activeCoupons.length > 0 ? activeCoupons[0] : null;
 
     return (
         <div>
-            {/* Breadcrumb */}
-            <div className="bg-gray-50 border-b border-gray-200">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-                    <nav className="flex items-center gap-2 text-sm">
-                        <Link href="/" className="text-gray-500 hover:text-violet-600">
-                            <Home className="w-4 h-4" />
-                        </Link>
-                        <ChevronRight className="w-4 h-4 text-gray-400" />
-                        <Link href="/stores" className="text-gray-500 hover:text-violet-600">
-                            Stores
-                        </Link>
-                        <ChevronRight className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-900 font-medium">{store.name}</span>
-                    </nav>
-                </div>
-            </div>
+            <Breadcrumbs items={[
+                { name: "Stores", href: "/stores" },
+                { name: store.name }
+            ]} />
+
+            <ExitIntentPopup />
+            {bestDeal && <StickyCouponWidget deal={bestDeal as any} />}
 
             {/* Store Header */}
             <section className="bg-white border-b border-gray-200">
@@ -145,7 +183,7 @@ export default async function StorePage({ params }: PageProps) {
                         {/* Tab Navigation */}
                         <div className="flex gap-4 border-b border-gray-200 mb-6">
                             <button className="px-4 py-3 font-medium text-violet-600 border-b-2 border-violet-600">
-                                All ({store.coupons.length})
+                                All ({activeCoupons.length})
                             </button>
                             <button className="px-4 py-3 font-medium text-gray-500 hover:text-gray-700">
                                 Coupons ({couponCodes.length})
@@ -157,17 +195,17 @@ export default async function StorePage({ params }: PageProps) {
 
                         {/* Coupons Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {store.coupons.map((coupon) => (
+                            {activeCoupons.map((coupon) => (
                                 <CouponCard
                                     key={coupon.id}
-                                    coupon={coupon}
+                                    coupon={coupon as any}
                                     storeName={store.name}
                                     storeLogo={store.logo}
                                 />
                             ))}
                         </div>
 
-                        {store.coupons.length === 0 && (
+                        {activeCoupons.length === 0 && (
                             <div className="text-center py-12 bg-gray-50 rounded-xl">
                                 <p className="text-gray-500">
                                     No coupons available for this store right now.
@@ -175,17 +213,36 @@ export default async function StorePage({ params }: PageProps) {
                             </div>
                         )}
 
-                        {/* About Store (SEO Content) */}
-                        {store.aboutContent && (
-                            <div className="mt-12 bg-white rounded-xl border border-gray-200 p-6">
-                                <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                                    About {store.name}
+                        {/* Expired Coupons */}
+                        {expiredCoupons.length > 0 && (
+                            <div className="mt-12 mb-12">
+                                <h2 className="text-xl font-bold text-gray-500 mb-6 flex items-center gap-2 border-t pt-8">
+                                    <Clock className="w-5 h-5" /> Expired (But Might Still Work)
                                 </h2>
-                                <div className="prose prose-gray max-w-none">
-                                    {store.aboutContent}
+                                <div className="space-y-4 opacity-70 grayscale">
+                                    {expiredCoupons.map((coupon) => (
+                                        <CouponCard
+                                            key={coupon.id}
+                                            coupon={coupon as any}
+                                            storeName={store.name}
+                                            storeLogo={store.logo}
+                                        />
+                                    ))}
                                 </div>
                             </div>
                         )}
+
+                        {/* SEO Text & FAQ */}
+                        <SEOTextAndFAQ
+                            title={store.name}
+                            aboutContent={store.aboutContent}
+                            faqContent={store.faqContent}
+                        />
+
+                        {/* Internal Links Engine */}
+                        <div className="mt-16">
+                            <InternalLinks currentStoreSlug={slug} />
+                        </div>
                     </div>
 
                     {/* Sidebar */}
@@ -247,6 +304,54 @@ export default async function StorePage({ params }: PageProps) {
                                     </li>
                                 </ol>
                             </div>
+
+                            <div className="lg:w-1/3">
+                                <div className="sticky top-6 space-y-6">
+                                    <TrendingWidget />
+                                    <AdBannerSidebar />
+                                    
+                                    {/* Merchant Authority Box */}
+                                    <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                                        <h3 className="font-bold text-gray-900 mb-4 text-lg">About {store.name}</h3>
+                                        {store.shippingInfo && (
+                                            <div className="flex gap-3 mb-4 text-sm text-gray-600">
+                                                <Truck className="w-5 h-5 text-gray-400 shrink-0" />
+                                                <div>
+                                                    <strong className="block text-gray-900">Shipping</strong>
+                                                    {store.shippingInfo}
+                                                </div>
+                                            </div>
+                                        )}
+                                        {store.returnPolicy && (
+                                            <div className="flex gap-3 mb-4 text-sm text-gray-600">
+                                                <RefreshCw className="w-5 h-5 text-gray-400 shrink-0" />
+                                                <div>
+                                                    <strong className="block text-gray-900">Returns</strong>
+                                                    {store.returnPolicy}
+                                                </div>
+                                            </div>
+                                        )}
+                                        {store.paymentMethods && (
+                                            <div className="flex gap-3 mb-4 text-sm text-gray-600">
+                                                <CreditCard className="w-5 h-5 text-gray-400 shrink-0" />
+                                                <div>
+                                                    <strong className="block text-gray-900">Payment Methods</strong>
+                                                    {store.paymentMethods}
+                                                </div>
+                                            </div>
+                                        )}
+                                        {store.studentDiscounts && (
+                                            <div className="flex gap-3 text-sm text-gray-600">
+                                                <GraduationCap className="w-5 h-5 text-gray-400 shrink-0" />
+                                                <div>
+                                                    <strong className="block text-gray-900">Student Discount</strong>
+                                                    {store.studentDiscounts}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </aside>
                 </div>
@@ -258,6 +363,7 @@ export default async function StorePage({ params }: PageProps) {
 
 // Helper to generate JSON-LD for Store
 function StoreSchema({ store, coupons }: { store: any, coupons: any }) {
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
     const jsonLd = {
         "@context": "https://schema.org",
         "@type": "Store",
@@ -278,16 +384,76 @@ function StoreSchema({ store, coupons }: { store: any, coupons: any }) {
                 priceCurrency: "USD",
                 price: "0",
                 description: coupon.description || coupon.title,
-                url: `https://couponhub.store/stores/${store.slug}`,
+                url: `${siteUrl}/stores/${store.slug}`,
                 validFrom: coupon.createdAt.toISOString()
             }))
         }
     };
 
+    let faqSchema = null;
+    if (store.faqContent) {
+        try {
+            const faqs = JSON.parse(store.faqContent);
+            if (Array.isArray(faqs) && faqs.length > 0) {
+                faqSchema = {
+                    "@context": "https://schema.org",
+                    "@type": "FAQPage",
+                    mainEntity: faqs.map((faq: any) => ({
+                        "@type": "Question",
+                        name: faq.question,
+                        acceptedAnswer: {
+                            "@type": "Answer",
+                            text: faq.answer
+                        }
+                    }))
+                };
+            }
+        } catch (e) {
+            // ignore JSON parse errors
+        }
+    }
+
+    const breadcrumbSchema = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+            {
+                "@type": "ListItem",
+                position: 1,
+                name: "Home",
+                item: siteUrl
+            },
+            {
+                "@type": "ListItem",
+                position: 2,
+                name: "Stores",
+                item: `${siteUrl}/stores`
+            },
+            {
+                "@type": "ListItem",
+                position: 3,
+                name: store.name,
+                item: `${siteUrl}/stores/${store.slug}`
+            }
+        ]
+    };
+
     return (
-        <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+            />
+            {faqSchema && (
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+                />
+            )}
+        </>
     );
 }

@@ -29,6 +29,7 @@ import HeroCarousel from "@/components/ui/HeroCarousel";
 import TrustBadges from "@/components/ui/TrustBadges";
 import SocialProofPopup from "@/components/ui/SocialProofPopup";
 import TrustedPartners from "@/components/ui/TrustedPartners";
+import { AdBannerHorizontal } from "@/components/ui/AdBanner";
 
 export const dynamic = "force-dynamic";
 
@@ -88,7 +89,7 @@ export default async function Home() {
             <SocialProofPopup />
 
             {/* Hero Section - Premium Animated */}
-            <section className="relative overflow-hidden bg-gradient-to-br from-violet-950 via-purple-900 to-indigo-900 pt-16 pb-20 md:pt-20 md:pb-28 px-4">
+            <section className="relative pt-16 pb-12 lg:pt-20 lg:pb-16 overflow-hidden bg-gradient-to-br from-violet-950 via-gray-900 to-indigo-950">
                 {/* Animated background pattern */}
                 <div className="absolute inset-0 hero-bg-pattern opacity-50"></div>
 
@@ -97,12 +98,12 @@ export default async function Home() {
                 <div className="absolute bottom-20 right-10 w-32 h-32 bg-pink-500/20 rounded-full blur-xl float-animation" style={{ animationDelay: "1s" }}></div>
                 <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-indigo-400/20 rounded-full blur-lg float-animation" style={{ animationDelay: "0.5s" }}></div>
 
-                <div className="container mx-auto max-w-7xl relative z-10 space-y-8 lg:space-y-16">
+                <div className="container mx-auto max-w-7xl relative z-10 space-y-6 lg:space-y-8">
                     {/* Split Layout Container */}
                     <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-8">
 
                         {/* Left Column: Content */}
-                        <div className="flex-1 space-y-6 lg:max-w-xl xl:max-w-2xl text-center lg:text-left">
+                        <div className="flex-1 w-full flex flex-col justify-center space-y-6 lg:max-w-xl xl:max-w-2xl text-center lg:text-left">
                             {/* Urgency Banner */}
                             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/30 text-orange-200 text-sm font-medium">
                                 <Flame className="w-4 h-4 text-orange-400" />
@@ -137,7 +138,7 @@ export default async function Home() {
                         </div>
 
                         {/* Right Column: AI Illustration Carousel */}
-                        <div className="flex-1 w-full max-w-lg lg:max-w-none relative z-10 flex justify-center mt-8 lg:mt-0">
+                        <div className="flex-1 w-full max-w-lg lg:max-w-none relative z-10 flex border items-center justify-center">
                             <HeroCarousel />
                         </div>
                     </div>
@@ -165,50 +166,57 @@ export default async function Home() {
             </section>
 
             {/* Top Stores - With stagger animation */}
-            <section className="py-16 lg:py-20 bg-gray-50 dark:bg-gray-900 relative">
-                {/* Decorative background blob */}
-                <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-violet-50/50 to-transparent pointer-events-none"></div>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                    <div className="flex items-center justify-between mb-10">
-                        <div>
-                            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">
-                                🏪 Top Stores
-                            </h2>
-                            <p className="text-gray-600 dark:text-gray-400 mt-2 text-lg">
-                                Shop from your favorite brands and earn extra savings
-                            </p>
-                        </div>
-                        <Link
-                            href="/stores"
-                            className="hidden sm:flex items-center gap-2 px-6 py-3 bg-violet-100 text-violet-700 rounded-full font-semibold hover:bg-violet-200 transition-all group"
-                        >
-                            View All
-                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                        </Link>
-                    </div>
-
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 lg:gap-6 stagger-children">
-                        {featuredStores.map((store) => (
-                            <div key={store.id} className="premium-card rounded-xl">
-                                <StoreCard store={store} />
+            {featuredStores.length > 0 && (
+                <>
+                    <section className="py-16 lg:py-20 bg-gray-50 dark:bg-gray-900 relative">
+                        {/* Decorative background blob */}
+                        <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-violet-50/50 to-transparent pointer-events-none"></div>
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                            <div className="flex items-center justify-between mb-10">
+                                <div>
+                                    <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">
+                                        🏪 Top Stores
+                                    </h2>
+                                    <p className="text-gray-600 dark:text-gray-400 mt-2 text-lg">
+                                        Shop from your favorite brands and earn extra savings
+                                    </p>
+                                </div>
+                                <Link
+                                    href="/stores"
+                                    className="hidden sm:flex items-center gap-2 px-6 py-3 bg-violet-100 text-violet-700 rounded-full font-semibold hover:bg-violet-200 transition-all group"
+                                >
+                                    View All
+                                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                </Link>
                             </div>
-                        ))}
-                    </div>
 
-                    <div className="mt-8 text-center sm:hidden">
-                        <Link
-                            href="/stores"
-                            className="inline-flex items-center gap-2 text-violet-600 font-semibold"
-                        >
-                            View All Stores
-                            <ChevronRight className="w-5 h-5" />
-                        </Link>
-                    </div>
-                </div>
-            </section>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 lg:gap-6 stagger-children">
+                                {featuredStores.map((store) => (
+                                    <div key={store.id} className="premium-card rounded-xl">
+                                        <StoreCard store={store} />
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="mt-8 text-center sm:hidden">
+                                <Link
+                                    href="/stores"
+                                    className="inline-flex items-center gap-2 text-violet-600 font-semibold"
+                                >
+                                    View All Stores
+                                    <ChevronRight className="w-5 h-5" />
+                                </Link>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Ad placement: Between Top Stores and Categories */}
+                    <AdBannerHorizontal className="my-8" />
+                </>
+            )}
 
             {/* Categories - Enhanced with hover effects */}
-            <section className="py-16 lg:py-24 bg-gradient-to-br from-gray-50 to-violet-50/50 dark:from-gray-900 dark:to-violet-950/20">
+            <section className="py-12 lg:py-16 bg-gradient-to-br from-gray-50 to-violet-50/50 dark:from-gray-900 dark:to-violet-950/20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16 relative">
                         {/* Decorative background circle */}
@@ -224,15 +232,7 @@ export default async function Home() {
 
                     <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4 lg:gap-6 stagger-children">
                         {categories.map((category) => {
-                            const customIconMap: Record<string, string> = {
-                                Shirt: "/assets/icons/fashion.png",
-                                Smartphone: "/assets/icons/electronics.png",
-                                UtensilsCrossed: "/assets/icons/food.png",
-                                Heart: "/assets/icons/beauty.png"
-                            };
-
-                            const customIconSrc = customIconMap[category.icon || ""];
-                            const IconComponent = !customIconSrc ? (iconMap[category.icon || "Shirt"] || Gift) : Gift;
+                            const IconComponent = iconMap[category.icon || "Shirt"] || Gift;
 
                             return (
                                 <Link
@@ -242,20 +242,10 @@ export default async function Home() {
                                 >
                                     <div className="absolute inset-0 bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-900/10 dark:to-purple-900/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
 
-                                    {customIconSrc ? (
-                                        <div className="w-16 h-16 rounded-[1.25rem] bg-gray-50 dark:bg-gray-800/80 group-hover:bg-violet-50 dark:group-hover:bg-violet-900/40 flex items-center justify-center mb-4 transition-colors duration-300 shadow-sm group-hover:shadow-violet-500/30 overflow-hidden relative border border-gray-100 dark:border-gray-700/50">
-                                            <Image
-                                                src={customIconSrc}
-                                                alt={category.name}
-                                                fill
-                                                className="object-cover p-1 group-hover:scale-110 transition-transform duration-500"
-                                            />
-                                        </div>
-                                    ) : (
-                                        <div className="w-16 h-16 rounded-[1.25rem] bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 group-hover:from-violet-500 group-hover:to-purple-600 flex items-center justify-center mb-4 transition-colors duration-300 shadow-sm group-hover:shadow-violet-500/30 border border-gray-100 dark:border-gray-700/50">
-                                            <IconComponent className="w-8 h-8 text-gray-500 dark:text-gray-400 group-hover:text-white category-icon transition-colors duration-300" />
-                                        </div>
-                                    )}
+                                    <div className="w-16 h-16 rounded-[1.25rem] bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 group-hover:from-violet-500 group-hover:to-purple-600 flex items-center justify-center mb-4 transition-colors duration-300 shadow-sm group-hover:shadow-violet-500/30 border border-gray-100 dark:border-gray-700/50">
+                                        <IconComponent className="w-8 h-8 text-gray-500 dark:text-gray-400 group-hover:text-white category-icon transition-colors duration-300" />
+                                    </div>
+
                                     <span className="text-sm font-bold text-gray-700 dark:text-gray-300 text-center group-hover:text-violet-700 dark:group-hover:text-violet-300 transition-colors">
                                         {category.name}
                                     </span>
@@ -267,80 +257,92 @@ export default async function Home() {
             </section>
 
             {/* Hot Deals - Premium section */}
-            <section className="py-16 lg:py-20 bg-gradient-to-br from-violet-100 via-purple-50 to-pink-50 dark:from-violet-950/40 dark:via-purple-900/40 dark:to-pink-900/20">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between mb-10">
-                        <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center shadow-lg">
-                                <Flame className="w-7 h-7 text-white" />
+            {hotCoupons.length > 0 && (
+                <>
+                    <section className="py-16 lg:py-20 bg-gradient-to-br from-violet-100 via-purple-50 to-pink-50 dark:from-violet-950/40 dark:via-purple-900/40 dark:to-pink-900/20">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div className="flex items-center justify-between mb-10">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center shadow-lg">
+                                        <Flame className="w-7 h-7 text-white" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">
+                                            Hot Deals Today
+                                        </h2>
+                                        <p className="text-gray-600 dark:text-gray-400 mt-1">
+                                            Handpicked offers with the best discounts
+                                        </p>
+                                    </div>
+                                </div>
+                                <Link
+                                    href="/best-offers"
+                                    className="hidden sm:flex items-center gap-2 px-6 py-3 bg-orange-500 text-white rounded-full font-semibold hover:bg-orange-600 transition-all group shadow-lg"
+                                >
+                                    View All Deals
+                                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                </Link>
                             </div>
-                            <div>
-                                <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">
-                                    Hot Deals Today
-                                </h2>
-                                <p className="text-gray-600 dark:text-gray-400 mt-1">
-                                    Handpicked offers with the best discounts
-                                </p>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 stagger-children">
+                                {hotCoupons.map((coupon) => (
+                                    <div key={coupon.id} className="premium-card rounded-xl">
+                                        <CouponCard
+                                            coupon={coupon}
+                                            storeName={coupon.store.name}
+                                            storeLogo={coupon.store.logo}
+                                        />
+                                    </div>
+                                ))}
                             </div>
                         </div>
-                        <Link
-                            href="/best-offers"
-                            className="hidden sm:flex items-center gap-2 px-6 py-3 bg-orange-500 text-white rounded-full font-semibold hover:bg-orange-600 transition-all group shadow-lg"
-                        >
-                            View All Deals
-                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                        </Link>
-                    </div>
+                    </section>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 stagger-children">
-                        {hotCoupons.map((coupon) => (
-                            <div key={coupon.id} className="premium-card rounded-xl">
-                                <CouponCard
-                                    coupon={coupon}
-                                    storeName={coupon.store.name}
-                                    storeLogo={coupon.store.logo}
-                                />
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
+                    {/* Ad placement: After Hot Deals */}
+                    <AdBannerHorizontal className="my-8" />
+                </>
+            )}
+
+            {/* Ad placement: After Hot Deals */}
+            <AdBannerHorizontal className="py-4" />
 
             {/* Latest Coupons */}
-            <section className="py-16 lg:py-20 bg-white dark:bg-gray-900">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between mb-10">
-                        <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg">
-                                <Percent className="w-7 h-7 text-white" />
-                            </div>
-                            <div>
-                                <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">
-                                    Latest Coupons
-                                </h2>
-                                <p className="text-gray-600 dark:text-gray-400 mt-1">
-                                    Fresh and verified coupon codes
-                                </p>
+            {latestCoupons.length > 0 && (
+                <section className="py-16 lg:py-20 bg-white dark:bg-gray-900">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex items-center justify-between mb-10">
+                            <div className="flex items-center gap-4">
+                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg">
+                                    <Percent className="w-7 h-7 text-white" />
+                                </div>
+                                <div>
+                                    <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">
+                                        Latest Coupons
+                                    </h2>
+                                    <p className="text-gray-600 dark:text-gray-400 mt-1">
+                                        Fresh and verified coupon codes
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 stagger-children">
-                        {latestCoupons.map((coupon) => (
-                            <div key={coupon.id} className="premium-card rounded-xl">
-                                <CouponCard
-                                    coupon={coupon}
-                                    storeName={coupon.store.name}
-                                    storeLogo={coupon.store.logo}
-                                />
-                            </div>
-                        ))}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 stagger-children">
+                            {latestCoupons.map((coupon) => (
+                                <div key={coupon.id} className="premium-card rounded-xl">
+                                    <CouponCard
+                                        coupon={coupon}
+                                        storeName={coupon.store.name}
+                                        storeLogo={coupon.store.logo}
+                                    />
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            )}
 
             {/* Why Choose Us - Premium dark section */}
-            <section className="py-20 lg:py-32 bg-gradient-to-br from-gray-950 via-indigo-950 to-gray-950 text-white relative overflow-hidden">
+            <section className="py-16 lg:py-20 bg-gradient-to-br from-gray-950 via-indigo-950 to-gray-950 text-white relative overflow-hidden">
                 {/* Background decoration */}
                 <div className="absolute inset-0 hero-bg-pattern opacity-20"></div>
 
@@ -411,8 +413,11 @@ export default async function Home() {
                 </div>
             </section>
 
+            {/* Ad placement: Before CTA */}
+            <AdBannerHorizontal className="py-4" />
+
             {/* CTA Section */}
-            <section className="py-16 lg:py-20 animated-gradient text-white">
+            <section className="py-12 lg:py-16 animated-gradient text-white">
                 <div className="max-w-4xl mx-auto px-4 text-center">
                     <h2 className="text-3xl lg:text-5xl font-bold mb-6">
                         Start Saving Today! 🚀
@@ -441,12 +446,13 @@ export default async function Home() {
 
 // Helper to generate JSON-LD for the Homepage
 function HomeSchema({ categories, stores }: { categories: any[], stores: any[] }) {
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
     const jsonLd = {
         "@context": "https://schema.org",
         "@type": "WebPage",
         name: "CouponHub - Best Coupons, Offers & Deals Worldwide",
         description: "Get the best coupons, promo codes, and deals from top online stores.",
-        url: "https://couponhub.store",
+        url: siteUrl,
         mainEntity: {
             "@type": "ItemList",
             name: "Featured Categories and Stores",
@@ -457,7 +463,7 @@ function HomeSchema({ categories, stores }: { categories: any[], stores: any[] }
                     item: {
                         "@type": "CollectionPage",
                         name: cat.name,
-                        url: `https://couponhub.store/category/${cat.slug}`
+                        url: `${siteUrl}/category/${cat.slug}`
                     }
                 })),
                 ...stores.slice(0, 5).map((store, index) => ({
@@ -466,7 +472,7 @@ function HomeSchema({ categories, stores }: { categories: any[], stores: any[] }
                     item: {
                         "@type": "Store",
                         name: store.name,
-                        url: `https://couponhub.store/stores/${store.slug}`
+                        url: `${siteUrl}/stores/${store.slug}`
                     }
                 }))
             ]

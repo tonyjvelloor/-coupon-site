@@ -5,9 +5,24 @@ import Link from "next/link";
 import { ChevronRight, Home, Tag } from "lucide-react";
 import CouponCard from "@/components/ui/CouponCard";
 import StoreCard from "@/components/ui/StoreCard";
+import SEOTextAndFAQ from "@/components/ui/SEOTextAndFAQ";
+import InternalLinks from "@/components/ui/InternalLinks";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
 
 interface PageProps {
     params: Promise<{ slug: string }>;
+}
+
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+    const categories = await prisma.category.findMany({
+        where: { isActive: true },
+        select: { slug: true },
+    });
+    return categories.map((cat) => ({
+        slug: cat.slug,
+    }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -18,13 +33,34 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     if (!category) return { title: "Category Not Found" };
 
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
+
+    const ogTitle = `${category.name} Coupons & Offers`;
+    const ogDescription = category.description || `Get the best ${category.name.toLowerCase()} coupons, promo codes, and deals from top stores. Save big with verified offers.`;
+
     return {
-        title: `${category.name} Coupons & Offers`,
-        description:
-            category.description ||
-            `Get the best ${category.name.toLowerCase()} coupons, promo codes, and deals from top stores. Save big with verified offers.`,
+        title: ogTitle,
+        description: ogDescription,
         alternates: {
-            canonical: `https://couponhub.store/category/${category.slug}`,
+            canonical: `${siteUrl}/category/${category.slug}`,
+        },
+        openGraph: {
+            title: ogTitle,
+            description: ogDescription,
+            images: [
+                {
+                    url: `${siteUrl}/api/og?title=${encodeURIComponent(category.name + ' Coupons')}&description=${encodeURIComponent('Save big with ' + category.name.toLowerCase() + ' deals')}&type=category`,
+                    width: 1200,
+                    height: 630,
+                    alt: `${category.name} Coupons`,
+                },
+            ],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: ogTitle,
+            description: ogDescription,
+            images: [`${siteUrl}/api/og?title=${encodeURIComponent(category.name + ' Coupons')}&description=${encodeURIComponent('Save big with ' + category.name.toLowerCase() + ' deals')}&type=category`],
         }
     };
 }
@@ -64,22 +100,10 @@ export default async function CategoryPage({ params }: PageProps) {
 
     return (
         <div>
-            {/* Breadcrumb */}
-            <div className="bg-gray-50 border-b border-gray-200">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-                    <nav className="flex items-center gap-2 text-sm">
-                        <Link href="/" className="text-gray-500 hover:text-violet-600">
-                            <Home className="w-4 h-4" />
-                        </Link>
-                        <ChevronRight className="w-4 h-4 text-gray-400" />
-                        <Link href="/categories" className="text-gray-500 hover:text-violet-600">
-                            Categories
-                        </Link>
-                        <ChevronRight className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-900 font-medium">{category.name}</span>
-                    </nav>
-                </div>
-            </div>
+            <Breadcrumbs items={[
+                { name: "Categories", href: "/categories" },
+                { name: category.name }
+            ]} />
 
             {/* Category Header */}
             <section className="bg-gradient-to-br from-violet-600 to-purple-700 text-white py-12">
@@ -161,6 +185,18 @@ export default async function CategoryPage({ params }: PageProps) {
                             </Link>
                         </div>
                     )}
+
+                    {/* SEO Text & FAQ */}
+                    <SEOTextAndFAQ
+                        title={category.name}
+                        aboutContent={category.aboutContent}
+                        faqContent={category.faqContent}
+                    />
+
+                    {/* Internal Links Engine */}
+                    <div className="mt-12">
+                        <InternalLinks currentCategoryId={category.id} />
+                    </div>
                 </div>
             </div>
             <CategorySchema category={category} coupons={category.coupons} />
@@ -170,12 +206,13 @@ export default async function CategoryPage({ params }: PageProps) {
 
 // Helper to generate JSON-LD for Category
 function CategorySchema({ category, coupons }: { category: any, coupons: any }) {
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
     const jsonLd = {
         "@context": "https://schema.org",
         "@type": "CollectionPage",
         name: `${category.name} Coupons`,
         description: category.description || `Best coupons and offers for ${category.name}`,
-        url: `https://couponhub.store/category/${category.slug}`,
+        url: `${siteUrl}/category/${category.slug}`,
         hasPart: coupons.slice(0, 10).map((coupon: any) => ({
             "@type": "Offer",
             itemOffered: {
@@ -185,18 +222,74 @@ function CategorySchema({ category, coupons }: { category: any, coupons: any }) 
             priceCurrency: "USD",
             price: "0",
             description: coupon.description || coupon.title,
-            seller: {
-                "@type": "Organization",
-                name: coupon.store.name,
-                image: coupon.store.logo
-            }
+            url: `${siteUrl}/category/${category.slug}`
         }))
     };
 
+    let faqSchema = null;
+    if (category.faqContent) {
+        try {
+            const faqs = JSON.parse(category.faqContent);
+            if (Array.isArray(faqs) && faqs.length > 0) {
+                faqSchema = {
+                    "@context": "https://schema.org",
+                    "@type": "FAQPage",
+                    mainEntity: faqs.map((faq: any) => ({
+                        "@type": "Question",
+                        name: faq.question,
+                        acceptedAnswer: {
+                            "@type": "Answer",
+                            text: faq.answer
+                        }
+                    }))
+                };
+            }
+        } catch (e) {
+            // ignore JSON parse errors
+        }
+    }
+
+    const breadcrumbSchema = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+            {
+                "@type": "ListItem",
+                position: 1,
+                name: "Home",
+                item: siteUrl
+            },
+            {
+                "@type": "ListItem",
+                position: 2,
+                name: "Categories",
+                item: `${siteUrl}/categories`
+            },
+            {
+                "@type": "ListItem",
+                position: 3,
+                name: category.name,
+                item: `${siteUrl}/category/${category.slug}`
+            }
+        ]
+    };
+
     return (
-        <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+            />
+            {faqSchema && (
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+                />
+            )}
+        </>
     );
 }

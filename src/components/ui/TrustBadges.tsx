@@ -7,7 +7,7 @@ const stats = [
     { icon: Users, value: 50000, label: "Happy Users", suffix: "+" },
     { icon: BadgeCheck, value: 500, label: "Verified Stores", suffix: "+" },
     { icon: TrendingUp, value: 95, label: "Success Rate", suffix: "%" },
-    { icon: Zap, value: 24, label: "Hour Support", suffix: "/7" },
+    { icon: Zap, value: 24, label: "Support", suffix: "/7" },
 ];
 
 function AnimatedNumber({ value, suffix }: { value: number; suffix: string }) {
@@ -33,7 +33,7 @@ function AnimatedNumber({ value, suffix }: { value: number; suffix: string }) {
     }, [value]);
 
     return (
-        <span className="animated-number font-bold text-2xl md:text-3xl">
+        <span className="animated-number font-bold text-lg md:text-xl text-gray-900 dark:text-white">
             {count.toLocaleString()}{suffix}
         </span>
     );
@@ -41,17 +41,19 @@ function AnimatedNumber({ value, suffix }: { value: number; suffix: string }) {
 
 export default function TrustBadges() {
     return (
-        <div className="flex flex-wrap justify-center gap-4 md:gap-6 mt-8">
+        <div className="w-full flex flex-row items-center justify-start xl:justify-between gap-2 xl:gap-3 overflow-x-auto no-scrollbar py-2 px-1 mt-6">
             {stats.map((stat, index) => (
                 <div
                     key={stat.label}
-                    className="trust-badge glass-card float-animation dark:bg-gray-800 dark:text-white dark:border-gray-700"
+                    className="trust-badge glass-card float-animation flex-shrink-0 whitespace-nowrap dark:bg-gray-800 dark:border-gray-700 !px-3.5 !py-2 font-medium"
                     style={{ animationDelay: `${index * 0.2}s` }}
                 >
-                    <stat.icon className="trust-badge-icon" />
-                    <div className="flex flex-col">
+                    <stat.icon className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    <div className="flex flex-col items-start leading-tight">
                         <AnimatedNumber value={stat.value} suffix={stat.suffix} />
-                        <span className="text-xs text-gray-500 dark:text-gray-400">{stat.label}</span>
+                        <span className="text-[9px] md:text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider font-semibold mt-0.5">
+                            {stat.label}
+                        </span>
                     </div>
                 </div>
             ))}

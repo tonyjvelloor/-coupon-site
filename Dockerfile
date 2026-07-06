@@ -28,6 +28,9 @@ ENV DATABASE_URL="file:/app/prisma/dev.db"
 # Generate Prisma Client
 RUN npx prisma generate
 
+# Ensure database is in sync with schema before build
+RUN npx prisma db push --schema=prisma/schema.prisma || true
+
 # Build the app
 RUN npm run build
 

@@ -2,8 +2,8 @@ import { Building2, Users, Trophy, Target, ShieldCheck, Clock, ThumbsUp } from "
 import TrustWidget from "@/components/ui/TrustWidget";
 
 export const metadata = {
-    title: "About Us | CouponHub by TheBrandManiacs",
-    description: "Learn about CouponHub by TheBrandManiacs. We are an AI-powered savings engine dedicated to finding, verifying, and delivering the absolute best coupon codes and flash deals on the internet.",
+    title: "About Us | CouponHub",
+    description: "Learn about CouponHub. We are an AI-powered savings engine dedicated to finding, verifying, and delivering the absolute best coupon codes and flash deals on the internet.",
 };
 
 export default function AboutPage() {
@@ -19,7 +19,7 @@ export default function AboutPage() {
                     </div>
                     <h1 className="text-4xl lg:text-6xl font-extrabold mb-6 tracking-tight">Your Trusted Deal Finder</h1>
                     <p className="text-xl text-violet-200 max-w-3xl mx-auto leading-relaxed">
-                        We are on a mission to completely automate the way you save money online. Powered by the engineering and marketing experts at <strong className="text-white">TheBrandManiacs</strong>.
+                        We are on a mission to completely automate the way you save money online, powered by advanced AI and a dedicated team of deal experts.
                     </p>
                 </div>
             </div>
@@ -64,7 +64,7 @@ export default function AboutPage() {
                             <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Why We Built CouponHub</h2>
                             <div className="space-y-6 text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
                                 <p>
-                                    At <strong>TheBrandManiacs</strong>, we realized that the coupon industry was broken. Too many websites were filled with expired codes, misleading offers, and frustrating popups that wasted time instead of saving money.
+                                    At <strong>CouponHub</strong>, we realized that the coupon industry was broken. Too many websites were filled with expired codes, misleading offers, and frustrating popups that wasted time instead of saving money.
                                 </p>
                                 <p>
                                     We decided to fix it. We built CouponHub as an <strong>intelligent savings engine</strong>. Instead of relying on manual data entry, we deploy advanced AI crawlers that scan top e-commerce sites 24/7 to find, test, and verify real discount codes and flash sales.
@@ -96,14 +96,14 @@ export default function AboutPage() {
 
                 {/* Company Info */}
                 <div className="bg-white dark:bg-gray-900 rounded-3xl p-10 lg:p-16 border border-gray-100 dark:border-gray-800 text-center max-w-4xl mx-auto shadow-sm">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">A TheBrandManiacs Product</h2>
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Built For Shoppers</h2>
                     <p className="text-xl text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
-                        CouponHub operates out of the headquarters of <strong>TheBrandManiacs</strong>, a premier digital marketing and technology agency focused on creating value-driven digital products for global audiences.
+                        CouponHub is dedicated to creating a transparent, value-driven experience for global audiences. (CouponHub is proudly operated by <strong>TheBrandManiacs</strong>).
                     </p>
                     <div className="inline-flex flex-col sm:flex-row items-center justify-center gap-4 text-sm font-medium text-gray-500">
-                        <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-green-500"></div> Engineering Hub active</span>
+                        <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-green-500"></div> System Status: Active</span>
                         <span className="hidden sm:block">•</span>
-                        <span>Partnerships: contact@thebrandmaniacs.com</span>
+                        <span>Partnerships: partnerships@couponhub.store</span>
                     </div>
                 </div>
             </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Copy, Check, ExternalLink, Sparkles, BadgeCheck, Share2, Wallet } from "lucide-react";
 import confetti from "canvas-confetti";
 import SaveDealButton from "./SaveDealButton";
@@ -65,10 +66,11 @@ export default function CouponCard({ coupon, storeName, storeLogo }: CouponCardP
             {/* Banner Image with potential Countdown Timer overlay */}
             {coupon.image && (
                 <div className="relative h-32 w-full overflow-hidden">
-                    <img
+                    <Image
                         src={coupon.image}
                         alt={coupon.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent"></div>
 
@@ -116,9 +118,9 @@ export default function CouponCard({ coupon, storeName, storeLogo }: CouponCardP
 
                 {/* Store Info */}
                 <div className="flex items-center gap-3 mb-3">
-                    <div className="w-12 h-12 bg-gray-100 dark:bg-white rounded-lg flex items-center justify-center overflow-hidden">
+                    <div className="w-12 h-12 relative bg-gray-100 dark:bg-white rounded-lg flex items-center justify-center overflow-hidden">
                         {storeLogo ? (
-                            <img src={storeLogo} alt={storeName} className="w-10 h-10 object-contain" />
+                            <Image src={storeLogo} alt={storeName} fill className="object-contain p-1" />
                         ) : (
                             <span className="text-lg font-bold text-gray-400">
                                 {storeName.charAt(0)}
