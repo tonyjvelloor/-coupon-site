@@ -11,42 +11,43 @@ datasource db {
 }
 
 model Store {
-  id             String    @id @default(uuid())
+  id             String  @id @default(uuid())
   name           String
-  slug           String    @unique
+  slug           String  @unique
   description    String?
   logo           String?
   website        String
   affiliateUrl   String?
-  cashbackRate   String?   // e.g., "Upto 10.2%"
-  cashbackType   String?   // "percentage", "flat", "voucher"
-  offerCount     Int       @default(0)
-  isActive       Boolean   @default(true)
-  isFeatured     Boolean   @default(false)
+  cashbackRate   String? // e.g., "Upto 10.2%"
+  cashbackType   String? // "percentage", "flat", "voucher"
+  offerCount     Int     @default(0)
+  isActive       Boolean @default(true)
+  isFeatured     Boolean @default(false)
   seoTitle       String?
   seoDescription String?
-  aboutContent   String?   // Rich SEO content
-  faqContent     String?   // FAQ JSON
-  
+  aboutContent   String? // Rich SEO content
+  faqContent     String? // FAQ JSON
+
   // Merchant Authority Pages Extensions
-  shippingInfo   String?
-  returnPolicy   String?
-  shoppingTips   String?
-  paymentMethods String?
+  shippingInfo     String?
+  returnPolicy     String?
+  shoppingTips     String?
+  paymentMethods   String?
   studentDiscounts String?
-  
+
   // Analytics Tracking
-  clicks         Int       @default(0)
-  revenue        Float     @default(0.0)
-  
-  coupons        Coupon[]
+  clicks  Int   @default(0)
+  revenue Float @default(0.0)
+
+  coupons         Coupon[]
   storeCategories StoreCategory[]
   campaignLinks   CampaignLink[]
-  
-  version        Int       @default(1)
-  deletedAt      DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+
+  version           Int                @default(1)
+  deletedAt         DateTime?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  affiliatePrograms AffiliateProgram[]
 
   @@index([slug])
   @@index([createdAt])
@@ -54,26 +55,26 @@ model Store {
 }
 
 model Category {
-  id              String           @id @default(uuid())
+  id              String          @id @default(uuid())
   name            String
-  slug            String           @unique
+  slug            String          @unique
   description     String?
   icon            String?
   image           String?
-  isActive        Boolean          @default(true)
-  isFeatured      Boolean          @default(false)
-  displayOrder    Int              @default(0)
-  aboutContent    String?          // Rich SEO content
-  faqContent      String?          // FAQ JSON
+  isActive        Boolean         @default(true)
+  isFeatured      Boolean         @default(false)
+  displayOrder    Int             @default(0)
+  aboutContent    String? // Rich SEO content
+  faqContent      String? // FAQ JSON
   parentId        String?
-  parent          Category?        @relation("CategoryChildren", fields: [parentId], references: [id])
-  children        Category[]       @relation("CategoryChildren")
+  parent          Category?       @relation("CategoryChildren", fields: [parentId], references: [id])
+  children        Category[]      @relation("CategoryChildren")
   storeCategories StoreCategory[]
   coupons         Coupon[]
-  
-  deletedAt       DateTime?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@index([slug])
   @@index([isActive])
@@ -92,34 +93,38 @@ model StoreCategory {
 }
 
 model Coupon {
-  id            String    @id @default(uuid())
-  title         String
-  description   String?
-  code          String?   // Null for "Get Deal" type
-  type          String    @default("coupon") // "coupon", "deal"
-  discountType  String    // "percentage", "flat", "freebie"
-  discountValue String?   // e.g., "80% Off", "₹500 Off"
-  affiliateUrl  String
-  image         String?   // Banner image URL
+  id              String       @id @default(uuid())
+  title           String
+  description     String?
+  code            String? // Null for "Get Deal" type
+  type            String       @default("coupon") // "coupon", "deal"
+  discountType    String // "percentage", "flat", "freebie"
+  discountValue   String? // e.g., "80% Off", "₹500 Off"
+  affiliateUrl    String
+  image           String? // Banner image URL
   termsConditions String?
-  expiresAt     DateTime?
-  isVerified    Boolean   @default(false)
-  isExclusive   Boolean   @default(false)
-  isFeatured    Boolean   @default(false)
-  usageCount    Int       @default(0)
-  clicks        Int       @default(0) // Analytics Tracking
-  displayOrder  Int       @default(0)
-  storeId       String
-  store         Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  bank          String?   // Bank name for bank offers (e.g., "HDFC", "SBI")
-  categoryId    String?
-  category      Category? @relation(fields: [categoryId], references: [id])
-  collections   Collection[] // Programmatic SEO collections
-  
-  version       Int       @default(1)
-  deletedAt     DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  expiresAt       DateTime?
+  isVerified      Boolean      @default(false)
+  isExclusive     Boolean      @default(false)
+  isFeatured      Boolean      @default(false)
+  usageCount      Int          @default(0)
+  clicks          Int          @default(0) // Analytics Tracking
+  displayOrder    Int          @default(0)
+  storeId         String
+  store           Store        @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  bank            String? // Bank name for bank offers (e.g., "HDFC", "SBI")
+  categoryId      String?
+  category        Category?    @relation(fields: [categoryId], references: [id])
+  // Programmatic SEO collections
+  collections     Collection[]
+
+  // Affiliate campaigns that feature this coupon
+  campaigns AffiliateCampaign[]
+
+  version   Int       @default(1)
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@index([storeId])
   @@index([categoryId])
@@ -127,127 +132,198 @@ model Coupon {
   @@index([createdAt])
 }
 
+model AffiliateNetwork {
+  id   String @id @default(uuid())
+  name String
+  slug String @unique
+
+  programs AffiliateProgram[]
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([slug])
+}
+
+model AffiliateProgram {
+  id             String           @id @default(uuid())
+  merchantId     String
+  merchant       Store            @relation(fields: [merchantId], references: [id])
+  networkId      String
+  network        AffiliateNetwork @relation(fields: [networkId], references: [id])
+  programId      String // Network's internal program ID
+  commissionType String // "percentage", "flat"
+  commissionRate String
+  cookieDuration Int // in days
+  status         String           @default("active")
+
+  campaigns AffiliateCampaign[]
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([merchantId])
+  @@index([networkId])
+}
+
+model AffiliateCampaign {
+  id             String           @id @default(uuid())
+  programId      String
+  program        AffiliateProgram @relation(fields: [programId], references: [id])
+  trackingUrl    String
+  landingUrl     String?
+  campaignName   String
+  commissionRate String?
+  priority       Int              @default(0)
+  active         Boolean          @default(true)
+
+  coupons Coupon[]
+  history AffiliateCampaignHistory[]
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([programId])
+}
+
+model AffiliateCampaignHistory {
+  id             String            @id @default(uuid())
+  campaignId     String
+  campaign       AffiliateCampaign @relation(fields: [campaignId], references: [id])
+  commissionRate String?
+  trackingUrl    String
+  effectiveFrom  DateTime          @default(now())
+  effectiveTo    DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([campaignId, effectiveFrom])
+}
+
 // Programmatic SEO Collections
 model Collection {
-  id              String   @id @default(uuid())
-  name            String
-  slug            String   @unique
-  type            String   // e.g., "festival", "bank", "audience"
-  seoTitle        String?
-  seoDescription  String?
-  content         String?  // Rich SEO content
-  faqContent      String?  // FAQ JSON
-  isIndexable     Boolean  @default(true)
-  priority        Float    @default(0.5) // Sitemap priority
-  coupons         Coupon[]
-  
-  deletedAt       DateTime?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String   @id @default(uuid())
+  name           String
+  slug           String   @unique
+  type           String // e.g., "festival", "bank", "audience"
+  seoTitle       String?
+  seoDescription String?
+  content        String? // Rich SEO content
+  faqContent     String? // FAQ JSON
+  isIndexable    Boolean  @default(true)
+  priority       Float    @default(0.5) // Sitemap priority
+  coupons        Coupon[]
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@index([slug])
   @@index([type])
 }
 
 model Banner {
-  id        String   @id @default(uuid())
-  imageUrl  String
-  link      String
-  title     String?
-  isActive  Boolean  @default(true)
-  order     Int      @default(0)
-  
+  id       String  @id @default(uuid())
+  imageUrl String
+  link     String
+  title    String?
+  isActive Boolean @default(true)
+  order    Int     @default(0)
+
   deletedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
   @@index([isActive])
 }
 
 model Admin {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String   // Hashed with bcrypt
-  name      String?
-  bio       String?
+  id           String     @id @default(uuid())
+  email        String     @unique
+  password     String // Hashed with bcrypt
+  name         String?
+  bio          String?
   profileImage String?
-  socialLinks String? // JSON string containing twitter, linkedin etc.
-  posts     BlogPost[]
-  
+  socialLinks  String? // JSON string containing twitter, linkedin etc.
+  posts        BlogPost[]
+
   deletedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model SiteSettings {
-  id             String   @id @default(uuid())
-  siteName       String   @default("CouponHub")
-  siteTagline    String?
-  siteLogo       String?
+  id              String   @id @default(uuid())
+  siteName        String   @default("CouponHub")
+  siteTagline     String?
+  siteLogo        String?
   siteDescription String?
-  contactEmail   String?
-  socialLinks    String?  // JSON string
-  footerContent  String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  contactEmail    String?
+  socialLinks     String? // JSON string
+  footerContent   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 // Campaign Link Masking for Ads
 model CampaignLink {
-  id            String   @id @default(uuid())
-  name          String              // Campaign name (e.g., "Flipkart Sale Jan 2024")
-  slug          String   @unique    // URL slug (e.g., "flipkart-sale" -> /go/flipkart-sale)
-  destinationUrl String             // Actual affiliate URL to redirect to
-  
+  id             String @id @default(uuid())
+  name           String // Campaign name (e.g., "Flipkart Sale Jan 2024")
+  slug           String @unique // URL slug (e.g., "flipkart-sale" -> /go/flipkart-sale)
+  destinationUrl String // Actual affiliate URL to redirect to
+
   // Optional metadata
-  store         Store?   @relation(fields: [storeId], references: [id])
-  storeId       String?
-  description   String?             // Internal notes
-  
+  store       Store?  @relation(fields: [storeId], references: [id])
+  storeId     String?
+  description String? // Internal notes
+
   // Tracking
-  clicks        Int      @default(0)
-  isActive      Boolean  @default(true)
-  
+  clicks   Int     @default(0)
+  isActive Boolean @default(true)
+
   // UTM Parameters (for tracking in analytics)
-  utmSource     String?             // e.g., "facebook", "google"
-  utmMedium     String?             // e.g., "cpc", "banner"
-  utmCampaign   String?             // e.g., "jan-sale"
-  
-  deletedAt     DateTime?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  expiresAt     DateTime?           // Optional expiry date
-  
+  utmSource   String? // e.g., "facebook", "google"
+  utmMedium   String? // e.g., "cpc", "banner"
+  utmCampaign String? // e.g., "jan-sale"
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  expiresAt DateTime? // Optional expiry date
+
   @@index([slug])
   @@index([storeId])
 }
 
 // Blog System for SEO
 model BlogPost {
-  id             String    @id @default(uuid())
-  title          String
-  slug           String    @unique
-  excerpt        String?
-  content        String    // Rich text / Markdown
-  coverImage     String?
-  
+  id         String  @id @default(uuid())
+  title      String
+  slug       String  @unique
+  excerpt    String?
+  content    String // Rich text / Markdown
+  coverImage String?
+
   // SEO Metadata (AI Generated)
   seoTitle       String?
   seoDescription String?
-  keywords       String?   // Comma separated tags
-  
-  // Status
-  isPublished    Boolean   @default(false)
-  publishedAt    DateTime?
-  
-  // Author Relation
-  authorId       String
-  author         Admin     @relation(fields: [authorId], references: [id])
+  keywords       String? // Comma separated tags
 
-  deletedAt      DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  
+  // Status
+  isPublished Boolean   @default(false)
+  publishedAt DateTime?
+
+  // Author Relation
+  authorId String
+  author   Admin  @relation(fields: [authorId], references: [id])
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
   @@index([slug])
   @@index([authorId])
   @@index([isPublished])
@@ -255,13 +331,13 @@ model BlogPost {
 
 // Newsletter Subscription
 model Subscriber {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  isActive  Boolean  @default(true)
-  
+  id       String  @id @default(uuid())
+  email    String  @unique
+  isActive Boolean @default(true)
+
   deletedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 // Auto-Crawled Viral News
@@ -269,17 +345,17 @@ model NewsArticle {
   id          String   @id @default(uuid())
   title       String
   slug        String   @unique
-  summary     String   // AI-generated 3-sentence summary
-  sourceUrl   String   // Original deal/article link
-  sourceName  String?  // e.g., "Reddit", "TechCrunch"
-  imageUrl    String?  // Optional image grabbed from source
+  summary     String // AI-generated 3-sentence summary
+  sourceUrl   String // Original deal/article link
+  sourceName  String? // e.g., "Reddit", "TechCrunch"
+  imageUrl    String? // Optional image grabbed from source
   isVerified  Boolean  @default(false) // Whether AI approved it as 'viral'
   publishedAt DateTime @default(now())
-  
-  deletedAt   DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
   @@index([slug])
   @@index([isVerified])
 }
