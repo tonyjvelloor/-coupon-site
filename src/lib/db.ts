@@ -11,11 +11,30 @@ function createPrismaClient(): PrismaClient {
     // Ensure directory exists for Vercel deployment
     let dbUrl = process.env.DATABASE_URL;
     if (!dbUrl) {
-        const prismaDir = path.join(process.cwd(), 'prisma');
-        if (!fs.existsSync(prismaDir)) {
-            fs.mkdirSync(prismaDir, { recursive: true });
+        const isVercel = process.env.VERCEL === '1';
+        if (isVercel) {
+            const tmpDbPath = '/tmp/dev.db';
+            const bundledDbPath = path.join(process.cwd(), 'prisma', 'dev.db');
+            if (!fs.existsSync(tmpDbPath)) {
+                try {
+                    if (fs.existsSync(bundledDbPath)) {
+                        fs.copyFileSync(bundledDbPath, tmpDbPath);
+                    } else {
+                        // Create an empty file if bundled DB doesn't exist
+                        fs.writeFileSync(tmpDbPath, '');
+                    }
+                } catch (e) {
+                    console.error("Failed to setup sqlite DB in /tmp:", e);
+                }
+            }
+            dbUrl = `file:${tmpDbPath}`;
+        } else {
+            const prismaDir = path.join(process.cwd(), 'prisma');
+            if (!fs.existsSync(prismaDir)) {
+                fs.mkdirSync(prismaDir, { recursive: true });
+            }
+            dbUrl = `file:${path.join(prismaDir, 'dev.db')}`;
         }
-        dbUrl = `file:${path.join(prismaDir, 'dev.db')}`;
     }
 
     const adapter = new PrismaBetterSqlite3({
