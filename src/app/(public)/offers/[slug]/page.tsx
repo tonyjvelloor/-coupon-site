@@ -16,12 +16,17 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-    const collections = await prisma.collection.findMany({
-        select: { slug: true },
-    });
-    return collections.map((collection) => ({
-        slug: collection.slug,
-    }));
+    try {
+        const collections = await prisma.collection.findMany({
+            select: { slug: true },
+        });
+        return collections.map((collection) => ({
+            slug: collection.slug,
+        }));
+    } catch (error) {
+        console.warn("Failed to generate static params for collections:", error);
+        return [];
+    }
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

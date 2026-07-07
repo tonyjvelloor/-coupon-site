@@ -16,13 +16,18 @@ interface PageProps {
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
-    const categories = await prisma.category.findMany({
-        where: { isActive: true },
-        select: { slug: true },
-    });
-    return categories.map((cat) => ({
-        slug: cat.slug,
-    }));
+    try {
+        const categories = await prisma.category.findMany({
+            where: { isActive: true },
+            select: { slug: true },
+        });
+        return categories.map((cat) => ({
+            slug: cat.slug,
+        }));
+    } catch (error) {
+        console.warn("Failed to generate static params for categories:", error);
+        return [];
+    }
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

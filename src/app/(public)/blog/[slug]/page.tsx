@@ -18,13 +18,18 @@ interface BlogPostPageProps {
 export const revalidate = 86400; // 24 hours ISR
 
 export async function generateStaticParams() {
-    const posts = await prisma.blogPost.findMany({
-        where: { isPublished: true },
-        select: { slug: true },
-    });
-    return posts.map((post) => ({
-        slug: post.slug,
-    }));
+    try {
+        const posts = await prisma.blogPost.findMany({
+            where: { isPublished: true },
+            select: { slug: true },
+        });
+        return posts.map((post) => ({
+            slug: post.slug,
+        }));
+    } catch (error) {
+        console.warn("Failed to generate static params for blog:", error);
+        return [];
+    }
 }
 
 // SEO Metadata
