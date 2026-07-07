@@ -1,0 +1,41 @@
+{
+  "links": {
+    "link": [
+      {
+        "link_id": "12345678",
+        "advertiser_name": "Nike",
+        "link_name": "20% Off All Running Shoes",
+        "description": "Get 20% off all Nike running shoes this weekend only.",
+        "coupon_code": "RUN20",
+        "promotion_end_date": "2026-12-31T23:59:59Z",
+        "click_url": "https://www.tkqlhce.com/click-123-456?url=https%3A%2F%2Fwww.nike.com",
+        "destination": "https://www.nike.com",
+        "category": "Apparel & Shoes"
+      },
+      {
+        "link_id": "87654321",
+        "advertiser_name": "Best Buy",
+        "link_name": "$50 Off Smart TVs",
+        "description": "Save $50 on select Smart TVs online.",
+        "coupon_code": "",
+        "promotion_end_date": "2026-10-15T00:00:00Z",
+        "click_url": "https://www.kqzyfj.com/click-123-456?url=https%3A%2F%2Fwww.bestbuy.com",
+        "destination": "https://www.bestbuy.com",
+        "category": "Electronics"
+      },
+      {
+        "link_id": "11223344",
+        "advertiser_name": "Target",
+        "link_name": "Free Shipping on Orders Over $35",
+        "description": "Free shipping on orders over $35.",
+        "coupon_code": "",
+        "promotion_end_date": null,
+        "click_url": "https://www.jdoqocy.com/click-123-456",
+        "destination": "https://www.target.com",
+        "category": "Department Store"
+      }
+    ]
+  },
+  "page": 1,
+  "total_pages": 1
+}

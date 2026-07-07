@@ -1,0 +1,34 @@
+{
+  "Ads": [
+    {
+      "Id": "impact-1001",
+      "CampaignName": "Amazon India Pvt Ltd",
+      "Name": "10% off Electronics",
+      "Description": "Get 10% off on all electronics items.",
+      "PromoCode": "ELEC10",
+      "TrackingLink": "https://impact.com/track/1001",
+      "LandingPageUrl": "https://amazon.in/electronics",
+      "EndDate": "2027-12-31T23:59:59Z"
+    },
+    {
+      "Id": "impact-1002",
+      "CampaignName": "Myntra",
+      "Name": "Up to 50% off on Fashion",
+      "Description": "End of reason sale.",
+      "PromoCode": "",
+      "TrackingLink": "https://impact.com/track/1002",
+      "LandingPageUrl": "https://myntra.com/sale",
+      "EndDate": "2027-12-31T23:59:59Z"
+    },
+    {
+      "Id": "impact-1003",
+      "CampaignName": "Unknown Brand That Fails Fuzzy",
+      "Name": "Buy 1 Get 1",
+      "Description": "BOGO on everything.",
+      "PromoCode": "BOGO",
+      "TrackingLink": "https://impact.com/track/1003",
+      "LandingPageUrl": "https://unknown.com",
+      "EndDate": "2027-12-31T23:59:59Z"
+    }
+  ]
+}

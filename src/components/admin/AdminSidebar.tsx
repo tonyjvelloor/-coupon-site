@@ -15,7 +15,11 @@ import {
     Link2,
     FileText,
     Mail,
-    Newspaper, // Added Newspaper icon
+    Newspaper,
+    BrainCircuit,
+    Scale,
+    LineChart,
+    Activity,
 } from "lucide-react";
 
 interface AdminSidebarProps {
@@ -29,8 +33,13 @@ const menuItems = [
     { href: "/admin/coupons", label: "Coupons", icon: Ticket },
     { href: "/admin/banners", label: "Banners", icon: Megaphone },
     { href: "/admin/campaign-links", label: "Campaign Links", icon: Link2 },
+    { href: "/admin/intelligence", label: "AI Intelligence", icon: BrainCircuit },
     { href: "/admin/posts", label: "AI Blog", icon: FileText },
-    { href: "/admin/news", label: "Viral News", icon: Newspaper }, // Added new route for Viral News
+    { href: "/admin/news", label: "Viral News", icon: Newspaper },
+    { href: "/admin/import-queue", label: "Review Queue", icon: FileText },
+    { href: "/admin/resolver-metrics", label: "Resolver Metrics", icon: Scale },
+    { href: "/admin/business-metrics", label: "Business Metrics", icon: LineChart },
+    { href: "/admin/connector-benchmarks", label: "Connector Benchmarks", icon: LayoutDashboard },
     { href: "/admin/subscribers", label: "Subscribers", icon: Mail },
     { href: "/admin/bulk-upload", label: "Bulk Upload", icon: Upload },
     { href: "/admin/images", label: "Images", icon: Image },

@@ -39,9 +39,15 @@ model Store {
   clicks  Int   @default(0)
   revenue Float @default(0.0)
 
+  // Growth & Ops
+  activeOfferCount  Int       @default(0)
+  searchImpressions Int       @default(0)
+  lastImportedAt    DateTime?
+
   coupons         Coupon[]
   storeCategories StoreCategory[]
   campaignLinks   CampaignLink[]
+  aliases         MerchantAlias[]
 
   version           Int                @default(1)
   deletedAt         DateTime?
@@ -94,30 +100,37 @@ model StoreCategory {
 }
 
 model Coupon {
-  id              String       @id @default(uuid())
+  id              String    @id @default(uuid())
   title           String
   description     String?
   code            String? // Null for "Get Deal" type
-  type            String       @default("coupon") // "coupon", "deal"
+  type            String    @default("coupon") // "coupon", "deal"
   discountType    String // "percentage", "flat", "freebie"
   discountValue   String? // e.g., "80% Off", "₹500 Off"
   affiliateUrl    String
   image           String? // Banner image URL
   termsConditions String?
   expiresAt       DateTime?
-  isVerified      Boolean      @default(false)
-  isExclusive     Boolean      @default(false)
-  isFeatured      Boolean      @default(false)
-  usageCount      Int          @default(0)
-  clicks          Int          @default(0) // Analytics Tracking
-  displayOrder    Int          @default(0)
-  storeId         String
-  store           Store        @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  bank            String? // Bank name for bank offers (e.g., "HDFC", "SBI")
-  categoryId      String?
-  category        Category?    @relation(fields: [categoryId], references: [id])
+  isVerified      Boolean   @default(false)
+  isExclusive     Boolean   @default(false)
+  isFeatured      Boolean   @default(false)
+  usageCount      Int       @default(0)
+
+  clicks       Int @default(0) // Analytics Tracking
+  displayOrder Int @default(0)
+
+  // Analytics
+  revenueAttribution Float @default(0)
+  totalClicks        Int   @default(0)
+  totalConversions   Int   @default(0)
+
+  storeId     String
+  store       Store        @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  bank        String? // Bank name for bank offers (e.g., "HDFC", "SBI")
+  categoryId  String?
+  category    Category?    @relation(fields: [categoryId], references: [id])
   // Programmatic SEO collections
-  collections     Collection[]
+  collections Collection[]
 
   // Affiliate campaigns that feature this coupon
   campaigns AffiliateCampaign[]
@@ -208,17 +221,24 @@ model AffiliateCampaignHistory {
 
 // Programmatic SEO Collections
 model Collection {
-  id             String   @id @default(uuid())
+  id             String  @id @default(uuid())
   name           String
-  slug           String   @unique
+  slug           String  @unique
   type           String // e.g., "festival", "bank", "audience"
   seoTitle       String?
   seoDescription String?
   content        String? // Rich SEO content
   faqContent     String? // FAQ JSON
-  isIndexable    Boolean  @default(true)
-  priority       Float    @default(0.5) // Sitemap priority
-  coupons        Coupon[]
+  isIndexable    Boolean @default(true)
+  priority       Float   @default(0.5) // Sitemap priority
+
+  // Analytics
+  revenueAttribution Float @default(0)
+  totalClicks        Int   @default(0)
+  totalConversions   Int   @default(0)
+
+  // Relations
+  coupons Coupon[]
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
@@ -386,6 +406,12 @@ enum AnalyticsEventType {
   STORE_VIEW
   SEARCH
   NEWSLETTER_SIGNUP
+  // Funnel Events
+  OFFER_IMPORTED
+  OFFER_PUBLISHED
+  OFFER_INDEXED
+  OFFER_CLICKED
+  OFFER_CONVERTED
 }
 
 model AnalyticsEvent {
@@ -400,6 +426,42 @@ model AnalyticsEvent {
 
   @@index([type, createdAt])
   @@index([entityType, entityId])
+}
+
+// ---------------------------------------------------------
+// Measurement Loop (Growth Phase)
+// ---------------------------------------------------------
+
+model SearchConsoleMetric {
+  id          String   @id @default(uuid())
+  url         String
+  date        DateTime
+  impressions Int      @default(0)
+  clicks      Int      @default(0)
+  ctr         Float    @default(0)
+  position    Float    @default(0)
+  createdAt   DateTime @default(now())
+
+  @@unique([url, date])
+  @@index([date])
+}
+
+model AffiliatePostback {
+  id               String   @id @default(uuid())
+  network          String // e.g., "Impact", "CJ"
+  transactionId    String   @unique
+  clickId          String?
+  status           String // e.g., "PENDING", "APPROVED", "REJECTED"
+  saleAmount       Float    @default(0)
+  commissionAmount Float    @default(0)
+  currency         String   @default("USD")
+  rawPayload       Json
+  processed        Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([network, transactionId])
+  @@index([clickId])
 }
 
 model ClickEvent {
@@ -442,12 +504,178 @@ model AuditLog {
 }
 
 model ImportJob {
-  id            String       @id @default(uuid())
-  status        ImportStatus @default(PENDING)
-  startedAt     DateTime?
-  finishedAt    DateTime?
-  rowsProcessed Int          @default(0)
-  rowsFailed    Int          @default(0)
-  error         Json?
-  createdAt     DateTime     @default(now())
+  id         String       @id @default(uuid())
+  status     ImportStatus @default(PENDING)
+  source     String       @default("csv")
+  startedAt  DateTime?
+  finishedAt DateTime?
+
+  // Metrics
+  totalRows        Int      @default(0)
+  validRows        Int      @default(0)
+  published        Int      @default(0)
+  rejected         Int      @default(0)
+  duplicates       Int      @default(0)
+  aiPending        Int      @default(0)
+  aiComplete       Int      @default(0)
+  avgQuality       Float    @default(0.0)
+  processingTimeMs Int?
+  error            Json?
+  createdAt        DateTime @default(now())
+
+  // Connector Metadata
+  connectorVersion String?
+  pagesFetched     Int     @default(0)
+  recordsFetched   Int     @default(0)
+  apiLatencyMs     Int?
+
+  importedOffers ImportedOffer[]
+}
+
+model ImportedOffer {
+  id          String    @id @default(uuid())
+  importJobId String
+  importJob   ImportJob @relation(fields: [importJobId], references: [id], onDelete: Cascade)
+
+  schemaVersion String  @default("v1")
+  source        String // e.g., "csv", "impact"
+  sourceId      String? // External ID for deduplication
+
+  // Payloads
+  rawData        Json // Exact payload from the network
+  normalizedData Json // The Canonical Model representation
+
+  // Resolution Suggestions & Tracking
+  suggestedStoreId     String?
+  resolvedStoreId      String?
+  resolutionReason     String?
+  resolutionSource     String? // e.g., "Exact", "Alias", "Domain", "Fuzzy", "Manual"
+  resolutionConfidence Json? // detailed signals object, including resolverVersion
+
+  // Quality Metrics (Components)
+  completenessScore  Float @default(0.0)
+  validationScore    Float @default(0.0)
+  confidenceScore    Float @default(0.0)
+  freshnessScore     Float @default(0.0)
+  merchantMatchScore Float @default(0.0)
+  duplicateRisk      Float @default(0.0)
+  finalQualityScore  Float @default(0.0) // 0-100
+
+  validationErrors Json? // Array of structured validation error objects
+
+  // State: "pending", "published", "rejected", "edit_publish", "merged", "archived", "duplicate"
+  status String @default("pending")
+
+  // AI Enrichment data (populated by background worker)
+  aiEnrichedData Json?
+  aiStatus       String @default("none") // "none", "pending", "complete", "failed"
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([importJobId])
+  @@index([status])
+  @@index([source, sourceId])
+  @@index([aiStatus])
+}
+
+model MerchantAlias {
+  id         String @id @default(uuid())
+  merchantId String
+  merchant   Store  @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+
+  alias           String // Raw string e.g. "Amazon India Pvt Ltd"
+  normalizedAlias String // Fully processed string e.g. "amazon india"
+
+  source     String // e.g., "csv", "manual", "system"
+  confidence Int    @default(100) // 0-100. (100 = exact/manual approval)
+
+  approvedBy String? // Admin ID who approved it
+  approvedAt DateTime? // When it was manually approved
+  lastSeenAt DateTime  @default(now()) // Updated on every hit
+
+  createdAt DateTime @default(now())
+
+  @@unique([merchantId, alias])
+  @@index([alias])
+  @@index([normalizedAlias])
+}
+
+// ---------------------------------------------------------
+// PHASE 4: Automation & Notifications
+// ---------------------------------------------------------
+
+enum NotificationLevel {
+  INFO
+  WARNING
+  ERROR
+  SUCCESS
+}
+
+model AdminNotification {
+  id      String            @id @default(uuid())
+  title   String
+  message String
+  level   NotificationLevel @default(INFO)
+  source  String            @default("system") // e.g., 'import-engine', 'scheduler'
+  isRead  Boolean           @default(false)
+  link    String? // Optional URL to navigate to for more context
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isRead, createdAt])
+  @@index([source])
+}
+
+// ---------------------------------------------------------
+// PHASE 5: Intelligence Layer
+// ---------------------------------------------------------
+
+enum IntelligenceEvent {
+  COUPON_PUBLISHED
+  MERCHANT_UPDATED
+  COLLECTION_CREATED
+}
+
+enum IntelligenceTaskStatus {
+  PENDING
+  PROCESSING
+  PENDING_REVIEW
+  APPROVED
+  APPLIED
+  REJECTED
+  FAILED
+}
+
+model IntelligenceTask {
+  id         String            @id @default(uuid())
+  event      IntelligenceEvent
+  entityType String // e.g., "Coupon", "Store"
+  entityId   String
+  workerName String // e.g., "seo-worker", "merchant-worker"
+
+  status   IntelligenceTaskStatus @default(PENDING)
+  priority Int                    @default(0) // Higher number = higher priority
+  attempts Int                    @default(0)
+
+  // Provenance
+  promptVersion String
+  workerVersion String
+  model         String
+  settings      Json? // e.g., { temperature: 0.7 }
+
+  // Data
+  inputSnapshot Json // The exact data the worker saw
+  generatedData Json? // The structured proposal from the worker
+  error         Json? // Error details if FAILED
+
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([status, priority, createdAt])
+  @@index([entityType, entityId])
+  @@index([workerName])
 }

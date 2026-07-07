@@ -30,6 +30,10 @@ export function formatCurrency(amount: number): string {
     }).format(amount);
 }
 
+export function formatNumber(num: number): string {
+    return new Intl.NumberFormat('en-IN').format(num);
+}
+
 export function truncate(str: string, length: number): string {
     if (str.length <= length) return str;
     return str.slice(0, length) + '...';

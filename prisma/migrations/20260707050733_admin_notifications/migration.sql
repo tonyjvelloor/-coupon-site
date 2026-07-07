@@ -1,0 +1,23 @@
+-- CreateEnum
+CREATE TYPE "NotificationLevel" AS ENUM ('INFO', 'WARNING', 'ERROR', 'SUCCESS');
+
+-- CreateTable
+CREATE TABLE "AdminNotification" (
+    "id" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "message" TEXT NOT NULL,
+    "level" "NotificationLevel" NOT NULL DEFAULT 'INFO',
+    "source" TEXT NOT NULL DEFAULT 'system',
+    "isRead" BOOLEAN NOT NULL DEFAULT false,
+    "link" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "AdminNotification_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE INDEX "AdminNotification_isRead_createdAt_idx" ON "AdminNotification"("isRead", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "AdminNotification_source_idx" ON "AdminNotification"("source");
