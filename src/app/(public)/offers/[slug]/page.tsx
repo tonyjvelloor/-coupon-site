@@ -15,6 +15,7 @@ interface PageProps {
     params: Promise<{ slug: string }>;
 }
 
+
 export async function generateStaticParams() {
     try {
         const collections = await prisma.collection.findMany({
