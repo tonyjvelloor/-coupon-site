@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Ticket, Mail, MapPin } from "lucide-react";
 import NewsletterSignup from "@/components/ui/NewsletterSignup";
-import CategoryLinkWall from "@/components/ui/CategoryLinkWall";
 
 const footerLinks = {
     // ...
@@ -36,7 +35,6 @@ export default function Footer() {
     return (
         <>
             <NewsletterSignup />
-            <CategoryLinkWall />
             <footer className="bg-gray-900 text-gray-300">
                 {/* Main Footer */}
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

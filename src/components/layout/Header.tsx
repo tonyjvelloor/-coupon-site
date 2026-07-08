@@ -30,11 +30,6 @@ export default function Header({ categories = [] }: HeaderProps) {
 
     return (
         <header className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 transition-colors duration-300">
-            {/* Top Bar */}
-            <div className="gradient-hero text-white py-2 text-center text-sm">
-                <span className="font-medium">🎉 Get up to 80% OFF + Extra Cashback on Top Stores!</span>
-            </div>
-
             {/* Main Header */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
@@ -109,7 +104,7 @@ export default function Header({ categories = [] }: HeaderProps) {
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                             <input
                                 type="text"
-                                placeholder="Search coupons, stores..."
+                                placeholder="Search verified stores and deals..."
                                 className="w-64 pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-violet-500 focus:border-transparent outline-none text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:placeholder-gray-400"
                             />
                         </div>
@@ -146,7 +141,7 @@ export default function Header({ categories = [] }: HeaderProps) {
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                             <input
                                 type="text"
-                                placeholder="Search coupons, stores..."
+                                placeholder="Search verified stores and deals..."
                                 className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-violet-500 focus:border-transparent outline-none"
                                 autoFocus
                             />

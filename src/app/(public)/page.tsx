@@ -65,7 +65,7 @@ export default async function Home() {
                             <Icon name="search" className="ml-4 text-surface-400 text-[24px]" />
                             <input 
                                 type="text" 
-                                placeholder="What are you shopping for? (e.g. Nike shoes, Amazon laptops...)" 
+                                placeholder="Search verified stores and deals..." 
                                 className="flex-1 bg-transparent border-none focus:ring-0 px-4 py-3 text-on-surface font-medium placeholder-surface-400 outline-none"
                             />
                             <button className="bg-primary hover:bg-primary-600 text-white px-8 py-3 rounded-full font-bold transition-colors">
@@ -78,8 +78,62 @@ export default async function Home() {
 
             {/* Main Content Layout */}
             <div className="max-w-container-max mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10 space-y-16 pb-24">
-                
-                {/* 2. Trending Merchants (Merchant Health Snapshot) */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* 2. Verified Offers (Left Column - 2/3 width) */}
+                    <div className="lg:col-span-2 space-y-6">
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-3">
+                                <h2 className="text-2xl font-headline-md font-bold text-on-surface flex items-center gap-2">
+                                    <Icon name="bolt" className="text-urgency-orange text-[28px]" variant="fill" />
+                                    Live Verified Offers
+                                </h2>
+                                <span className="text-xs font-semibold px-2.5 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded-full flex items-center gap-1.5">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                                    Graph synced just now
+                                </span>
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-4">
+                            {hotCoupons.map((coupon) => (
+                                <IntelligenceCouponCard 
+                                    key={coupon.id}
+                                    discountValue={coupon.discountValue || "Deal"}
+                                    discountType={coupon.discountType || "OFF"}
+                                    title={coupon.title}
+                                    code={coupon.code || undefined}
+                                    isVerified={true}
+                                    lastVerified={formatDistanceToNow(coupon.updatedAt, { addSuffix: true })}
+                                    expiresAt={formatDistanceToNow(new Date(coupon.expiresAt), { addSuffix: true })}
+                                    confidenceScore={98}
+                                    cashbackInfo={Math.random() > 0.5 ? "+ Up to 5% Cashback" : undefined}
+                                    hasTerms={true}
+                                />
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* 3. Deal Intelligence & Trust (Right Column - 1/3 width) */}
+                    <div className="space-y-8">
+                        <DealTimeline events={timelineEvents} />
+
+                        <div className="glass-card premium-card rounded-2xl p-6 bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-primary-900/20 dark:to-secondary-900/20 border border-primary-100 dark:border-primary-900/50">
+                            <h3 className="font-headline-md font-bold text-primary-900 dark:text-primary-100 mb-4 flex items-center gap-2">
+                                <Icon name="security" variant="fill" className="text-[24px]" />
+                                The CouponHub Guarantee
+                            </h3>
+                            <p className="text-sm text-on-surface-variant font-medium leading-relaxed mb-4">
+                                Our Merchant Knowledge Graph continuously tests and verifies relationships between merchants and deals. We score every opportunity before it reaches you.
+                            </p>
+                            <ul className="space-y-2 text-sm font-semibold text-primary-800 dark:text-primary-200">
+                                <li className="flex items-center gap-2"><Icon name="check_circle" variant="fill" className="text-verified-green" /> 0% Fake Coupons</li>
+                                <li className="flex items-center gap-2"><Icon name="check_circle" variant="fill" className="text-verified-green" /> Real-time Verification</li>
+                                <li className="flex items-center gap-2"><Icon name="check_circle" variant="fill" className="text-verified-green" /> Maximum Stacked Savings</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 4. Trending Merchants (Merchant Health Snapshot) */}
                 <section>
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-2xl font-headline-md font-bold text-on-surface flex items-center gap-2">
@@ -113,55 +167,6 @@ export default async function Home() {
                     </div>
                 </section>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* 3. Verified Offers (Left Column - 2/3 width) */}
-                    <div className="lg:col-span-2 space-y-6">
-                        <div className="flex items-center justify-between mb-2">
-                            <h2 className="text-2xl font-headline-md font-bold text-on-surface flex items-center gap-2">
-                                <Icon name="bolt" className="text-urgency-orange text-[28px]" variant="fill" />
-                                Live Verified Offers
-                            </h2>
-                        </div>
-                        <div className="flex flex-col gap-4">
-                            {hotCoupons.map((coupon) => (
-                                <IntelligenceCouponCard 
-                                    key={coupon.id}
-                                    discountValue={coupon.discountValue || "Deal"}
-                                    discountType={coupon.discountType || "OFF"}
-                                    title={coupon.title}
-                                    code={coupon.code || undefined}
-                                    isVerified={true}
-                                    lastVerified={formatDistanceToNow(coupon.updatedAt, { addSuffix: true })}
-                                    expiresAt={formatDistanceToNow(new Date(coupon.expiresAt), { addSuffix: true })}
-                                    confidenceScore={98}
-                                    cashbackInfo={Math.random() > 0.5 ? "+ Up to 5% Cashback" : undefined}
-                                    hasTerms={true}
-                                />
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* 4. Deal Intelligence & Trust (Right Column - 1/3 width) */}
-                    <div className="space-y-8">
-                        <DealTimeline events={timelineEvents} />
-
-                        <div className="glass-card premium-card rounded-2xl p-6 bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-primary-900/20 dark:to-secondary-900/20 border border-primary-100 dark:border-primary-900/50">
-                            <h3 className="font-headline-md font-bold text-primary-900 dark:text-primary-100 mb-4 flex items-center gap-2">
-                                <Icon name="security" variant="fill" className="text-[24px]" />
-                                The CouponHub Guarantee
-                            </h3>
-                            <p className="text-sm text-on-surface-variant font-medium leading-relaxed mb-4">
-                                Our Intelligence Engine scans, tests, and cryptographically verifies every offer on this platform before publishing.
-                            </p>
-                            <ul className="space-y-2 text-sm font-semibold text-primary-800 dark:text-primary-200">
-                                <li className="flex items-center gap-2"><Icon name="check_circle" variant="fill" className="text-verified-green" /> 0% Fake Coupons</li>
-                                <li className="flex items-center gap-2"><Icon name="check_circle" variant="fill" className="text-verified-green" /> Real-time Verification</li>
-                                <li className="flex items-center gap-2"><Icon name="check_circle" variant="fill" className="text-verified-green" /> Maximum Stacked Savings</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
                 {/* 5. Top Categories */}
                 <section>
                     <h2 className="text-2xl font-headline-md font-bold text-on-surface mb-6 flex items-center gap-2">
@@ -178,28 +183,7 @@ export default async function Home() {
                     </div>
                 </section>
 
-                {/* 6. Newsletter / Intent Capture */}
-                <section className="bg-surface-900 dark:bg-black rounded-3xl p-8 md:p-12 text-center border border-surface-800 overflow-hidden relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary-900/50 to-secondary-900/50 z-0"></div>
-                    <div className="relative z-10 max-w-2xl mx-auto">
-                        <Icon name="mark_email_read" className="text-secondary-400 text-[48px] mb-4" variant="fill" />
-                        <h2 className="text-3xl font-headline-lg font-bold text-white mb-4">Never Miss a Pricing Error Again</h2>
-                        <p className="text-surface-300 font-medium mb-8">
-                            Join 50,000+ smart shoppers. We'll alert you immediately when our Intelligence Engine detects a massive price drop or stacked offer.
-                        </p>
-                        <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-                            <input 
-                                type="email" 
-                                placeholder="Enter your email address" 
-                                className="flex-1 bg-surface-800 border border-surface-700 text-white rounded-xl px-4 py-3 outline-none focus:border-primary-500"
-                                required
-                            />
-                            <button type="submit" className="bg-primary hover:bg-primary-600 text-white font-bold px-6 py-3 rounded-xl transition-colors whitespace-nowrap">
-                                Subscribe Free
-                            </button>
-                        </form>
-                    </div>
-                </section>
+
 
             </div>
             <HomeSchema categories={categories} stores={featuredStores} />

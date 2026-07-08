@@ -1,43 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { TrendingUp, Users, BadgeCheck, Zap } from "lucide-react";
 
 const stats = [
-    { icon: Users, value: 50000, label: "Happy Users", suffix: "+" },
-    { icon: BadgeCheck, value: 500, label: "Verified Stores", suffix: "+" },
-    { icon: TrendingUp, value: 95, label: "Success Rate", suffix: "%" },
-    { icon: Zap, value: 24, label: "Support", suffix: "/7" },
+    { icon: BadgeCheck, value: "50+", label: "Verified Stores" },
+    { icon: Zap, value: "250+", label: "Live Deals" },
+    { icon: TrendingUp, value: "98%", label: "Accuracy" },
+    { icon: Users, value: "Real-time", label: "Verification" },
 ];
-
-function AnimatedNumber({ value, suffix }: { value: number; suffix: string }) {
-    const [count, setCount] = useState(0);
-
-    useEffect(() => {
-        const duration = 2000;
-        const steps = 50;
-        const increment = value / steps;
-        let current = 0;
-
-        const timer = setInterval(() => {
-            current += increment;
-            if (current >= value) {
-                setCount(value);
-                clearInterval(timer);
-            } else {
-                setCount(Math.floor(current));
-            }
-        }, duration / steps);
-
-        return () => clearInterval(timer);
-    }, [value]);
-
-    return (
-        <span className="animated-number font-bold text-lg md:text-xl text-gray-900 dark:text-white">
-            {count.toLocaleString()}{suffix}
-        </span>
-    );
-}
 
 export default function TrustBadges() {
     return (
@@ -50,7 +20,9 @@ export default function TrustBadges() {
                 >
                     <stat.icon className="w-5 h-5 text-green-500 flex-shrink-0" />
                     <div className="flex flex-col items-start leading-tight">
-                        <AnimatedNumber value={stat.value} suffix={stat.suffix} />
+                        <span className="font-bold text-lg md:text-xl text-gray-900 dark:text-white">
+                            {stat.value}
+                        </span>
                         <span className="text-[9px] md:text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider font-semibold mt-0.5">
                             {stat.label}
                         </span>

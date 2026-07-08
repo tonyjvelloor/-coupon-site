@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/db";
-import { Header } from "@/components/navigation/Header";
-import { Footer } from "@/components/navigation/Footer";
-import NewsTicker from "@/components/ui/NewsTicker";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
 
 export default async function PublicLayout({
     children,
@@ -15,7 +14,6 @@ export default async function PublicLayout({
 
     return (
         <div className="min-h-screen flex flex-col">
-            <NewsTicker />
             <Header categories={categories} />
             <main className="flex-1">{children}</main>
             <Footer />
