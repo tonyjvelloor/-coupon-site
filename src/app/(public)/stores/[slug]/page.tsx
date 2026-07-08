@@ -119,7 +119,7 @@ export default async function StorePage({ params }: PageProps) {
     return (
         <div className="bg-background min-h-screen pb-24">
             <ExitIntentPopup />
-            {bestDeal && <StickyCouponWidget deal={bestDeal as any} />}
+            {bestDeal && <StickyCouponWidget deal={{ ...bestDeal, store: { name: store.name, slug: store.slug } } as any} />}
 
             {/* Merchant Snapshot Hero */}
             <section className="bg-white dark:bg-surface-950 border-b border-surface-200 dark:border-surface-800 pt-8 pb-12 mb-8">

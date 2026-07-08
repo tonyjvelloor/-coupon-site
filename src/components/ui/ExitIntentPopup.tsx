@@ -64,12 +64,18 @@ export default function ExitIntentPopup() {
     if (!isVisible) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md relative overflow-hidden animate-in zoom-in-95 duration-300 border border-gray-100 dark:border-gray-800">
+        <div 
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-surface-900/60 backdrop-blur-sm animate-in fade-in duration-300"
+            onClick={() => setIsVisible(false)}
+        >
+            <div 
+                className="bg-white dark:bg-surface-950 rounded-2xl shadow-2xl w-full max-w-md relative overflow-hidden animate-in zoom-in-95 duration-300 border border-surface-200 dark:border-surface-800"
+                onClick={(e) => e.stopPropagation()}
+            >
                 {/* Close Button */}
                 <button
                     onClick={() => setIsVisible(false)}
-                    className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-900 dark:hover:text-white bg-gray-100 dark:bg-gray-800 rounded-full transition-colors z-10"
+                    className="absolute top-4 right-4 p-2 text-surface-400 hover:text-merchant-900 dark:hover:text-merchant-50 bg-surface-100 dark:bg-surface-800 rounded-full transition-colors z-20"
                     aria-label="Close"
                 >
                     <X className="w-5 h-5" />
@@ -80,13 +86,13 @@ export default function ExitIntentPopup() {
 
                 <div className="p-8">
                     <div className="text-center mb-6">
-                        <div className="mx-auto w-12 h-12 bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 rounded-full flex items-center justify-center mb-4">
+                        <div className="mx-auto w-12 h-12 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-full flex items-center justify-center mb-4">
                             <Mail className="w-6 h-6" />
                         </div>
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                        <h2 className="text-2xl font-bold text-merchant-900 dark:text-merchant-50 mb-2">
                             Wait! Don't leave empty handed
                         </h2>
-                        <p className="text-gray-600 dark:text-gray-400 text-sm">
+                        <p className="text-surface-600 dark:text-surface-400 text-sm">
                             Join 50,000+ smart shoppers who get our hand-picked, exclusive coupon codes delivered straight to their inbox.
                         </p>
                     </div>
@@ -94,14 +100,14 @@ export default function ExitIntentPopup() {
                     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                         <div className="relative group">
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <Mail className="h-5 w-5 text-gray-400 group-focus-within:text-violet-500 transition-colors" />
+                                <Mail className="h-5 w-5 text-surface-400 group-focus-within:text-primary-500 transition-colors" />
                             </div>
                             <input
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="Enter your email address"
-                                className="block w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-violet-500 dark:focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all text-sm disabled:opacity-50"
+                                className="block w-full pl-11 pr-4 py-3 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 text-merchant-900 dark:text-merchant-50 placeholder-surface-400 focus:outline-none focus:border-primary-500 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all text-sm disabled:opacity-50"
                                 required
                                 disabled={status === "loading" || status === "success"}
                             />
@@ -110,7 +116,7 @@ export default function ExitIntentPopup() {
                         <button
                             type="submit"
                             disabled={status === "loading" || status === "success"}
-                            className="relative w-full py-3 px-6 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white rounded-xl font-bold shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50 transition-all duration-300 disabled:opacity-70 flex items-center justify-center gap-2"
+                            className="relative w-full py-3 px-6 bg-gradient-to-r from-primary-600 to-fuchsia-600 hover:from-primary-500 hover:to-fuchsia-500 text-white rounded-xl font-bold shadow-lg shadow-primary-500/30 hover:shadow-primary-500/50 transition-all duration-300 disabled:opacity-70 flex items-center justify-center gap-2"
                         >
                             {status === "loading" ? (
                                 <>
@@ -132,18 +138,18 @@ export default function ExitIntentPopup() {
 
                         {/* Status Messages */}
                         {status === "success" && (
-                            <p className="text-green-600 dark:text-green-400 text-sm text-center font-medium animate-in fade-in">
+                            <p className="text-success-600 dark:text-success-400 text-sm text-center font-medium animate-in fade-in">
                                 {message}
                             </p>
                         )}
                         {status === "error" && (
-                            <p className="text-red-500 dark:text-red-400 text-sm text-center font-medium animate-in fade-in">
+                            <p className="text-error-500 dark:text-error-400 text-sm text-center font-medium animate-in fade-in">
                                 {message}
                             </p>
                         )}
                     </form>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 text-center mt-4">
-                        No spam ever. Unsubscribe at any time. Read our <a href="/privacy" className="underline hover:text-gray-600 dark:hover:text-gray-300">Privacy Policy</a>.
+                    <p className="text-xs text-surface-400 dark:text-surface-500 text-center mt-4">
+                        No spam ever. Unsubscribe at any time. Read our <a href="/privacy" className="underline hover:text-surface-600 dark:hover:text-surface-300">Privacy Policy</a>.
                     </p>
                 </div>
             </div>
