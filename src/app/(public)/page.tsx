@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
+import Image from "next/image";
 import { MerchantSnapshot } from "@/components/ui/MerchantSnapshot";
 import { DecisionCard } from "@/components/ui/DecisionCard";
 import { DealTimeline } from "@/components/ui/DealTimeline";
@@ -184,14 +185,21 @@ export default async function Home() {
                         Explore Categories
                     </h2>
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
-                        {categories.map((cat) => (
+                        {categories.map((cat) => {
+                            const hasImage = ['fashion', 'electronics', 'food-dining', 'health-beauty', 'home-living', 'sports-fitness', 'entertainment', 'travel'].includes(cat.slug);
+                            return (
                             <Link key={cat.id} href={`/category/${cat.slug}`} className="glass-card flex flex-col items-center justify-center p-4 rounded-xl hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors border border-surface-200 dark:border-surface-700 group overflow-hidden">
-                                <div className="w-8 h-8 flex items-center justify-center overflow-hidden mb-2">
-                                    <Icon name={(cat.icon || "category").toLowerCase().replace(/[^a-z0-9_]/g, "_")} className="text-[28px] text-surface-400 group-hover:text-primary transition-colors" />
+                                <div className="w-12 h-12 flex items-center justify-center overflow-hidden mb-2 rounded-xl bg-surface-100 dark:bg-surface-900 border border-surface-200 dark:border-surface-700">
+                                    {hasImage ? (
+                                        <Image src={`/images/categories/${cat.slug}.jpg`} alt={cat.name} width={48} height={48} className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300" />
+                                    ) : (
+                                        <Icon name={(cat.icon || "category").toLowerCase().replace(/[^a-z0-9_]/g, "_")} className="text-[28px] text-surface-400 group-hover:text-primary transition-colors" />
+                                    )}
                                 </div>
                                 <span className="font-semibold text-on-surface text-[12px] text-center truncate w-full">{cat.name}</span>
                             </Link>
-                        ))}
+                            );
+                        })}
                     </div>
                 </section>
 

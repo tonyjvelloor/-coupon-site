@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { DecisionCard } from "@/components/ui/DecisionCard";
 import { MerchantSnapshot } from "@/components/ui/MerchantSnapshot";
 import SEOTextAndFAQ from "@/components/ui/SEOTextAndFAQ";
@@ -119,8 +120,12 @@ export default async function CategoryPage({ params }: PageProps) {
                 
                 <div className="max-w-container-max mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
-                        <div className="w-20 h-20 bg-primary-50 dark:bg-primary-900/30 rounded-2xl flex items-center justify-center border border-primary-200 dark:border-primary-800 overflow-hidden">
-                            <Icon name={(category.icon || "category").toLowerCase().replace(/[^a-z0-9_]/g, "_")} className="text-4xl text-primary-600 dark:text-primary-400" />
+                        <div className="w-20 h-20 bg-primary-50 dark:bg-primary-900/30 rounded-2xl flex items-center justify-center border border-primary-200 dark:border-primary-800 overflow-hidden relative">
+                            {['fashion', 'electronics', 'food-dining', 'health-beauty', 'home-living', 'sports-fitness', 'entertainment', 'travel'].includes(category.slug) ? (
+                                <Image src={`/images/categories/${category.slug}.jpg`} alt={category.name} fill className="object-cover" />
+                            ) : (
+                                <Icon name={(category.icon || "category").toLowerCase().replace(/[^a-z0-9_]/g, "_")} className="text-4xl text-primary-600 dark:text-primary-400" />
+                            )}
                         </div>
                         <div className="flex-1 space-y-2">
                             <h1 className="text-3xl md:text-5xl font-headline-lg font-bold text-merchant-900 dark:text-merchant-50">
