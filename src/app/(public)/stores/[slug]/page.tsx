@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Clock } from "lucide-react";
 import CouponCard from "@/components/ui/CouponCard";
 import SEOTextAndFAQ from "@/components/ui/SEOTextAndFAQ";
-import InternalLinks from "@/components/ui/InternalLinks";
+import { DecisionGraph } from "@/components/intelligence/DecisionGraph";
 import ExitIntentPopup from "@/components/ui/ExitIntentPopup";
 import StickyCouponWidget from "@/components/ui/StickyCouponWidget";
 
@@ -174,7 +174,7 @@ export default async function StorePage({ params }: PageProps) {
 
                         {/* Internal Links Engine */}
                         <div className="mt-16">
-                            <InternalLinks currentStoreSlug={slug} />
+                            <DecisionGraph merchantId={store.id} storeSlug={slug} />
                         </div>
 
             <StoreSchema store={store} coupons={store.coupons} />

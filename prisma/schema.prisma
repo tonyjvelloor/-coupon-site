@@ -35,6 +35,10 @@ model Store {
   searchImpressions Int       @default(0)
   lastImportedAt    DateTime?
 
+  // Knowledge Graph Metrics
+  healthScore       Json?
+  knowledgeDensity  Float     @default(0.0)
+
   coupons         Coupon[]
   storeCategories StoreCategory[]
   campaignLinks   CampaignLink[]
@@ -696,4 +700,115 @@ model IntelligenceTask {
   @@index([status, priority, createdAt])
   @@index([entityType, entityId])
   @@index([workerName])
+}
+
+// ---------------------------------------------------------
+// PHASE 6: Merchant Knowledge Graph
+// ---------------------------------------------------------
+
+enum NodeType {
+  MERCHANT
+  CATEGORY
+  BANK
+  BRAND
+  FESTIVAL
+  EVENT
+  GUIDE
+  FAQ
+  POLICY
+  FEATURE
+}
+
+enum EdgeType {
+  HAS_GUIDE
+  HAS_CATEGORY
+  HAS_EVENT
+  HAS_BANK
+  SUPPORTED_BY
+  SELLS
+  RELATED_TO
+  HAS_POLICY
+  HAS_FEATURE
+}
+
+model KnowledgeNode {
+  id          String   @id @default(uuid())
+  type        NodeType
+  entityId    String?  // Optional mapping to existing DB record (e.g., Store.id)
+  name        String
+  metadata    Json?    // Arbitrary properties
+  
+  // Provenance
+  source      String?
+  confidence  Int      @default(100)
+  createdBy   String?
+  verifiedAt  DateTime?
+  
+  outgoingEdges KnowledgeEdge[] @relation("SourceNode")
+  incomingEdges KnowledgeEdge[] @relation("TargetNode")
+  
+  @@index([type])
+  @@index([entityId])
+}
+
+model KnowledgeEdge {
+  id          String        @id @default(uuid())
+  sourceId    String
+  source      KnowledgeNode @relation("SourceNode", fields: [sourceId], references: [id], onDelete: Cascade)
+  targetId    String
+  target      KnowledgeNode @relation("TargetNode", fields: [targetId], references: [id], onDelete: Cascade)
+  type        EdgeType
+  weight      Float         @default(1.0)
+  metadata    Json?
+  
+  // Versioning & Provenance
+  effectiveFrom DateTime  @default(now())
+  effectiveTo   DateTime?
+  source        String?
+  confidence    Int       @default(100)
+  
+  @@unique([sourceId, targetId, type])
+  @@index([sourceId, targetId, type])
+}
+
+enum OpportunityType {
+  CONTENT
+  SEO
+  MERCHANT
+  REVENUE
+  KNOWLEDGE
+  TRUST
+  FRESHNESS
+  COVERAGE
+  INTERNAL_LINKING
+}
+
+enum OpportunityStatus {
+  GENERATED
+  TRIAGED
+  APPROVED
+  IN_PROGRESS
+  COMPLETED
+  DISMISSED
+}
+
+model Opportunity {
+  id              String            @id @default(uuid())
+  type            OpportunityType
+  title           String
+  description     String
+  priority        Int
+  trafficGain     String // "High", "Medium", "Low"
+  revenueImpact   String // "High", "Medium", "Low"
+  estimatedEffort String // "High", "Medium", "Low"
+  confidence      Int
+  recommendedAction String
+  dependencies    Json // Array of strings
+  status          OpportunityStatus @default(GENERATED)
+  
+  targetEntityId  String // e.g., Merchant ID
+  nodeId          String? // Reference to the graph node it was derived from
+  
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
 }
