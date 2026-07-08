@@ -32,6 +32,11 @@ export interface DecisionCardProps {
 export function DecisionCard({ coupon, storeName, storeLogo }: DecisionCardProps) {
     const [showCode, setShowCode] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+
+    React.useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const handleAction = () => {
         if (coupon.type === "coupon" && coupon.code) {
@@ -43,7 +48,9 @@ export function DecisionCard({ coupon, storeName, storeLogo }: DecisionCardProps
         window.open(coupon.affiliateUrl, "_blank");
     };
 
-    const isExpiringSoon = coupon.expiresAt && new Date(coupon.expiresAt).getTime() - Date.now() < 3 * 24 * 60 * 60 * 1000;
+    const isExpiringSoon = isMounted && coupon.expiresAt 
+        ? new Date(coupon.expiresAt).getTime() - Date.now() < 3 * 24 * 60 * 60 * 1000 
+        : false;
 
     return (
         <Card className="h-full relative group">
@@ -149,7 +156,7 @@ export function DecisionCard({ coupon, storeName, storeLogo }: DecisionCardProps
                         <Icon name="info" className="text-[12px]" /> Terms apply
                     </span>
                     {coupon.expiresAt && !isExpiringSoon && (
-                        <span>Ends {new Date(coupon.expiresAt).toLocaleDateString()}</span>
+                        <span suppressHydrationWarning>Ends {new Date(coupon.expiresAt).toLocaleDateString()}</span>
                     )}
                 </div>
             </CardFooter>
