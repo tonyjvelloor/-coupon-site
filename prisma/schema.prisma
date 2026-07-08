@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
   output   = "../node_modules/.prisma/client"
@@ -11,46 +8,38 @@ datasource db {
 }
 
 model Store {
-  id             String  @id @default(uuid())
-  name           String
-  slug           String  @unique
-  description    String?
-  logo           String?
-  website        String
-  affiliateUrl   String?
-  cashbackRate   String? // e.g., "Upto 10.2%"
-  cashbackType   String? // "percentage", "flat", "voucher"
-  offerCount     Int     @default(0)
-  isActive       Boolean @default(true)
-  isFeatured     Boolean @default(false)
-  seoTitle       String?
-  seoDescription String?
-
-  // Analytics Tracking
-  clicks  Int   @default(0)
-  revenue Float @default(0.0)
-
-  // Growth & Ops
-  activeOfferCount  Int       @default(0)
-  searchImpressions Int       @default(0)
-  lastImportedAt    DateTime?
-
-  // Knowledge Graph Metrics
-  healthScore       Json?
-  knowledgeDensity  Float     @default(0.0)
-
-  coupons         Coupon[]
-  storeCategories StoreCategory[]
-  campaignLinks   CampaignLink[]
-  aliases         MerchantAlias[]
-  storeContents   StoreContent[]
-
+  id                String             @id @default(uuid())
+  name              String
+  slug              String             @unique
+  description       String?
+  logo              String?
+  website           String
+  affiliateUrl      String?
+  cashbackRate      String?
+  cashbackType      String?
+  offerCount        Int                @default(0)
+  isActive          Boolean            @default(true)
+  isFeatured        Boolean            @default(false)
+  seoTitle          String?
+  seoDescription    String?
+  clicks            Int                @default(0)
+  revenue           Float              @default(0.0)
   version           Int                @default(1)
   deletedAt         DateTime?
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
+  activeOfferCount  Int                @default(0)
+  lastImportedAt    DateTime?
+  searchImpressions Int                @default(0)
+  healthScore       Json?
+  knowledgeDensity  Float              @default(0.0)
   affiliatePrograms AffiliateProgram[]
+  campaignLinks     CampaignLink[]
   clickEvents       ClickEvent[]
+  coupons           Coupon[]
+  aliases           MerchantAlias[]
+  storeCategories   StoreCategory[]
+  storeContents     StoreContent[]
 
   @@index([slug])
   @@index([createdAt])
@@ -67,17 +56,16 @@ model Category {
   isActive        Boolean         @default(true)
   isFeatured      Boolean         @default(false)
   displayOrder    Int             @default(0)
-  aboutContent    String? // Rich SEO content
-  faqContent      String? // FAQ JSON
+  aboutContent    String?
+  faqContent      String?
   parentId        String?
+  deletedAt       DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
   parent          Category?       @relation("CategoryChildren", fields: [parentId], references: [id])
   children        Category[]      @relation("CategoryChildren")
-  storeCategories StoreCategory[]
   coupons         Coupon[]
-
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  storeCategories StoreCategory[]
 
   @@index([slug])
   @@index([isActive])
@@ -86,13 +74,521 @@ model Category {
 model StoreCategory {
   id         String   @id @default(uuid())
   storeId    String
-  store      Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  store      Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
   @@unique([storeId, categoryId])
   @@index([storeId])
   @@index([categoryId])
+}
+
+model StoreContent {
+  id        String           @id @default(uuid())
+  storeId   String
+  type      StoreContentType
+  content   String
+  deletedAt DateTime?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  store     Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@unique([storeId, type])
+  @@index([storeId])
+}
+
+model Coupon {
+  id                 String              @id @default(uuid())
+  title              String
+  description        String?
+  code               String?
+  type               String              @default("coupon")
+  discountType       String
+  discountValue      String?
+  affiliateUrl       String
+  image              String?
+  termsConditions    String?
+  expiresAt          DateTime?
+  isVerified         Boolean             @default(false)
+  isExclusive        Boolean             @default(false)
+  isFeatured         Boolean             @default(false)
+  usageCount         Int                 @default(0)
+  clicks             Int                 @default(0)
+  displayOrder       Int                 @default(0)
+  storeId            String
+  bank               String?
+  categoryId         String?
+  version            Int                 @default(1)
+  deletedAt          DateTime?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  revenueAttribution Float               @default(0)
+  totalClicks        Int                 @default(0)
+  totalConversions   Int                 @default(0)
+  clickEvents        ClickEvent[]
+  category           Category?           @relation(fields: [categoryId], references: [id])
+  store              Store               @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  campaigns          AffiliateCampaign[] @relation("AffiliateCampaignToCoupon")
+  collections        Collection[]        @relation("CollectionToCoupon")
+
+  @@index([storeId])
+  @@index([categoryId])
+  @@index([expiresAt])
+  @@index([createdAt])
+}
+
+model AffiliateNetwork {
+  id        String             @id @default(uuid())
+  name      String
+  slug      String             @unique
+  deletedAt DateTime?
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  programs  AffiliateProgram[]
+
+  @@index([slug])
+}
+
+model AffiliateProgram {
+  id             String              @id @default(uuid())
+  merchantId     String
+  networkId      String
+  programId      String
+  commissionType String
+  commissionRate String
+  cookieDuration Int
+  status         String              @default("active")
+  deletedAt      DateTime?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  campaigns      AffiliateCampaign[]
+  merchant       Store               @relation(fields: [merchantId], references: [id])
+  network        AffiliateNetwork    @relation(fields: [networkId], references: [id])
+
+  @@index([merchantId])
+  @@index([networkId])
+}
+
+model AffiliateCampaign {
+  id             String                     @id @default(uuid())
+  programId      String
+  trackingUrl    String
+  landingUrl     String?
+  campaignName   String
+  commissionRate String?
+  priority       Int                        @default(0)
+  active         Boolean                    @default(true)
+  deletedAt      DateTime?
+  createdAt      DateTime                   @default(now())
+  updatedAt      DateTime                   @updatedAt
+  program        AffiliateProgram           @relation(fields: [programId], references: [id])
+  history        AffiliateCampaignHistory[]
+  clickEvents    ClickEvent[]
+  coupons        Coupon[]                   @relation("AffiliateCampaignToCoupon")
+
+  @@index([programId])
+}
+
+model AffiliateCampaignHistory {
+  id             String            @id @default(uuid())
+  campaignId     String
+  commissionRate String?
+  trackingUrl    String
+  effectiveFrom  DateTime          @default(now())
+  effectiveTo    DateTime?
+  createdAt      DateTime          @default(now())
+  campaign       AffiliateCampaign @relation(fields: [campaignId], references: [id])
+
+  @@index([campaignId, effectiveFrom])
+}
+
+model Collection {
+  id                 String    @id @default(uuid())
+  name               String
+  slug               String    @unique
+  type               String
+  seoTitle           String?
+  seoDescription     String?
+  content            String?
+  faqContent         String?
+  isIndexable        Boolean   @default(true)
+  priority           Float     @default(0.5)
+  deletedAt          DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  revenueAttribution Float     @default(0)
+  totalClicks        Int       @default(0)
+  totalConversions   Int       @default(0)
+  coupons            Coupon[]  @relation("CollectionToCoupon")
+
+  @@index([slug])
+  @@index([type])
+}
+
+model Banner {
+  id        String    @id @default(uuid())
+  imageUrl  String
+  link      String
+  title     String?
+  isActive  Boolean   @default(true)
+  order     Int       @default(0)
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([isActive])
+}
+
+model Admin {
+  id           String     @id @default(uuid())
+  email        String     @unique
+  password     String
+  name         String?
+  bio          String?
+  profileImage String?
+  socialLinks  String?
+  deletedAt    DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  auditLogs    AuditLog[]
+  posts        BlogPost[]
+}
+
+model SiteSettings {
+  id              String   @id @default(uuid())
+  siteName        String   @default("CouponHub")
+  siteTagline     String?
+  siteLogo        String?
+  siteDescription String?
+  contactEmail    String?
+  socialLinks     String?
+  footerContent   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model CampaignLink {
+  id             String    @id @default(uuid())
+  name           String
+  slug           String    @unique
+  destinationUrl String
+  storeId        String?
+  description    String?
+  clicks         Int       @default(0)
+  isActive       Boolean   @default(true)
+  utmSource      String?
+  utmMedium      String?
+  utmCampaign    String?
+  deletedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  expiresAt      DateTime?
+  store          Store?    @relation(fields: [storeId], references: [id])
+
+  @@index([slug])
+  @@index([storeId])
+}
+
+model BlogPost {
+  id             String    @id @default(uuid())
+  title          String
+  slug           String    @unique
+  excerpt        String?
+  content        String
+  coverImage     String?
+  seoTitle       String?
+  seoDescription String?
+  keywords       String?
+  isPublished    Boolean   @default(false)
+  publishedAt    DateTime?
+  authorId       String
+  deletedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  author         Admin     @relation(fields: [authorId], references: [id])
+
+  @@index([slug])
+  @@index([authorId])
+  @@index([isPublished])
+}
+
+model Subscriber {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  isActive  Boolean   @default(true)
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model NewsArticle {
+  id          String    @id @default(uuid())
+  title       String
+  slug        String    @unique
+  summary     String
+  sourceUrl   String
+  sourceName  String?
+  imageUrl    String?
+  isVerified  Boolean   @default(false)
+  publishedAt DateTime  @default(now())
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([slug])
+  @@index([isVerified])
+}
+
+model AnalyticsEvent {
+  id         String             @id @default(uuid())
+  type       AnalyticsEventType
+  source     String             @default("website")
+  version    String             @default("v1")
+  entityType String
+  entityId   String?
+  metadata   Json?
+  createdAt  DateTime           @default(now())
+
+  @@index([type, createdAt])
+  @@index([entityType, entityId])
+}
+
+model SearchConsoleMetric {
+  id          String   @id @default(uuid())
+  url         String
+  date        DateTime
+  impressions Int      @default(0)
+  clicks      Int      @default(0)
+  ctr         Float    @default(0)
+  position    Float    @default(0)
+  createdAt   DateTime @default(now())
+
+  @@unique([url, date])
+  @@index([date])
+}
+
+model AffiliatePostback {
+  id               String   @id @default(uuid())
+  network          String
+  transactionId    String   @unique
+  clickId          String?
+  status           String
+  saleAmount       Float    @default(0)
+  commissionAmount Float    @default(0)
+  currency         String   @default("USD")
+  rawPayload       Json
+  processed        Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([network, transactionId])
+  @@index([clickId])
+}
+
+model ClickEvent {
+  id          String             @id @default(uuid())
+  couponId    String?
+  storeId     String?
+  campaignId  String?
+  ipAddress   String?
+  userAgent   String?
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  createdAt   DateTime           @default(now())
+  campaign    AffiliateCampaign? @relation(fields: [campaignId], references: [id])
+  coupon      Coupon?            @relation(fields: [couponId], references: [id])
+  store       Store?             @relation(fields: [storeId], references: [id])
+
+  @@index([couponId, createdAt])
+  @@index([storeId, createdAt])
+  @@index([campaignId, createdAt])
+}
+
+model AuditLog {
+  id         String      @id @default(uuid())
+  adminId    String
+  entityType String
+  entityId   String
+  action     AuditAction
+  oldValue   Json?
+  newValue   Json?
+  createdAt  DateTime    @default(now())
+  admin      Admin       @relation(fields: [adminId], references: [id])
+
+  @@index([entityType, entityId])
+  @@index([adminId, createdAt])
+}
+
+model ImportJob {
+  id               String          @id @default(uuid())
+  status           ImportStatus    @default(PENDING)
+  startedAt        DateTime?
+  finishedAt       DateTime?
+  error            Json?
+  createdAt        DateTime        @default(now())
+  aiComplete       Int             @default(0)
+  aiPending        Int             @default(0)
+  avgQuality       Float           @default(0.0)
+  duplicates       Int             @default(0)
+  processingTimeMs Int?
+  published        Int             @default(0)
+  rejected         Int             @default(0)
+  source           String          @default("csv")
+  totalRows        Int             @default(0)
+  validRows        Int             @default(0)
+  apiLatencyMs     Int?
+  connectorVersion String?
+  pagesFetched     Int             @default(0)
+  recordsFetched   Int             @default(0)
+  importedOffers   ImportedOffer[]
+}
+
+model ImportedOffer {
+  id                   String    @id @default(uuid())
+  importJobId          String
+  schemaVersion        String    @default("v1")
+  source               String
+  sourceId             String?
+  rawData              Json
+  normalizedData       Json
+  completenessScore    Float     @default(0.0)
+  validationScore      Float     @default(0.0)
+  confidenceScore      Float     @default(0.0)
+  freshnessScore       Float     @default(0.0)
+  merchantMatchScore   Float     @default(0.0)
+  duplicateRisk        Float     @default(0.0)
+  finalQualityScore    Float     @default(0.0)
+  validationErrors     Json?
+  status               String    @default("pending")
+  aiEnrichedData       Json?
+  aiStatus             String    @default("none")
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  resolutionConfidence Json?
+  resolutionReason     String?
+  suggestedStoreId     String?
+  resolutionSource     String?
+  resolvedStoreId      String?
+  importJob            ImportJob @relation(fields: [importJobId], references: [id], onDelete: Cascade)
+
+  @@index([importJobId])
+  @@index([status])
+  @@index([source, sourceId])
+  @@index([aiStatus])
+}
+
+model MerchantAlias {
+  id              String    @id @default(uuid())
+  merchantId      String
+  alias           String
+  normalizedAlias String
+  source          String
+  confidence      Int       @default(100)
+  approvedBy      String?
+  approvedAt      DateTime?
+  lastSeenAt      DateTime  @default(now())
+  createdAt       DateTime  @default(now())
+  merchant        Store     @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+
+  @@unique([merchantId, alias])
+  @@index([alias])
+  @@index([normalizedAlias])
+}
+
+model AdminNotification {
+  id        String            @id @default(uuid())
+  title     String
+  message   String
+  level     NotificationLevel @default(INFO)
+  source    String            @default("system")
+  isRead    Boolean           @default(false)
+  link      String?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@index([isRead, createdAt])
+  @@index([source])
+}
+
+model IntelligenceTask {
+  id            String                 @id @default(uuid())
+  event         IntelligenceEvent
+  entityType    String
+  entityId      String
+  workerName    String
+  status        IntelligenceTaskStatus @default(PENDING)
+  priority      Int                    @default(0)
+  attempts      Int                    @default(0)
+  promptVersion String
+  workerVersion String
+  model         String
+  settings      Json?
+  inputSnapshot Json
+  generatedData Json?
+  error         Json?
+  startedAt     DateTime?
+  completedAt   DateTime?
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+
+  @@index([status, priority, createdAt])
+  @@index([entityType, entityId])
+  @@index([workerName])
+}
+
+model KnowledgeNode {
+  id            String          @id @default(uuid())
+  type          NodeType
+  entityId      String?
+  name          String
+  metadata      Json?
+  source        String?
+  confidence    Int             @default(100)
+  createdBy     String?
+  verifiedAt    DateTime?
+  outgoingEdges KnowledgeEdge[] @relation("SourceNode")
+  incomingEdges KnowledgeEdge[] @relation("TargetNode")
+
+  @@index([type])
+  @@index([entityId])
+}
+
+model KnowledgeEdge {
+  id            String        @id @default(uuid())
+  sourceId      String
+  targetId      String
+  type          EdgeType
+  weight        Float         @default(1.0)
+  metadata      Json?
+  effectiveFrom DateTime      @default(now())
+  effectiveTo   DateTime?
+  source        String?
+  confidence    Int           @default(100)
+  sourceNode    KnowledgeNode @relation("SourceNode", fields: [sourceId], references: [id], onDelete: Cascade)
+  targetNode    KnowledgeNode @relation("TargetNode", fields: [targetId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceId, targetId, type])
+  @@index([sourceId, targetId, type])
+}
+
+model Opportunity {
+  id                String            @id @default(uuid())
+  type              OpportunityType
+  title             String
+  description       String
+  priority          Int
+  trafficGain       String
+  revenueImpact     String
+  estimatedEffort   String
+  confidence        Int
+  recommendedAction String
+  dependencies      Json
+  status            OpportunityStatus @default(GENERATED)
+  targetEntityId    String
+  nodeId            String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
 }
 
 enum StoreContentType {
@@ -105,310 +601,6 @@ enum StoreContentType {
   STUDENT
   SALE
 }
-
-model StoreContent {
-  id         String           @id @default(uuid())
-  storeId    String
-  store      Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  type       StoreContentType
-  content    String           // JSON or Markdown
-  
-  deletedAt  DateTime?
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @updatedAt
-  
-  @@unique([storeId, type])
-  @@index([storeId])
-}
-
-model Coupon {
-  id              String    @id @default(uuid())
-  title           String
-  description     String?
-  code            String? // Null for "Get Deal" type
-  type            String    @default("coupon") // "coupon", "deal"
-  discountType    String // "percentage", "flat", "freebie"
-  discountValue   String? // e.g., "80% Off", "₹500 Off"
-  affiliateUrl    String
-  image           String? // Banner image URL
-  termsConditions String?
-  expiresAt       DateTime?
-  isVerified      Boolean   @default(false)
-  isExclusive     Boolean   @default(false)
-  isFeatured      Boolean   @default(false)
-  usageCount      Int       @default(0)
-
-  clicks       Int @default(0) // Analytics Tracking
-  displayOrder Int @default(0)
-
-  // Analytics
-  revenueAttribution Float @default(0)
-  totalClicks        Int   @default(0)
-  totalConversions   Int   @default(0)
-
-  storeId     String
-  store       Store        @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  bank        String? // Bank name for bank offers (e.g., "HDFC", "SBI")
-  categoryId  String?
-  category    Category?    @relation(fields: [categoryId], references: [id])
-  // Programmatic SEO collections
-  collections Collection[]
-
-  // Affiliate campaigns that feature this coupon
-  campaigns AffiliateCampaign[]
-
-  version     Int          @default(1)
-  deletedAt   DateTime?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  clickEvents ClickEvent[]
-
-  @@index([storeId])
-  @@index([categoryId])
-  @@index([expiresAt])
-  @@index([createdAt])
-}
-
-model AffiliateNetwork {
-  id   String @id @default(uuid())
-  name String
-  slug String @unique
-
-  programs AffiliateProgram[]
-
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-
-  @@index([slug])
-}
-
-model AffiliateProgram {
-  id             String           @id @default(uuid())
-  merchantId     String
-  merchant       Store            @relation(fields: [merchantId], references: [id])
-  networkId      String
-  network        AffiliateNetwork @relation(fields: [networkId], references: [id])
-  programId      String // Network's internal program ID
-  commissionType String // "percentage", "flat"
-  commissionRate String
-  cookieDuration Int // in days
-  status         String           @default("active")
-
-  campaigns AffiliateCampaign[]
-
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-
-  @@index([merchantId])
-  @@index([networkId])
-}
-
-model AffiliateCampaign {
-  id             String           @id @default(uuid())
-  programId      String
-  program        AffiliateProgram @relation(fields: [programId], references: [id])
-  trackingUrl    String
-  landingUrl     String?
-  campaignName   String
-  commissionRate String?
-  priority       Int              @default(0)
-  active         Boolean          @default(true)
-
-  coupons Coupon[]
-  history AffiliateCampaignHistory[]
-
-  deletedAt   DateTime?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  clickEvents ClickEvent[]
-
-  @@index([programId])
-}
-
-model AffiliateCampaignHistory {
-  id             String            @id @default(uuid())
-  campaignId     String
-  campaign       AffiliateCampaign @relation(fields: [campaignId], references: [id])
-  commissionRate String?
-  trackingUrl    String
-  effectiveFrom  DateTime          @default(now())
-  effectiveTo    DateTime?
-
-  createdAt DateTime @default(now())
-
-  @@index([campaignId, effectiveFrom])
-}
-
-// Programmatic SEO Collections
-model Collection {
-  id             String  @id @default(uuid())
-  name           String
-  slug           String  @unique
-  type           String // e.g., "festival", "bank", "audience"
-  seoTitle       String?
-  seoDescription String?
-  content        String? // Rich SEO content
-  faqContent     String? // FAQ JSON
-  isIndexable    Boolean @default(true)
-  priority       Float   @default(0.5) // Sitemap priority
-
-  // Analytics
-  revenueAttribution Float @default(0)
-  totalClicks        Int   @default(0)
-  totalConversions   Int   @default(0)
-
-  // Relations
-  coupons Coupon[]
-
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-
-  @@index([slug])
-  @@index([type])
-}
-
-model Banner {
-  id       String  @id @default(uuid())
-  imageUrl String
-  link     String
-  title    String?
-  isActive Boolean @default(true)
-  order    Int     @default(0)
-
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-
-  @@index([isActive])
-}
-
-model Admin {
-  id           String     @id @default(uuid())
-  email        String     @unique
-  password     String // Hashed with bcrypt
-  name         String?
-  bio          String?
-  profileImage String?
-  socialLinks  String? // JSON string containing twitter, linkedin etc.
-  posts        BlogPost[]
-
-  deletedAt DateTime?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  auditLogs AuditLog[]
-}
-
-model SiteSettings {
-  id              String   @id @default(uuid())
-  siteName        String   @default("CouponHub")
-  siteTagline     String?
-  siteLogo        String?
-  siteDescription String?
-  contactEmail    String?
-  socialLinks     String? // JSON string
-  footerContent   String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-}
-
-// Campaign Link Masking for Ads
-model CampaignLink {
-  id             String @id @default(uuid())
-  name           String // Campaign name (e.g., "Flipkart Sale Jan 2024")
-  slug           String @unique // URL slug (e.g., "flipkart-sale" -> /go/flipkart-sale)
-  destinationUrl String // Actual affiliate URL to redirect to
-
-  // Optional metadata
-  store       Store?  @relation(fields: [storeId], references: [id])
-  storeId     String?
-  description String? // Internal notes
-
-  // Tracking
-  clicks   Int     @default(0)
-  isActive Boolean @default(true)
-
-  // UTM Parameters (for tracking in analytics)
-  utmSource   String? // e.g., "facebook", "google"
-  utmMedium   String? // e.g., "cpc", "banner"
-  utmCampaign String? // e.g., "jan-sale"
-
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  expiresAt DateTime? // Optional expiry date
-
-  @@index([slug])
-  @@index([storeId])
-}
-
-// Blog System for SEO
-model BlogPost {
-  id         String  @id @default(uuid())
-  title      String
-  slug       String  @unique
-  excerpt    String?
-  content    String // Rich text / Markdown
-  coverImage String?
-
-  // SEO Metadata (AI Generated)
-  seoTitle       String?
-  seoDescription String?
-  keywords       String? // Comma separated tags
-
-  // Status
-  isPublished Boolean   @default(false)
-  publishedAt DateTime?
-
-  // Author Relation
-  authorId String
-  author   Admin  @relation(fields: [authorId], references: [id])
-
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-
-  @@index([slug])
-  @@index([authorId])
-  @@index([isPublished])
-}
-
-// Newsletter Subscription
-model Subscriber {
-  id       String  @id @default(uuid())
-  email    String  @unique
-  isActive Boolean @default(true)
-
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-}
-
-// Auto-Crawled Viral News
-model NewsArticle {
-  id          String   @id @default(uuid())
-  title       String
-  slug        String   @unique
-  summary     String // AI-generated 3-sentence summary
-  sourceUrl   String // Original deal/article link
-  sourceName  String? // e.g., "Reddit", "TechCrunch"
-  imageUrl    String? // Optional image grabbed from source
-  isVerified  Boolean  @default(false) // Whether AI approved it as 'viral'
-  publishedAt DateTime @default(now())
-
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-
-  @@index([slug])
-  @@index([isVerified])
-}
-
-// ---------------------------------------------------------
-// PHASE 3: Analytics & Audit
-// ---------------------------------------------------------
 
 enum ImportStatus {
   PENDING
@@ -428,7 +620,6 @@ enum AnalyticsEventType {
   STORE_VIEW
   SEARCH
   NEWSLETTER_SIGNUP
-  // Funnel Events
   OFFER_IMPORTED
   OFFER_PUBLISHED
   OFFER_INDEXED
@@ -436,223 +627,12 @@ enum AnalyticsEventType {
   OFFER_CONVERTED
 }
 
-model AnalyticsEvent {
-  id         String             @id @default(uuid())
-  type       AnalyticsEventType
-  source     String             @default("website") // website, api, admin, cron
-  version    String             @default("v1")
-  entityType String
-  entityId   String?
-  metadata   Json?
-  createdAt  DateTime           @default(now())
-
-  @@index([type, createdAt])
-  @@index([entityType, entityId])
-}
-
-// ---------------------------------------------------------
-// Measurement Loop (Growth Phase)
-// ---------------------------------------------------------
-
-model SearchConsoleMetric {
-  id          String   @id @default(uuid())
-  url         String
-  date        DateTime
-  impressions Int      @default(0)
-  clicks      Int      @default(0)
-  ctr         Float    @default(0)
-  position    Float    @default(0)
-  createdAt   DateTime @default(now())
-
-  @@unique([url, date])
-  @@index([date])
-}
-
-model AffiliatePostback {
-  id               String   @id @default(uuid())
-  network          String // e.g., "Impact", "CJ"
-  transactionId    String   @unique
-  clickId          String?
-  status           String // e.g., "PENDING", "APPROVED", "REJECTED"
-  saleAmount       Float    @default(0)
-  commissionAmount Float    @default(0)
-  currency         String   @default("USD")
-  rawPayload       Json
-  processed        Boolean  @default(false)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  @@index([network, transactionId])
-  @@index([clickId])
-}
-
-model ClickEvent {
-  id String @id @default(uuid())
-
-  couponId   String?
-  coupon     Coupon?            @relation(fields: [couponId], references: [id])
-  storeId    String?
-  store      Store?             @relation(fields: [storeId], references: [id])
-  campaignId String?
-  campaign   AffiliateCampaign? @relation(fields: [campaignId], references: [id])
-
-  // Device & UTM Tracking
-  ipAddress   String?
-  userAgent   String?
-  utmSource   String?
-  utmMedium   String?
-  utmCampaign String?
-
-  createdAt DateTime @default(now())
-
-  @@index([couponId, createdAt])
-  @@index([storeId, createdAt])
-  @@index([campaignId, createdAt])
-}
-
-model AuditLog {
-  id         String      @id @default(uuid())
-  adminId    String
-  admin      Admin       @relation(fields: [adminId], references: [id])
-  entityType String // e.g., "Coupon", "Store"
-  entityId   String
-  action     AuditAction
-  oldValue   Json?
-  newValue   Json?
-  createdAt  DateTime    @default(now())
-
-  @@index([entityType, entityId])
-  @@index([adminId, createdAt])
-}
-
-model ImportJob {
-  id         String       @id @default(uuid())
-  status     ImportStatus @default(PENDING)
-  source     String       @default("csv")
-  startedAt  DateTime?
-  finishedAt DateTime?
-
-  // Metrics
-  totalRows        Int      @default(0)
-  validRows        Int      @default(0)
-  published        Int      @default(0)
-  rejected         Int      @default(0)
-  duplicates       Int      @default(0)
-  aiPending        Int      @default(0)
-  aiComplete       Int      @default(0)
-  avgQuality       Float    @default(0.0)
-  processingTimeMs Int?
-  error            Json?
-  createdAt        DateTime @default(now())
-
-  // Connector Metadata
-  connectorVersion String?
-  pagesFetched     Int     @default(0)
-  recordsFetched   Int     @default(0)
-  apiLatencyMs     Int?
-
-  importedOffers ImportedOffer[]
-}
-
-model ImportedOffer {
-  id          String    @id @default(uuid())
-  importJobId String
-  importJob   ImportJob @relation(fields: [importJobId], references: [id], onDelete: Cascade)
-
-  schemaVersion String  @default("v1")
-  source        String // e.g., "csv", "impact"
-  sourceId      String? // External ID for deduplication
-
-  // Payloads
-  rawData        Json // Exact payload from the network
-  normalizedData Json // The Canonical Model representation
-
-  // Resolution Suggestions & Tracking
-  suggestedStoreId     String?
-  resolvedStoreId      String?
-  resolutionReason     String?
-  resolutionSource     String? // e.g., "Exact", "Alias", "Domain", "Fuzzy", "Manual"
-  resolutionConfidence Json? // detailed signals object, including resolverVersion
-
-  // Quality Metrics (Components)
-  completenessScore  Float @default(0.0)
-  validationScore    Float @default(0.0)
-  confidenceScore    Float @default(0.0)
-  freshnessScore     Float @default(0.0)
-  merchantMatchScore Float @default(0.0)
-  duplicateRisk      Float @default(0.0)
-  finalQualityScore  Float @default(0.0) // 0-100
-
-  validationErrors Json? // Array of structured validation error objects
-
-  // State: "pending", "published", "rejected", "edit_publish", "merged", "archived", "duplicate"
-  status String @default("pending")
-
-  // AI Enrichment data (populated by background worker)
-  aiEnrichedData Json?
-  aiStatus       String @default("none") // "none", "pending", "complete", "failed"
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([importJobId])
-  @@index([status])
-  @@index([source, sourceId])
-  @@index([aiStatus])
-}
-
-model MerchantAlias {
-  id         String @id @default(uuid())
-  merchantId String
-  merchant   Store  @relation(fields: [merchantId], references: [id], onDelete: Cascade)
-
-  alias           String // Raw string e.g. "Amazon India Pvt Ltd"
-  normalizedAlias String // Fully processed string e.g. "amazon india"
-
-  source     String // e.g., "csv", "manual", "system"
-  confidence Int    @default(100) // 0-100. (100 = exact/manual approval)
-
-  approvedBy String? // Admin ID who approved it
-  approvedAt DateTime? // When it was manually approved
-  lastSeenAt DateTime  @default(now()) // Updated on every hit
-
-  createdAt DateTime @default(now())
-
-  @@unique([merchantId, alias])
-  @@index([alias])
-  @@index([normalizedAlias])
-}
-
-// ---------------------------------------------------------
-// PHASE 4: Automation & Notifications
-// ---------------------------------------------------------
-
 enum NotificationLevel {
   INFO
   WARNING
   ERROR
   SUCCESS
 }
-
-model AdminNotification {
-  id      String            @id @default(uuid())
-  title   String
-  message String
-  level   NotificationLevel @default(INFO)
-  source  String            @default("system") // e.g., 'import-engine', 'scheduler'
-  isRead  Boolean           @default(false)
-  link    String? // Optional URL to navigate to for more context
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([isRead, createdAt])
-  @@index([source])
-}
-
-// ---------------------------------------------------------
-// PHASE 5: Intelligence Layer
-// ---------------------------------------------------------
 
 enum IntelligenceEvent {
   COUPON_PUBLISHED
@@ -669,42 +649,6 @@ enum IntelligenceTaskStatus {
   REJECTED
   FAILED
 }
-
-model IntelligenceTask {
-  id         String            @id @default(uuid())
-  event      IntelligenceEvent
-  entityType String // e.g., "Coupon", "Store"
-  entityId   String
-  workerName String // e.g., "seo-worker", "merchant-worker"
-
-  status   IntelligenceTaskStatus @default(PENDING)
-  priority Int                    @default(0) // Higher number = higher priority
-  attempts Int                    @default(0)
-
-  // Provenance
-  promptVersion String
-  workerVersion String
-  model         String
-  settings      Json? // e.g., { temperature: 0.7 }
-
-  // Data
-  inputSnapshot Json // The exact data the worker saw
-  generatedData Json? // The structured proposal from the worker
-  error         Json? // Error details if FAILED
-
-  startedAt   DateTime?
-  completedAt DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  @@index([status, priority, createdAt])
-  @@index([entityType, entityId])
-  @@index([workerName])
-}
-
-// ---------------------------------------------------------
-// PHASE 6: Merchant Knowledge Graph
-// ---------------------------------------------------------
 
 enum NodeType {
   MERCHANT
@@ -731,46 +675,6 @@ enum EdgeType {
   HAS_FEATURE
 }
 
-model KnowledgeNode {
-  id          String   @id @default(uuid())
-  type        NodeType
-  entityId    String?  // Optional mapping to existing DB record (e.g., Store.id)
-  name        String
-  metadata    Json?    // Arbitrary properties
-  
-  // Provenance
-  source      String?
-  confidence  Int      @default(100)
-  createdBy   String?
-  verifiedAt  DateTime?
-  
-  outgoingEdges KnowledgeEdge[] @relation("SourceNode")
-  incomingEdges KnowledgeEdge[] @relation("TargetNode")
-  
-  @@index([type])
-  @@index([entityId])
-}
-
-model KnowledgeEdge {
-  id          String        @id @default(uuid())
-  sourceId    String
-  sourceNode  KnowledgeNode @relation("SourceNode", fields: [sourceId], references: [id], onDelete: Cascade)
-  targetId    String
-  targetNode  KnowledgeNode @relation("TargetNode", fields: [targetId], references: [id], onDelete: Cascade)
-  type        EdgeType
-  weight      Float         @default(1.0)
-  metadata    Json?
-  
-  // Versioning & Provenance
-  effectiveFrom DateTime  @default(now())
-  effectiveTo   DateTime?
-  source        String?
-  confidence    Int       @default(100)
-  
-  @@unique([sourceId, targetId, type])
-  @@index([sourceId, targetId, type])
-}
-
 enum OpportunityType {
   CONTENT
   SEO
@@ -790,25 +694,4 @@ enum OpportunityStatus {
   IN_PROGRESS
   COMPLETED
   DISMISSED
-}
-
-model Opportunity {
-  id              String            @id @default(uuid())
-  type            OpportunityType
-  title           String
-  description     String
-  priority        Int
-  trafficGain     String // "High", "Medium", "Low"
-  revenueImpact   String // "High", "Medium", "Low"
-  estimatedEffort String // "High", "Medium", "Low"
-  confidence      Int
-  recommendedAction String
-  dependencies    Json // Array of strings
-  status          OpportunityStatus @default(GENERATED)
-  
-  targetEntityId  String // e.g., Merchant ID
-  nodeId          String? // Reference to the graph node it was derived from
-  
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
 }

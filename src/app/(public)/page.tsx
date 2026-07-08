@@ -66,7 +66,7 @@ export default async function Home() {
                             <input 
                                 type="text" 
                                 placeholder="Search verified stores and deals..." 
-                                className="flex-1 bg-transparent border-none focus:ring-0 px-4 py-3 text-on-surface font-medium placeholder-surface-400 outline-none"
+                                className="flex-1 bg-transparent border-none focus:ring-0 px-4 py-3 text-surface-900 dark:text-white font-medium placeholder-surface-400 outline-none"
                             />
                             <button className="bg-primary hover:bg-primary-600 text-white px-8 py-3 rounded-full font-bold transition-colors">
                                 Search
@@ -93,27 +93,34 @@ export default async function Home() {
                                 </span>
                             </div>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {hotCoupons.map((coupon) => (
-                                <DecisionCard 
-                                    key={coupon.id}
-                                    coupon={{
-                                        id: coupon.id,
-                                        title: coupon.title,
-                                        description: coupon.description,
-                                        code: coupon.code,
-                                        type: coupon.type,
-                                        discountValue: coupon.discountValue,
-                                        affiliateUrl: coupon.affiliateUrl || `/go/${coupon.id}`,
-                                        isVerified: true,
-                                        isExclusive: coupon.isExclusive,
-                                        expiresAt: coupon.expiresAt
-                                    }}
-                                    storeName={coupon.store.name}
-                                    storeLogo={coupon.store.logo}
-                                />
-                            ))}
-                        </div>
+                        {hotCoupons.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {hotCoupons.map((coupon) => (
+                                    <DecisionCard 
+                                        key={coupon.id}
+                                        coupon={{
+                                            id: coupon.id,
+                                            title: coupon.title,
+                                            description: coupon.description,
+                                            code: coupon.code,
+                                            type: coupon.type,
+                                            discountValue: coupon.discountValue,
+                                            affiliateUrl: coupon.affiliateUrl || `/go/${coupon.id}`,
+                                            isVerified: true,
+                                            isExclusive: coupon.isExclusive,
+                                            expiresAt: coupon.expiresAt
+                                        }}
+                                        storeName={coupon.store.name}
+                                        storeLogo={coupon.store.logo}
+                                    />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="py-12 text-center border border-dashed border-surface-300 dark:border-surface-700 rounded-2xl relative z-10 flex flex-col items-center justify-center bg-surface-50 dark:bg-surface-900/50">
+                                <Icon name="bolt" className="text-surface-400 text-4xl mb-3" />
+                                <p className="text-surface-500 font-medium max-w-sm mx-auto">No live trending deals right now. Check back soon for cryptographically verified opportunities.</p>
+                            </div>
+                        )}
                     </div>
 
                     {/* 3. Deal Intelligence & Trust (Right Column - 1/3 width) */}
@@ -178,9 +185,11 @@ export default async function Home() {
                     </h2>
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
                         {categories.map((cat) => (
-                            <Link key={cat.id} href={`/category/${cat.slug}`} className="glass-card flex flex-col items-center justify-center p-4 rounded-xl hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors border border-surface-200 dark:border-surface-700 group">
-                                <Icon name={cat.icon || "category"} className="text-[28px] text-surface-400 group-hover:text-primary transition-colors mb-2" />
-                                <span className="font-semibold text-on-surface text-[12px] text-center">{cat.name}</span>
+                            <Link key={cat.id} href={`/category/${cat.slug}`} className="glass-card flex flex-col items-center justify-center p-4 rounded-xl hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors border border-surface-200 dark:border-surface-700 group overflow-hidden">
+                                <div className="w-8 h-8 flex items-center justify-center overflow-hidden mb-2">
+                                    <Icon name={(cat.icon || "category").toLowerCase().replace(/[^a-z0-9_]/g, "_")} className="text-[28px] text-surface-400 group-hover:text-primary transition-colors" />
+                                </div>
+                                <span className="font-semibold text-on-surface text-[12px] text-center truncate w-full">{cat.name}</span>
                             </Link>
                         ))}
                     </div>
