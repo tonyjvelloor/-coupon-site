@@ -25,15 +25,6 @@ model Store {
   isFeatured     Boolean @default(false)
   seoTitle       String?
   seoDescription String?
-  aboutContent   String? // Rich SEO content
-  faqContent     String? // FAQ JSON
-
-  // Merchant Authority Pages Extensions
-  shippingInfo     String?
-  returnPolicy     String?
-  shoppingTips     String?
-  paymentMethods   String?
-  studentDiscounts String?
 
   // Analytics Tracking
   clicks  Int   @default(0)
@@ -48,6 +39,7 @@ model Store {
   storeCategories StoreCategory[]
   campaignLinks   CampaignLink[]
   aliases         MerchantAlias[]
+  storeContents   StoreContent[]
 
   version           Int                @default(1)
   deletedAt         DateTime?
@@ -97,6 +89,32 @@ model StoreCategory {
   @@unique([storeId, categoryId])
   @@index([storeId])
   @@index([categoryId])
+}
+
+enum StoreContentType {
+  ABOUT
+  FAQ
+  BUYING_GUIDE
+  RETURNS
+  SHIPPING
+  PAYMENTS
+  STUDENT
+  SALE
+}
+
+model StoreContent {
+  id         String           @id @default(uuid())
+  storeId    String
+  store      Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  type       StoreContentType
+  content    String           // JSON or Markdown
+  
+  deletedAt  DateTime?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  
+  @@unique([storeId, type])
+  @@index([storeId])
 }
 
 model Coupon {

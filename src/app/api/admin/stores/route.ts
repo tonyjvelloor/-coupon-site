@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const { categoryIds, ...storeData } = data;
+        const { categoryIds, aboutContent, ...storeData } = data;
 
         const store = await prisma.store.create({
             data: storeData,
@@ -53,6 +53,12 @@ export async function POST(request: NextRequest) {
                     storeId: store.id,
                     categoryId,
                 })),
+            });
+        }
+
+        if (aboutContent) {
+            await prisma.storeContent.create({
+                data: { storeId: store.id, type: 'ABOUT', content: aboutContent }
             });
         }
 

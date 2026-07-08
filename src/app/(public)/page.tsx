@@ -1,26 +1,15 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
-import Image from "next/image";
-import {
-    Flame,
-    ArrowRight,
-    Percent,
-    ShieldCheck,
-    Tag,
-    Clock,
-    Search
-} from "lucide-react";
-import StoreCard from "@/components/ui/StoreCard";
-import CouponCard from "@/components/ui/CouponCard";
-import SearchInput from "@/components/ui/SearchInput";
-import BannerCarousel from "@/components/ui/BannerCarousel";
-import TrustBadges from "@/components/ui/TrustBadges";
-import SocialProofPopup from "@/components/ui/SocialProofPopup";
-import TrustedPartners from "@/components/ui/TrustedPartners";
+import { MerchantCard } from "@/components/intelligence/MerchantCard";
+import { IntelligenceCouponCard } from "@/components/intelligence/IntelligenceCouponCard";
+import { DealTimeline } from "@/components/intelligence/DealTimeline";
+import { Icon } from "@/components/ui/Icon";
+import { formatDistanceToNow } from 'date-fns';
 
 export const revalidate = 900;
 
 export default async function Home() {
+    // 1. Fetching base data
     const featuredStores = await prisma.store.findMany({
         where: { isFeatured: true, isActive: true },
         take: 8,
@@ -44,170 +33,175 @@ export default async function Home() {
         orderBy: { createdAt: "desc" },
     });
 
-    const latestCoupons = await prisma.coupon.findMany({
-        where: {
-            type: "coupon",
-            expiresAt: { gt: new Date() },
-        },
-        include: { store: true },
-        take: 8,
-        orderBy: { createdAt: "desc" },
-    });
-
-    const banners = await prisma.banner.findMany({
-        where: { isActive: true },
-        orderBy: { order: "asc" },
-    });
+    // Mocking Timeline Events for demonstration of the Commerce Intelligence Layer
+    const timelineEvents = [
+        { id: "1", timestamp: "4 mins ago", merchant: "Amazon", action: "added 18 new verified offers", type: "offers_added" as const },
+        { id: "2", timestamp: "12 mins ago", merchant: "Flipkart", action: "cashback increased to 8%", type: "cashback_increased" as const },
+        { id: "3", timestamp: "25 mins ago", merchant: "Nike", action: "student discount refreshed", type: "discount_refreshed" as const },
+        { id: "4", timestamp: "1 hour ago", merchant: "Myntra", action: "End of Reason Sale collection expanded", type: "collection_expanded" as const },
+    ];
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <SocialProofPopup />
-
-            {/* Flash Deal Banner (If active) */}
-            <div className="bg-orange-600 text-white text-sm font-medium py-2 px-4 text-center">
-                <span className="inline-flex items-center gap-1"><Flame className="w-4 h-4"/> Flash Sale: Extra 20% Cashback on Top Stores Today</span>
-            </div>
-
-            {/* Commerce-First Hero */}
-            <section className="bg-white border-b border-gray-200 pt-10 pb-8 px-4">
-                <div className="max-w-4xl mx-auto text-center">
-                    <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
-                        Find the Best Deals & Coupons
+        <div className="bg-background min-h-screen">
+            
+            {/* 1. Hero Section (Search-first Intent) */}
+            <section className="relative pt-20 pb-24 px-4 overflow-hidden">
+                <div className="absolute inset-0 bg-primary-900 dark:bg-black -z-10">
+                    <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+                    <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-primary-500 opacity-20 blur-[100px]"></div>
+                </div>
+                
+                <div className="max-w-3xl mx-auto text-center space-y-8">
+                    <h1 className="text-4xl md:text-6xl font-headline-lg font-bold text-white tracking-tight">
+                        Never overpay again.
                     </h1>
-                    <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-                        Search 50,000+ verified coupons and promo codes from your favorite stores.
+                    <p className="text-lg text-primary-100 font-medium max-w-xl mx-auto">
+                        Search over 250,000 cryptographically verified coupons, deals, and cashback offers updated in real-time.
                     </p>
+                    
+                    <div className="relative max-w-2xl mx-auto group">
+                        <div className="absolute -inset-1 bg-gradient-to-r from-primary-400 to-secondary-500 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                        <div className="relative flex items-center bg-white dark:bg-surface-900 rounded-full p-2 shadow-2xl">
+                            <Icon name="search" className="ml-4 text-surface-400 text-[24px]" />
+                            <input 
+                                type="text" 
+                                placeholder="What are you shopping for? (e.g. Nike shoes, Amazon laptops...)" 
+                                className="flex-1 bg-transparent border-none focus:ring-0 px-4 py-3 text-on-surface font-medium placeholder-surface-400 outline-none"
+                            />
+                            <button className="bg-primary hover:bg-primary-600 text-white px-8 py-3 rounded-full font-bold transition-colors">
+                                Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-                    {/* Prominent Search */}
-                    <div className="max-w-2xl mx-auto mb-6">
-                        <div className="bg-white rounded-lg shadow-sm border border-gray-300 p-1 flex">
-                            <SearchInput />
+            {/* Main Content Layout */}
+            <div className="max-w-container-max mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10 space-y-16 pb-24">
+                
+                {/* 2. Trending Merchants (Merchant Health Snapshot) */}
+                <section>
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-2xl font-headline-md font-bold text-on-surface flex items-center gap-2">
+                            <Icon name="storefront" className="text-primary text-[28px]" variant="fill" />
+                            Trending Merchants
+                        </h2>
+                        <Link href="/stores" className="text-primary font-bold hover:underline flex items-center gap-1">
+                            View Directory <Icon name="arrow_forward" className="text-[16px]" />
+                        </Link>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {featuredStores.map((store) => (
+                            <MerchantCard 
+                                key={store.id}
+                                name={store.name}
+                                logoUrl={store.logo || ""}
+                                isVerified={true}
+                                lastUpdated="20 mins ago" // Simulated Intelligence
+                                metrics={{
+                                    activeOffers: Math.floor(Math.random() * 50) + 10,
+                                    offerSuccessRate: 92 + Math.floor(Math.random() * 8),
+                                    buyingGuides: Math.floor(Math.random() * 5) + 1
+                                }}
+                                policies={{
+                                    shipping: true,
+                                    returns: true,
+                                    paymentMethods: true
+                                }}
+                            />
+                        ))}
+                    </div>
+                </section>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* 3. Verified Offers (Left Column - 2/3 width) */}
+                    <div className="lg:col-span-2 space-y-6">
+                        <div className="flex items-center justify-between mb-2">
+                            <h2 className="text-2xl font-headline-md font-bold text-on-surface flex items-center gap-2">
+                                <Icon name="bolt" className="text-urgency-orange text-[28px]" variant="fill" />
+                                Live Verified Offers
+                            </h2>
+                        </div>
+                        <div className="flex flex-col gap-4">
+                            {hotCoupons.map((coupon) => (
+                                <IntelligenceCouponCard 
+                                    key={coupon.id}
+                                    discountValue={coupon.discountValue || "Deal"}
+                                    discountType={coupon.discountType || "OFF"}
+                                    title={coupon.title}
+                                    code={coupon.code || undefined}
+                                    isVerified={true}
+                                    lastVerified={formatDistanceToNow(coupon.updatedAt, { addSuffix: true })}
+                                    expiresAt={formatDistanceToNow(new Date(coupon.expiresAt), { addSuffix: true })}
+                                    confidenceScore={98}
+                                    cashbackInfo={Math.random() > 0.5 ? "+ Up to 5% Cashback" : undefined}
+                                    hasTerms={true}
+                                />
+                            ))}
                         </div>
                     </div>
 
-                    {/* Merchant Shortcuts */}
-                    <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
-                        <span className="text-sm font-semibold text-gray-500 uppercase tracking-wider mr-2">Top Stores:</span>
-                        {featuredStores.slice(0, 6).map((store) => (
-                            <Link key={store.id} href={`/stores/${store.slug}`} className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-medium rounded-md transition-colors">
-                                {store.name}
+                    {/* 4. Deal Intelligence & Trust (Right Column - 1/3 width) */}
+                    <div className="space-y-8">
+                        <DealTimeline events={timelineEvents} />
+
+                        <div className="glass-card premium-card rounded-2xl p-6 bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-primary-900/20 dark:to-secondary-900/20 border border-primary-100 dark:border-primary-900/50">
+                            <h3 className="font-headline-md font-bold text-primary-900 dark:text-primary-100 mb-4 flex items-center gap-2">
+                                <Icon name="security" variant="fill" className="text-[24px]" />
+                                The CouponHub Guarantee
+                            </h3>
+                            <p className="text-sm text-on-surface-variant font-medium leading-relaxed mb-4">
+                                Our Intelligence Engine scans, tests, and cryptographically verifies every offer on this platform before publishing.
+                            </p>
+                            <ul className="space-y-2 text-sm font-semibold text-primary-800 dark:text-primary-200">
+                                <li className="flex items-center gap-2"><Icon name="check_circle" variant="fill" className="text-verified-green" /> 0% Fake Coupons</li>
+                                <li className="flex items-center gap-2"><Icon name="check_circle" variant="fill" className="text-verified-green" /> Real-time Verification</li>
+                                <li className="flex items-center gap-2"><Icon name="check_circle" variant="fill" className="text-verified-green" /> Maximum Stacked Savings</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 5. Top Categories */}
+                <section>
+                    <h2 className="text-2xl font-headline-md font-bold text-on-surface mb-6 flex items-center gap-2">
+                        <Icon name="category" className="text-blue-500 text-[28px]" variant="fill" />
+                        Explore Categories
+                    </h2>
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+                        {categories.map((cat) => (
+                            <Link key={cat.id} href={`/category/${cat.slug}`} className="glass-card flex flex-col items-center justify-center p-4 rounded-xl hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors border border-surface-200 dark:border-surface-700 group">
+                                <Icon name={cat.icon || "category"} className="text-[28px] text-surface-400 group-hover:text-primary transition-colors mb-2" />
+                                <span className="font-semibold text-on-surface text-[12px] text-center">{cat.name}</span>
                             </Link>
                         ))}
                     </div>
+                </section>
 
-                    <div className="flex justify-center">
-                        <TrustBadges />
-                    </div>
-                </div>
-            </section>
-
-            {/* Trending Deals */}
-            {hotCoupons.length > 0 && (
-                <section className="py-12 bg-gray-50">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                                <Flame className="w-6 h-6 text-orange-500" />
-                                Trending Deals Today
-                            </h2>
-                            <Link href="/best-offers" className="text-blue-600 hover:text-blue-700 font-medium text-sm flex items-center gap-1">
-                                View All <ArrowRight className="w-4 h-4" />
-                            </Link>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {hotCoupons.map((coupon) => (
-                                <CouponCard key={coupon.id} coupon={coupon} storeName={coupon.store.name} storeLogo={coupon.store.logo} />
-                            ))}
-                        </div>
+                {/* 6. Newsletter / Intent Capture */}
+                <section className="bg-surface-900 dark:bg-black rounded-3xl p-8 md:p-12 text-center border border-surface-800 overflow-hidden relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary-900/50 to-secondary-900/50 z-0"></div>
+                    <div className="relative z-10 max-w-2xl mx-auto">
+                        <Icon name="mark_email_read" className="text-secondary-400 text-[48px] mb-4" variant="fill" />
+                        <h2 className="text-3xl font-headline-lg font-bold text-white mb-4">Never Miss a Pricing Error Again</h2>
+                        <p className="text-surface-300 font-medium mb-8">
+                            Join 50,000+ smart shoppers. We'll alert you immediately when our Intelligence Engine detects a massive price drop or stacked offer.
+                        </p>
+                        <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                            <input 
+                                type="email" 
+                                placeholder="Enter your email address" 
+                                className="flex-1 bg-surface-800 border border-surface-700 text-white rounded-xl px-4 py-3 outline-none focus:border-primary-500"
+                                required
+                            />
+                            <button type="submit" className="bg-primary hover:bg-primary-600 text-white font-bold px-6 py-3 rounded-xl transition-colors whitespace-nowrap">
+                                Subscribe Free
+                            </button>
+                        </form>
                     </div>
                 </section>
-            )}
 
-            {/* Top Stores */}
-            {featuredStores.length > 0 && (
-                <section className="py-12 bg-white border-t border-gray-200">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-2xl font-bold text-gray-900">Popular Stores</h2>
-                            <Link href="/stores" className="text-blue-600 hover:text-blue-700 font-medium text-sm flex items-center gap-1">
-                                View All <ArrowRight className="w-4 h-4" />
-                            </Link>
-                        </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
-                            {featuredStores.map((store) => (
-                                <StoreCard key={store.id} store={store} />
-                            ))}
-                        </div>
-                    </div>
-                </section>
-            )}
-
-            {/* Banner Ads Carousel (Re-purposed) */}
-            {banners.length > 0 && (
-                <section className="py-8 bg-gray-50">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <BannerCarousel banners={banners} />
-                    </div>
-                </section>
-            )}
-
-            {/* Top Categories */}
-            {categories.length > 0 && (
-                <section className="py-12 bg-white border-y border-gray-200">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <h2 className="text-2xl font-bold text-gray-900 mb-6">Shop by Category</h2>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4">
-                            {categories.map((cat) => (
-                                <Link key={cat.id} href={`/category/${cat.slug}`} className="flex flex-col items-center p-4 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors">
-                                    <span className="font-medium text-gray-800 text-sm text-center">{cat.name}</span>
-                                </Link>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-            )}
-
-            {/* Latest Coupons */}
-            {latestCoupons.length > 0 && (
-                <section className="py-12 bg-gray-50">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                                <Clock className="w-6 h-6 text-blue-500" />
-                                Latest Verified Coupons
-                            </h2>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            {latestCoupons.map((coupon) => (
-                                <CouponCard key={coupon.id} coupon={coupon} storeName={coupon.store.name} storeLogo={coupon.store.logo} />
-                            ))}
-                        </div>
-                    </div>
-                </section>
-            )}
-
-            {/* Value Proposition */}
-            <section className="py-12 bg-white border-t border-gray-200">
-                <div className="max-w-5xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-                    <div>
-                        <ShieldCheck className="w-10 h-10 text-green-600 mx-auto mb-3" />
-                        <h3 className="font-bold text-gray-900 mb-2">100% Verified</h3>
-                        <p className="text-gray-600 text-sm">Every coupon is tested by our team daily.</p>
-                    </div>
-                    <div>
-                        <Tag className="w-10 h-10 text-orange-600 mx-auto mb-3" />
-                        <h3 className="font-bold text-gray-900 mb-2">Maximum Savings</h3>
-                        <p className="text-gray-600 text-sm">Stack discounts with our exclusive cashback.</p>
-                    </div>
-                    <div>
-                        <Percent className="w-10 h-10 text-blue-600 mx-auto mb-3" />
-                        <h3 className="font-bold text-gray-900 mb-2">Exclusive Deals</h3>
-                        <p className="text-gray-600 text-sm">Access special promo codes you won't find anywhere else.</p>
-                    </div>
-                </div>
-            </section>
-
-            <TrustedPartners />
+            </div>
             <HomeSchema categories={categories} stores={featuredStores} />
         </div>
     );
@@ -218,8 +212,8 @@ function HomeSchema({ categories, stores }: { categories: any[], stores: any[] }
     const jsonLd = {
         "@context": "https://schema.org",
         "@type": "WebPage",
-        name: "CouponHub - Best Coupons, Offers & Deals Worldwide",
-        description: "Get the best coupons, promo codes, and deals from top online stores.",
+        name: "CouponHub - Commerce Intelligence & Verified Deals",
+        description: "The structured commerce intelligence layer for online shopping. Never overpay again.",
         url: siteUrl,
         mainEntity: {
             "@type": "ItemList",

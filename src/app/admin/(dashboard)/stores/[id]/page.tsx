@@ -13,6 +13,7 @@ export default async function EditStorePage({ params }: PageProps) {
         where: { id },
         include: {
             storeCategories: { select: { categoryId: true } },
+            storeContents: true,
         },
     });
 
@@ -30,6 +31,7 @@ export default async function EditStorePage({ params }: PageProps) {
             categories={categories}
             initialData={{
                 ...store,
+                aboutContent: store.storeContents?.find(c => c.type === 'ABOUT')?.content || "",
                 categoryIds: store.storeCategories.map((sc) => sc.categoryId),
             }}
         />

@@ -3,43 +3,43 @@ import { IntelligenceWorker, WorkerProposal } from "../worker";
 import { llmProvider } from "../llm/mock";
 import { prisma } from "@/lib/db";
 
-export class MerchantWorker implements IntelligenceWorker {
-  name = "merchant-worker";
+export class InternalLinkingWorker implements IntelligenceWorker {
+  name = "internal-linking-worker";
   version = "1.0.0";
   supportedEvents = [IntelligenceEvent.MERCHANT_UPDATED];
 
   async process(event: IntelligenceEvent, entityType: string, entityId: string) {
-    if (entityType !== "Store") throw new Error("MerchantWorker only processes Stores");
+    if (entityType !== "Store") throw new Error("InternalLinkingWorker primarily processes Stores for now");
 
     const store = await prisma.store.findUnique({
       where: { id: entityId },
+      include: {
+        storeCategories: { include: { category: true } }
+      }
     });
 
     if (!store) throw new Error("Store not found");
 
     const inputSnapshot = {
       storeName: store.name,
-      description: store.description,
-      website: store.website
+      categories: store.storeCategories.map(sc => sc.category.name),
+      offerCount: store.activeOfferCount
     };
 
-    const prompt = `Generate aboutContent, faqContent, and shippingInfo for merchant: ${store.name}`;
+    const prompt = `Propose top 5 related merchants and top 3 categories to link from ${store.name}'s page.`;
     const response = await llmProvider.generate<any>(
-      "merchant-enrichment-v1",
+      "internal-linking-v1",
       prompt,
       {}
     );
 
     const proposal: WorkerProposal = {
-      confidence: response.data.confidence,
-      reasoning: response.data.reasoning,
-      warnings: response.data.warnings,
+      confidence: response.data.confidence || 0.85,
+      reasoning: response.data.reasoning || `Linked based on shared category overlaps.`,
+      warnings: response.data.warnings || [],
       data: {
-        storeContents: [
-          { type: 'ABOUT', content: "Mocked generated rich text about " + store.name },
-          { type: 'FAQ', content: JSON.stringify([{ question: "What is " + store.name + "?", answer: "A great store." }]) },
-          { type: 'SHIPPING', content: "Mocked shipping information." }
-        ]
+        relatedStoreSlugs: ["amazon", "flipkart"], // mock
+        relatedCategorySlugs: ["electronics", "fashion"] // mock
       }
     };
 

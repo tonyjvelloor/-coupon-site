@@ -47,17 +47,22 @@ export default async function MerchantOpsPage() {
   // 4. Thin Content
   const thinContent = await prisma.store.findMany({
     where: {
-      OR: [
-        { aboutContent: null },
-        { aboutContent: '' },
-        { faqContent: null },
-        { faqContent: '' },
-      ],
       isActive: true,
+      OR: [
+        { storeContents: { none: { type: 'ABOUT' } } },
+        { storeContents: { none: { type: 'FAQ' } } }
+      ]
     },
     take: 10,
     orderBy: { clicks: 'desc' },
-    select: { id: true, name: true, clicks: true, aboutContent: true, faqContent: true },
+    select: { 
+      id: true, 
+      name: true, 
+      clicks: true, 
+      storeContents: {
+        select: { type: true }
+      }
+    },
   });
 
   return (
@@ -161,15 +166,20 @@ export default async function MerchantOpsPage() {
               <div className="text-sm text-slate-400 py-4 text-center">No thin content detected.</div>
             ) : (
               <div className="space-y-3">
-                {thinContent.map(store => (
-                  <div key={store.id} className="flex justify-between items-center text-sm border border-slate-100 p-3 rounded-lg">
-                    <Link href={`/admin/stores/${store.id}`} className="font-medium text-blue-600 hover:underline">{store.name}</Link>
-                    <div className="text-right flex gap-2">
-                      {!store.aboutContent && <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded">No About</span>}
-                      {!store.faqContent && <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded">No FAQ</span>}
+                {thinContent.map(store => {
+                  const hasAbout = store.storeContents.some(c => c.type === 'ABOUT');
+                  const hasFaq = store.storeContents.some(c => c.type === 'FAQ');
+                  
+                  return (
+                    <div key={store.id} className="flex justify-between items-center text-sm border border-slate-100 p-3 rounded-lg">
+                      <Link href={`/admin/stores/${store.id}`} className="font-medium text-blue-600 hover:underline">{store.name}</Link>
+                      <div className="text-right flex gap-2">
+                        {!hasAbout && <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded">No About</span>}
+                        {!hasFaq && <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded">No FAQ</span>}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

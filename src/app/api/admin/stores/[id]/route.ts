@@ -15,6 +15,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
             include: {
                 storeCategories: { include: { category: true } },
                 coupons: { orderBy: { createdAt: "desc" } },
+                storeContents: true,
             },
         });
 
@@ -54,7 +55,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             );
         }
 
-        const { categoryIds, ...storeData } = data;
+        const { categoryIds, aboutContent, storeContents, ...storeData } = data;
 
         const store = await prisma.store.update({
             where: { id },
@@ -70,6 +71,20 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
                     categoryId,
                 })),
             });
+        }
+
+        if (aboutContent !== undefined) {
+            if (aboutContent) {
+                await prisma.storeContent.upsert({
+                    where: { storeId_type: { storeId: id, type: 'ABOUT' } },
+                    update: { content: aboutContent },
+                    create: { storeId: id, type: 'ABOUT', content: aboutContent }
+                });
+            } else {
+                await prisma.storeContent.deleteMany({
+                    where: { storeId: id, type: 'ABOUT' }
+                });
+            }
         }
 
         return NextResponse.json(store);

@@ -29,11 +29,12 @@ interface AdminSidebarProps {
 const menuItems = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
     { href: "/admin/stores", label: "Stores", icon: Store },
+    { href: "/admin/merchant-ops", label: "Merchant Ops", icon: Activity },
+    { href: "/admin/merchant-knowledge", label: "Knowledge Engine", icon: BrainCircuit },
     { href: "/admin/categories", label: "Categories", icon: Tag },
     { href: "/admin/coupons", label: "Coupons", icon: Ticket },
     { href: "/admin/banners", label: "Banners", icon: Megaphone },
     { href: "/admin/campaign-links", label: "Campaign Links", icon: Link2 },
-    { href: "/admin/intelligence", label: "AI Intelligence", icon: BrainCircuit },
     { href: "/admin/posts", label: "AI Blog", icon: FileText },
     { href: "/admin/news", label: "Viral News", icon: Newspaper },
     { href: "/admin/import-queue", label: "Review Queue", icon: FileText },

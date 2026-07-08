@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+import { Header } from "@/components/navigation/Header";
+import { Footer } from "@/components/navigation/Footer";
 import NewsTicker from "@/components/ui/NewsTicker";
 
 export default async function PublicLayout({
