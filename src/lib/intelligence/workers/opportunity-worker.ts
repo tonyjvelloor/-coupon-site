@@ -21,7 +21,7 @@ export class OpportunityWorker {
         
         const edges = await prisma.knowledgeEdge.findMany({
             where: { sourceId: merchantNode.id },
-            include: { target: true }
+            include: { targetNode: true }
         });
 
         // 3. AI Hypothesis Generation
@@ -32,7 +32,7 @@ export class OpportunityWorker {
         const opportunities = [];
 
         // Hypothesis 1: Missing Basic Knowledge (FAQ)
-        const hasFaq = edges.some(e => e.target.type === "FAQ");
+        const hasFaq = edges.some(e => e.targetNode.type === "FAQ");
         if (!hasFaq && score.offers > 10) {
             opportunities.push({
                 type: "KNOWLEDGE" as OpportunityType,
@@ -51,7 +51,7 @@ export class OpportunityWorker {
         }
 
         // Hypothesis 2: Missing High-Converting Collections
-        const hasStudentDiscount = edges.some(e => e.type === "HAS_FEATURE" && e.target.name === "Student Discount");
+        const hasStudentDiscount = edges.some(e => e.type === "HAS_FEATURE" && e.targetNode.name === "Student Discount");
         if (!hasStudentDiscount) {
             opportunities.push({
                 type: "REVENUE" as OpportunityType,

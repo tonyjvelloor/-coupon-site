@@ -101,10 +101,10 @@ export class KnowledgeGraphService {
                     { effectiveTo: { gt: new Date() } }
                 ]
             },
-            include: { target: true }
+            include: { targetNode: true }
         });
         
-        return edges.map(e => ({ edge: e, node: e.target }));
+        return edges.map(e => ({ edge: e, node: e.targetNode }));
     }
 
     /**

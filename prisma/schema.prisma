@@ -754,9 +754,9 @@ model KnowledgeNode {
 model KnowledgeEdge {
   id          String        @id @default(uuid())
   sourceId    String
-  source      KnowledgeNode @relation("SourceNode", fields: [sourceId], references: [id], onDelete: Cascade)
+  sourceNode  KnowledgeNode @relation("SourceNode", fields: [sourceId], references: [id], onDelete: Cascade)
   targetId    String
-  target      KnowledgeNode @relation("TargetNode", fields: [targetId], references: [id], onDelete: Cascade)
+  targetNode  KnowledgeNode @relation("TargetNode", fields: [targetId], references: [id], onDelete: Cascade)
   type        EdgeType
   weight      Float         @default(1.0)
   metadata    Json?
