@@ -716,3 +716,17 @@ html {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ========================================
+   ACCESSIBILITY & FOCUS
+   ======================================== */
+:focus-visible {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
+}
+
+/* Base typography refinements */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

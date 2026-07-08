@@ -1,69 +1,90 @@
 import React from 'react';
 import { Icon } from './Icon';
 
-export type MetricLayout = 'vertical' | 'horizontal' | 'inline';
-
 export interface IntelligenceMetricProps {
     icon: string;
     label: string;
-    value: string | React.ReactNode;
-    layout?: MetricLayout;
+    value: React.ReactNode;
+    trend?: 'up' | 'down' | 'neutral';
+    trendValue?: string;
+    freshness?: string;
     className?: string;
-    iconClassName?: string;
-    valueClassName?: string;
-    labelClassName?: string;
-    iconVariant?: 'outline' | 'fill';
+    variant?: 'default' | 'dense' | 'hero';
 }
 
 /**
- * Reusable component for exposing commerce intelligence metrics.
- * Follows the principle: "Beautiful empty cards don't create value."
+ * The mandatory visual primitive for all data points.
+ * Optimizes for Decision Density.
  */
 export function IntelligenceMetric({ 
     icon, 
     label, 
     value, 
-    layout = 'horizontal',
+    trend,
+    trendValue,
+    freshness,
+    variant = 'default',
     className = '',
-    iconClassName = 'text-primary',
-    valueClassName = 'text-on-surface',
-    labelClassName = 'text-on-surface-variant',
-    iconVariant = 'outline'
 }: IntelligenceMetricProps) {
-    
-    if (layout === 'vertical') {
-        // Large block layout (e.g. Hero stats)
+    const renderTrendIcon = () => {
+        if (!trend) return null;
+        if (trend === 'up') return <Icon name="trending_up" className="text-success-600 dark:text-success-500" />;
+        if (trend === 'down') return <Icon name="warning" className="text-warning-600 dark:text-warning-500" />;
+        return <Icon name="trending_flat" className="text-surface-500" />;
+    };
+
+    if (variant === 'hero') {
         return (
-            <div className={`flex flex-col items-center justify-center text-center ${className}`}>
-                <div className={`text-2xl font-bold font-headline-md ${valueClassName}`}>
-                    {value}
+            <div className={`flex flex-col gap-1 p-4 rounded-xl bg-surface-50 dark:bg-surface-900 border border-surface-200 dark:border-surface-800 ${className}`}>
+                <div className="flex items-center gap-2 text-surface-500 dark:text-surface-400 mb-1">
+                    <Icon name={icon} className="text-[16px]" />
+                    <span className="text-xs font-semibold uppercase tracking-wider">{label}</span>
                 </div>
-                <div className={`text-body-sm font-body-sm flex items-center gap-1 mt-1 ${labelClassName}`}>
-                    <Icon name={icon} className={`text-[16px] ${iconClassName}`} variant={iconVariant} />
-                    {label}
+                
+                <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-bold text-merchant-900 dark:text-merchant-50">{value}</span>
+                    {trend && (
+                        <div className="flex items-center gap-1">
+                            {renderTrendIcon()}
+                            {trendValue && <span className="text-xs font-medium text-surface-600 dark:text-surface-300">{trendValue}</span>}
+                        </div>
+                    )}
+                </div>
+                
+                {freshness && (
+                    <div className="flex items-center gap-1 mt-1 opacity-80">
+                        <Icon name="history" className="text-[12px] text-surface-400" />
+                        <span className="text-[11px] font-medium text-surface-500 dark:text-surface-400">{freshness}</span>
+                    </div>
+                )}
+            </div>
+        );
+    }
+
+    if (variant === 'dense') {
+        return (
+            <div className={`flex items-center justify-between gap-4 py-2 border-b border-surface-100 dark:border-surface-800 last:border-0 ${className}`}>
+                <div className="flex items-center gap-2 text-surface-600 dark:text-surface-400">
+                    <Icon name={icon} className="text-[16px]" />
+                    <span className="text-sm font-medium">{label}</span>
+                </div>
+                <div className="flex flex-col items-end">
+                    <span className="text-sm font-bold text-merchant-900 dark:text-merchant-50">{value}</span>
+                    {freshness && <span className="text-[10px] text-surface-400 mt-0.5">{freshness}</span>}
                 </div>
             </div>
         );
     }
 
-    if (layout === 'inline') {
-        // Very compact inline layout (e.g. inside a coupon card row)
-        return (
-            <div className={`flex items-center gap-1 text-[11px] ${className}`}>
-                <Icon name={icon} className={`text-[14px] ${iconClassName}`} variant={iconVariant} />
-                <span className={`font-medium ${valueClassName}`}>{value}</span>
-                <span className={labelClassName}>{label}</span>
-            </div>
-        );
-    }
-
-    // Default horizontal layout (e.g. Merchant card details)
+    // Default 
     return (
-        <div className={`flex items-center gap-2 text-sm ${className}`}>
-            <Icon name={icon} className={`text-[18px] ${iconClassName}`} variant={iconVariant} />
+        <div className={`flex items-center gap-3 p-3 rounded-lg bg-surface-white dark:bg-surface-950 border border-surface-200 dark:border-surface-800 shadow-surface ${className}`}>
+            <div className="w-10 h-10 rounded-full bg-intelligence-50 dark:bg-intelligence-900/30 flex items-center justify-center text-intelligence-600 dark:text-intelligence-400 shrink-0">
+                <Icon name={icon} className="text-[20px]" />
+            </div>
             <div className="flex flex-col">
-                <span className={`font-bold leading-none ${valueClassName}`}>{value}</span>
-                <span className={`text-[10px] uppercase tracking-wider mt-0.5 ${labelClassName}`}>{label}</span>
+                <span className="text-lg font-bold text-merchant-900 dark:text-merchant-50 leading-tight">{value}</span>
+                <span className="text-xs text-surface-500 uppercase tracking-wide font-semibold mt-0.5">{label}</span>
             </div>
         </div>
     );

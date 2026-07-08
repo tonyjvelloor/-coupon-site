@@ -38,11 +38,106 @@ const config: Config = {
                 "gutter": "1.5rem",
                 "stack-md": "1rem",
                 "section-gap": "4rem",
-                "stack-sm": "0.5rem"
+                "stack-sm": "0.5rem",
+                // Strict 8pt grid system for Commerce Intelligence
+                4: "0.25rem",
+                8: "0.5rem",
+                12: "0.75rem",
+                16: "1rem",
+                24: "1.5rem",
+                32: "2rem",
+                48: "3rem",
+                64: "4rem",
+                96: "6rem",
+            },
+            boxShadow: {
+                // Semantic elevations
+                surface: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+                raised: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+                floating: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+                overlay: "0 25px 50px -12px rgb(0 0 0 / 0.25)",
+            },
+            transitionDuration: {
+                // Motion timing
+                instant: "0ms",
+                fast: "150ms",
+                normal: "300ms",
+                slow: "500ms",
+            },
+            borderWidth: {
+                // Border weights
+                subtle: "1px",
+                medium: "2px",
+                strong: "4px",
             },
             colors: {
                 background: "var(--background)",
                 foreground: "var(--foreground)",
+                
+                // --- Commerce Intelligence Tokens ---
+                primary: {
+                    50: "#f5f3ff",
+                    100: "#ede9fe",
+                    200: "#ddd6fe",
+                    300: "#c4b5fd",
+                    400: "#a78bfa",
+                    500: "#8b5cf6",
+                    600: "#7c3aed",
+                    700: "#6d28d9",
+                    800: "#5b21b6",
+                    900: "#4c1d95",
+                    950: "#2e1065",
+                    DEFAULT: "#630ed4", // Legacy compat
+                },
+                intelligence: {
+                    DEFAULT: "#4F46E5",
+                    light: "#EEF2FF",
+                    dark: "#312E81",
+                },
+                merchant: {
+                    DEFAULT: "#0F172A",
+                    light: "#F8FAFC",
+                    dark: "#020617",
+                },
+                verified: {
+                    DEFAULT: "#10B981", // Emerald
+                    high: "#059669",
+                    medium: "#34D399",
+                    low: "#6EE7B7",
+                    light: "#ECFDF5",
+                    dark: "#064E3B",
+                },
+                success: {
+                    DEFAULT: "#16A34A",
+                    light: "#DCFCE7",
+                    dark: "#14532D",
+                },
+                warning: {
+                    DEFAULT: "#F59E0B",
+                    light: "#FEF3C7",
+                    dark: "#78350F",
+                },
+                urgency: {
+                    DEFAULT: "#EA580C",
+                    light: "#FFEDD5",
+                    dark: "#7C2D12",
+                },
+                surface: {
+                    50: "#F8FAFC",
+                    100: "#F1F5F9",
+                    200: "#E2E8F0",
+                    300: "#CBD5E1",
+                    400: "#94A3B8",
+                    500: "#64748B",
+                    600: "#475569",
+                    700: "#334155",
+                    800: "#1E293B",
+                    900: "#0F172A",
+                    950: "#020617",
+                    DEFAULT: "#FFFFFF",
+                },
+                
+                // --- Legacy tokens (Keep for backward compatibility during migration) ---
                 "tertiary-fixed-dim": "#ffb599",
                 "surface-bright": "#f9f9ff",
                 "inverse-surface": "#293040",
@@ -57,7 +152,6 @@ const config: Config = {
                 "on-tertiary-fixed-variant": "#7f2b00",
                 "surface-dim": "#d3daef",
                 "on-tertiary": "#ffffff",
-                "primary": "#630ed4",
                 "tertiary": "#8d3000",
                 "on-background": "#141b2b",
                 "primary-fixed": "#eaddff",
@@ -66,7 +160,6 @@ const config: Config = {
                 "on-surface": "#141b2b",
                 "tertiary-fixed": "#ffdbce",
                 "on-secondary": "#ffffff",
-                "surface": "#f9f9ff",
                 "secondary-fixed": "#6ffbbe",
                 "surface-variant": "#dce2f7",
                 "on-surface-variant": "#4a4455",
