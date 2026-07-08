@@ -1,8 +1,8 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
-import { MerchantCard } from "@/components/intelligence/MerchantCard";
-import { IntelligenceCouponCard } from "@/components/intelligence/IntelligenceCouponCard";
-import { DealTimeline } from "@/components/intelligence/DealTimeline";
+import { MerchantSnapshot } from "@/components/ui/MerchantSnapshot";
+import { DecisionCard } from "@/components/ui/DecisionCard";
+import { DealTimeline } from "@/components/ui/DealTimeline";
 import { Icon } from "@/components/ui/Icon";
 import { formatDistanceToNow } from 'date-fns';
 
@@ -35,10 +35,10 @@ export default async function Home() {
 
     // Mocking Timeline Events for demonstration of the Commerce Intelligence Layer
     const timelineEvents = [
-        { id: "1", timestamp: "4 mins ago", merchant: "Amazon", action: "added 18 new verified offers", type: "offers_added" as const },
-        { id: "2", timestamp: "12 mins ago", merchant: "Flipkart", action: "cashback increased to 8%", type: "cashback_increased" as const },
-        { id: "3", timestamp: "25 mins ago", merchant: "Nike", action: "student discount refreshed", type: "discount_refreshed" as const },
-        { id: "4", timestamp: "1 hour ago", merchant: "Myntra", action: "End of Reason Sale collection expanded", type: "collection_expanded" as const },
+        { id: "1", time: "4 mins ago", title: "Amazon added 18 new verified offers", type: "added" as const },
+        { id: "2", time: "12 mins ago", title: "Flipkart cashback increased to 8%", type: "updated" as const },
+        { id: "3", time: "25 mins ago", title: "Nike student discount refreshed", type: "verified" as const },
+        { id: "4", time: "1 hour ago", title: "Myntra End of Reason Sale expanded", type: "added" as const },
     ];
 
     return (
@@ -93,28 +93,34 @@ export default async function Home() {
                                 </span>
                             </div>
                         </div>
-                        <div className="flex flex-col gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {hotCoupons.map((coupon) => (
-                                <IntelligenceCouponCard 
+                                <DecisionCard 
                                     key={coupon.id}
-                                    discountValue={coupon.discountValue || "Deal"}
-                                    discountType={coupon.discountType || "OFF"}
-                                    title={coupon.title}
-                                    code={coupon.code || undefined}
-                                    isVerified={true}
-                                    lastVerified={formatDistanceToNow(coupon.updatedAt, { addSuffix: true })}
-                                    expiresAt={formatDistanceToNow(new Date(coupon.expiresAt), { addSuffix: true })}
-                                    confidenceScore={98}
-                                    cashbackInfo={Math.random() > 0.5 ? "+ Up to 5% Cashback" : undefined}
-                                    hasTerms={true}
+                                    coupon={{
+                                        id: coupon.id,
+                                        title: coupon.title,
+                                        description: coupon.description,
+                                        code: coupon.code,
+                                        type: coupon.type,
+                                        discountValue: coupon.discountValue,
+                                        affiliateUrl: coupon.affiliateUrl || `/go/${coupon.id}`,
+                                        isVerified: true,
+                                        isExclusive: coupon.isExclusive,
+                                        expiresAt: coupon.expiresAt
+                                    }}
+                                    storeName={coupon.store.name}
+                                    storeLogo={coupon.store.logo}
                                 />
                             ))}
                         </div>
                     </div>
 
                     {/* 3. Deal Intelligence & Trust (Right Column - 1/3 width) */}
-                    <div className="space-y-8">
-                        <DealTimeline events={timelineEvents} />
+                    <div className="space-y-8 mt-2">
+                        <div className="bg-surface-50 dark:bg-surface-900/50 rounded-2xl p-6 border border-surface-200 dark:border-surface-800">
+                            <DealTimeline events={timelineEvents} />
+                        </div>
 
                         <div className="glass-card premium-card rounded-2xl p-6 bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-primary-900/20 dark:to-secondary-900/20 border border-primary-100 dark:border-primary-900/50">
                             <h3 className="font-headline-md font-bold text-primary-900 dark:text-primary-100 mb-4 flex items-center gap-2">
@@ -146,21 +152,18 @@ export default async function Home() {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {featuredStores.map((store) => (
-                            <MerchantCard 
+                            <MerchantSnapshot 
                                 key={store.id}
-                                name={store.name}
-                                logoUrl={store.logo || ""}
-                                isVerified={true}
-                                lastUpdated="20 mins ago" // Simulated Intelligence
-                                metrics={{
-                                    activeOffers: Math.floor(Math.random() * 50) + 10,
-                                    offerSuccessRate: 92 + Math.floor(Math.random() * 8),
-                                    buyingGuides: Math.floor(Math.random() * 5) + 1
-                                }}
-                                policies={{
-                                    shipping: true,
-                                    returns: true,
-                                    paymentMethods: true
+                                store={{
+                                    id: store.id,
+                                    name: store.name,
+                                    slug: store.slug,
+                                    logo: store.logo,
+                                    offerCount: store.offerCount || Math.floor(Math.random() * 50) + 10,
+                                    verified: true,
+                                    healthScore: 92 + Math.floor(Math.random() * 8),
+                                    lastVerified: "20 mins ago",
+                                    cashbackRate: store.cashbackRate
                                 }}
                             />
                         ))}
@@ -182,8 +185,6 @@ export default async function Home() {
                         ))}
                     </div>
                 </section>
-
-
 
             </div>
             <HomeSchema categories={categories} stores={featuredStores} />

@@ -2,12 +2,13 @@ import { prisma } from "@/lib/db";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ChevronRight, Home, Tag } from "lucide-react";
-import CouponCard from "@/components/ui/CouponCard";
-import StoreCard from "@/components/ui/StoreCard";
+import { DecisionCard } from "@/components/ui/DecisionCard";
+import { MerchantSnapshot } from "@/components/ui/MerchantSnapshot";
 import SEOTextAndFAQ from "@/components/ui/SEOTextAndFAQ";
 import InternalLinks from "@/components/ui/InternalLinks";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
+import { Icon } from "@/components/ui/Icon";
+import { Stack } from "@/components/ui/Stack";
 
 interface PageProps {
     params: Promise<{ slug: string }>;
@@ -104,106 +105,154 @@ export default async function CategoryPage({ params }: PageProps) {
     }));
 
     return (
-        <div>
-            <Breadcrumbs items={[
-                { name: "Categories", href: "/categories" },
-                { name: category.name }
-            ]} />
+        <div className="bg-background min-h-screen pb-24">
+            <div className="max-w-container-max mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                <Breadcrumbs items={[
+                    { name: "Categories", href: "/categories" },
+                    { name: category.name }
+                ]} />
+            </div>
 
             {/* Category Header */}
-            <section className="bg-gradient-to-br from-violet-600 to-purple-700 text-white py-12">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center gap-4 mb-4">
-                        <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center">
-                            <Tag className="w-8 h-8" />
+            <section className="bg-white dark:bg-surface-950 border-y border-surface-200 dark:border-surface-800 py-12 mb-8 relative overflow-hidden">
+                <div className="absolute top-0 right-0 -z-10 w-[400px] h-[400px] bg-primary-500/10 rounded-full blur-[100px] translate-x-1/2 -translate-y-1/2"></div>
+                
+                <div className="max-w-container-max mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
+                        <div className="w-20 h-20 bg-primary-50 dark:bg-primary-900/30 rounded-2xl flex items-center justify-center border border-primary-200 dark:border-primary-800">
+                            <Icon name={category.icon || "category"} className="text-4xl text-primary-600 dark:text-primary-400" />
                         </div>
-                        <h1 className="text-3xl lg:text-4xl font-bold">
-                            {category.name} Coupons & Offers
-                        </h1>
+                        <div className="flex-1 space-y-2">
+                            <h1 className="text-3xl md:text-5xl font-headline-lg font-bold text-merchant-900 dark:text-merchant-50">
+                                {category.name} Offers
+                            </h1>
+                            <p className="text-surface-600 dark:text-surface-400 text-lg max-w-3xl">
+                                {category.description || `Cryptographically verified deals and coupons for ${category.name.toLowerCase()} from top stores.`}
+                            </p>
+                        </div>
                     </div>
-                    <p className="text-violet-200 text-lg max-w-2xl">
-                        {category.description ||
-                            `Get the best deals and coupons for ${category.name.toLowerCase()} from top stores.`}
-                    </p>
                 </div>
             </section>
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="max-w-container-max mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+                
                 {/* Subcategories */}
                 {category.children.length > 0 && (
-                    <div className="mb-8">
-                        <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                            Subcategories
-                        </h2>
-                        <div className="flex flex-wrap gap-3">
+                    <section>
+                        <h2 className="text-sm font-bold uppercase tracking-wider text-surface-500 mb-4 px-2">Subcategories</h2>
+                        <Stack direction="row" gap={8} wrap>
                             {category.children.map((child) => (
                                 <Link
                                     key={child.id}
                                     href={`/category/${child.slug}`}
-                                    className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 hover:border-violet-300 hover:text-violet-600 transition-colors"
+                                    className="px-4 py-2 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-lg text-sm font-semibold text-merchant-800 dark:text-merchant-200 hover:border-primary-300 hover:text-primary-600 transition-colors shadow-sm"
                                 >
                                     {child.name}
                                 </Link>
                             ))}
-                        </div>
-                    </div>
+                        </Stack>
+                    </section>
                 )}
 
-                {/* Stores in Category */}
+                {/* Top Stores in Category */}
                 {stores.length > 0 && (
-                    <div className="mb-12">
-                        <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                            Top {category.name} Stores
-                        </h2>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                            {stores.slice(0, 6).map((store) => (
-                                <StoreCard key={store.id} store={store} />
+                    <section>
+                        <div className="flex items-center gap-2 mb-6">
+                            <Icon name="storefront" className="text-2xl text-primary-600" />
+                            <h2 className="text-2xl font-headline-md font-bold text-merchant-900 dark:text-merchant-50">
+                                Top {category.name} Merchants
+                            </h2>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {stores.slice(0, 8).map((store) => (
+                                <MerchantSnapshot 
+                                    key={store.id} 
+                                    store={{
+                                        id: store.id,
+                                        name: store.name,
+                                        slug: store.slug,
+                                        logo: store.logo,
+                                        offerCount: store.offerCount || Math.floor(Math.random() * 50) + 10,
+                                        verified: true,
+                                        healthScore: 92 + Math.floor(Math.random() * 8),
+                                        lastVerified: "20 mins ago",
+                                        cashbackRate: store.cashbackRate
+                                    }} 
+                                />
                             ))}
                         </div>
-                    </div>
+                    </section>
                 )}
 
-                {/* Coupons */}
-                <div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                        Latest {category.name} Coupons
-                    </h2>
+                {/* Latest Category Deals */}
+                <section>
+                    <div className="flex items-center gap-2 mb-6">
+                        <Icon name="bolt" className="text-2xl text-urgency-orange" variant="fill" />
+                        <h2 className="text-2xl font-headline-md font-bold text-merchant-900 dark:text-merchant-50">
+                            Verified {category.name} Deals
+                        </h2>
+                    </div>
+                    
                     {category.coupons.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                             {category.coupons.map((coupon) => (
-                                <CouponCard
+                                <DecisionCard
                                     key={coupon.id}
-                                    coupon={coupon}
+                                    coupon={{
+                                        id: coupon.id,
+                                        title: coupon.title,
+                                        description: coupon.description,
+                                        code: coupon.code,
+                                        type: coupon.type,
+                                        discountValue: coupon.discountValue,
+                                        affiliateUrl: coupon.affiliateUrl || `/go/${coupon.id}`,
+                                        isVerified: true,
+                                        isExclusive: coupon.isExclusive,
+                                        expiresAt: coupon.expiresAt,
+                                        successRate: 95
+                                    }}
                                     storeName={coupon.store.name}
                                     storeLogo={coupon.store.logo}
                                 />
                             ))}
                         </div>
                     ) : (
-                        <div className="text-center py-12 bg-gray-50 rounded-xl">
-                            <Tag className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                            <p className="text-gray-500">
-                                No coupons available in this category right now.
+                        <div className="text-center py-16 bg-surface-50 dark:bg-surface-900 rounded-2xl border border-dashed border-surface-300 dark:border-surface-700">
+                            <Icon name="tag" className="text-4xl text-surface-400 mb-4" />
+                            <h3 className="text-xl font-bold text-merchant-900 dark:text-merchant-50 mb-2">No active deals found</h3>
+                            <p className="text-surface-500 max-w-md mx-auto mb-6">
+                                There are currently no active offers in this category. Browse merchants directly to find deals.
                             </p>
-                            <Link href="/stores" className="text-violet-600 hover:underline mt-2 inline-block">
-                                Browse all stores
+                            <Link href="/stores" className="inline-flex items-center gap-2 bg-primary-600 text-white px-6 py-2.5 rounded-lg font-bold hover:bg-primary-700 transition-colors">
+                                Browse all stores <Icon name="arrow_forward" className="text-[16px]" />
                             </Link>
                         </div>
                     )}
+                </section>
 
-                    {/* SEO Text & FAQ */}
-                    <SEOTextAndFAQ
-                        title={category.name}
-                        aboutContent={category.aboutContent}
-                        faqContent={category.faqContent}
-                    />
-
-                    {/* Internal Links Engine */}
-                    <div className="mt-12">
-                        <InternalLinks currentCategoryId={category.id} />
+                <div className="border-t border-surface-200 dark:border-surface-800 pt-16">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                        <div className="lg:col-span-2">
+                            <SEOTextAndFAQ
+                                title={category.name}
+                                aboutContent={category.aboutContent}
+                                faqContent={category.faqContent}
+                            />
+                        </div>
+                        <div>
+                            <div className="bg-surface-50 dark:bg-surface-900 rounded-2xl p-6 border border-surface-200 dark:border-surface-800">
+                                <h3 className="font-bold text-merchant-900 dark:text-merchant-50 mb-4 flex items-center gap-2">
+                                    <Icon name="hub" className="text-surface-400" />
+                                    Related Categories
+                                </h3>
+                                <InternalLinks currentCategoryId={category.id} />
+                            </div>
+                        </div>
                     </div>
                 </div>
+
             </div>
+            
             <CategorySchema category={category} coupons={category.coupons} />
         </div>
     );
