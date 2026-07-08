@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 
@@ -61,6 +62,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             },
         });
 
+        revalidatePath("/", "layout");
+
         return NextResponse.json(coupon);
     } catch (error) {
         console.error("Error updating coupon:", error);
@@ -90,6 +93,8 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
         }
 
         await prisma.coupon.delete({ where: { id } });
+
+        revalidatePath("/", "layout");
 
         return NextResponse.json({ success: true });
     } catch (error) {

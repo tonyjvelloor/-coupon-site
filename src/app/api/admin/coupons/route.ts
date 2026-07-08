@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 
@@ -54,6 +55,8 @@ export async function POST(request: NextRequest) {
             where: { id: data.storeId },
             data: { offerCount: { increment: 1 } },
         });
+
+        revalidatePath("/", "layout");
 
         return NextResponse.json(coupon, { status: 201 });
     } catch (error) {
