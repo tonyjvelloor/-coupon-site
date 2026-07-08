@@ -24,10 +24,17 @@ export default async function Home() {
         orderBy: { name: "asc" },
     });
 
-    const banners = await prisma.banner.findMany({
+    const rawBanners = await prisma.banner.findMany({
         where: { isActive: true },
         orderBy: { order: "asc" },
     });
+
+    const banners = rawBanners.map(b => ({
+        id: b.id,
+        imageUrl: b.imageUrl,
+        link: b.link,
+        title: b.title
+    }));
 
     const hotCoupons = await prisma.coupon.findMany({
         where: {
