@@ -4,6 +4,7 @@ import Image from "next/image";
 import { MerchantSnapshot } from "@/components/ui/MerchantSnapshot";
 import { DecisionCard } from "@/components/ui/DecisionCard";
 import { DealTimeline } from "@/components/ui/DealTimeline";
+import BannerCarousel from "@/components/ui/BannerCarousel";
 import { Icon } from "@/components/ui/Icon";
 import { formatDistanceToNow } from 'date-fns';
 
@@ -21,6 +22,11 @@ export default async function Home() {
         where: { isActive: true },
         take: 8,
         orderBy: { name: "asc" },
+    });
+
+    const banners = await prisma.banner.findMany({
+        where: { isActive: true },
+        orderBy: { order: "asc" },
     });
 
     const hotCoupons = await prisma.coupon.findMany({
@@ -79,6 +85,14 @@ export default async function Home() {
 
             {/* Main Content Layout */}
             <div className="max-w-container-max mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10 space-y-16 pb-24">
+                
+                {/* 1.5 Banners Section */}
+                {banners.length > 0 && (
+                    <section className="mb-12">
+                        <BannerCarousel banners={banners} />
+                    </section>
+                )}
+
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* 2. Verified Offers (Left Column - 2/3 width) */}
                     <div className="lg:col-span-2 space-y-6">
