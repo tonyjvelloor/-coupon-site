@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
 
-    const ogTitle = `${category.name} Coupons & Offers`;
+    const ogTitle = `${category.name} Coupons & Promo Codes | CouponHub`;
     const ogDescription = category.description || `Get the best ${category.name.toLowerCase()} coupons, promo codes, and deals from top stores. Save big with verified offers.`;
 
     return {
@@ -129,7 +129,7 @@ export default async function CategoryPage({ params }: PageProps) {
                         </div>
                         <div className="flex-1 space-y-2">
                             <h1 className="text-3xl md:text-5xl font-headline-lg font-bold text-merchant-900 dark:text-merchant-50">
-                                {category.name} Offers
+                                {category.name} Coupons & Promo Codes
                             </h1>
                             <p className="text-surface-600 dark:text-surface-400 text-lg max-w-3xl">
                                 {category.description || `Cryptographically verified deals and coupons for ${category.name.toLowerCase()} from top stores.`}

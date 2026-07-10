@@ -7,8 +7,29 @@ import { DealTimeline } from "@/components/ui/DealTimeline";
 import BannerCarousel from "@/components/ui/BannerCarousel";
 import { Icon } from "@/components/ui/Icon";
 import { formatDistanceToNow } from 'date-fns';
+import { Metadata } from "next";
 
 export const revalidate = 900;
+
+export const metadata: Metadata = {
+    title: "CouponHub | Verified Coupons, Promo Codes & Cashback",
+    description: "Save smarter with real-time verified deals, merchant intelligence and trusted shopping guides. Discover the best promo codes and cashback offers on CouponHub.",
+    alternates: {
+        canonical: "https://couponhub.store",
+    },
+    openGraph: {
+        title: "CouponHub | Verified Coupons, Promo Codes & Cashback",
+        description: "Save smarter with real-time verified deals, merchant intelligence and trusted shopping guides.",
+        type: "website",
+        url: "https://couponhub.store",
+        siteName: "CouponHub",
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "CouponHub | Verified Coupons, Promo Codes & Cashback",
+        description: "Save smarter with real-time verified deals, merchant intelligence and trusted shopping guides.",
+    }
+};
 
 export default async function Home() {
     // 1. Fetching base data
@@ -65,12 +86,15 @@ export default async function Home() {
                     <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-primary-500 opacity-20 blur-[100px]"></div>
                 </div>
                 
-                <div className="max-w-3xl mx-auto text-center space-y-8">
-                    <h1 className="text-4xl md:text-6xl font-headline-lg font-bold text-white tracking-tight">
-                        Never overpay again.
+                <div className="max-w-4xl mx-auto text-center space-y-6">
+                    <div className="inline-block py-1.5 px-4 rounded-full bg-primary-800/50 text-primary-100 text-sm font-bold tracking-widest uppercase mb-2 border border-primary-700/50 backdrop-blur-sm">
+                        Never Overpay Again
+                    </div>
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-headline-lg font-bold text-white tracking-tight leading-tight">
+                        Verified Coupons, Promo Codes & Cashback Offers
                     </h1>
-                    <p className="text-lg text-primary-100 font-medium max-w-xl mx-auto">
-                        Search over 250,000 cryptographically verified coupons, deals, and cashback offers updated in real-time.
+                    <p className="text-lg md:text-xl text-primary-100 font-medium max-w-2xl mx-auto leading-relaxed">
+                        Save smarter with real-time verified deals, merchant intelligence and trusted shopping guides.
                     </p>
                     
                     <div className="relative max-w-2xl mx-auto group">
@@ -234,34 +258,63 @@ function HomeSchema({ categories, stores }: { categories: any[], stores: any[] }
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
     const jsonLd = {
         "@context": "https://schema.org",
-        "@type": "WebPage",
-        name: "CouponHub - Commerce Intelligence & Verified Deals",
-        description: "The structured commerce intelligence layer for online shopping. Never overpay again.",
-        url: siteUrl,
-        mainEntity: {
-            "@type": "ItemList",
-            name: "Featured Categories and Stores",
-            itemListElement: [
-                ...categories.slice(0, 5).map((cat, index) => ({
-                    "@type": "ListItem",
-                    position: index + 1,
-                    item: {
-                        "@type": "CollectionPage",
-                        name: cat.name,
-                        url: `${siteUrl}/category/${cat.slug}`
-                    }
-                })),
-                ...stores.slice(0, 5).map((store, index) => ({
-                    "@type": "ListItem",
-                    position: categories.length + index + 1,
-                    item: {
-                        "@type": "Store",
-                        name: store.name,
-                        url: `${siteUrl}/stores/${store.slug}`
-                    }
-                }))
-            ]
-        }
+        "@graph": [
+            {
+                "@type": "WebSite",
+                "@id": `${siteUrl}/#website`,
+                "url": siteUrl,
+                "name": "CouponHub",
+                "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": {
+                        "@type": "EntryPoint",
+                        "urlTemplate": `${siteUrl}/search?q={search_term_string}`
+                    },
+                    "query-input": "required name=search_term_string"
+                }
+            },
+            {
+                "@type": "Organization",
+                "@id": `${siteUrl}/#organization`,
+                "url": siteUrl,
+                "name": "CouponHub",
+                "logo": {
+                    "@type": "ImageObject",
+                    "url": `${siteUrl}/logo.png`
+                }
+            },
+            {
+                "@type": "WebPage",
+                "@id": `${siteUrl}/#webpage`,
+                "url": siteUrl,
+                "name": "CouponHub | Verified Coupons, Promo Codes & Cashback",
+                "description": "Save smarter with real-time verified deals, merchant intelligence and trusted shopping guides.",
+                "mainEntity": {
+                    "@type": "ItemList",
+                    "name": "Featured Categories and Stores",
+                    "itemListElement": [
+                        ...categories.slice(0, 5).map((cat, index) => ({
+                            "@type": "ListItem",
+                            "position": index + 1,
+                            "item": {
+                                "@type": "CollectionPage",
+                                "name": cat.name,
+                                "url": `${siteUrl}/category/${cat.slug}`
+                            }
+                        })),
+                        ...stores.slice(0, 5).map((store, index) => ({
+                            "@type": "ListItem",
+                            "position": categories.length + index + 1,
+                            "item": {
+                                "@type": "Store",
+                                "name": store.name,
+                                "url": `${siteUrl}/stores/${store.slug}`
+                            }
+                        }))
+                    ]
+                }
+            }
+        ]
     };
 
     return (

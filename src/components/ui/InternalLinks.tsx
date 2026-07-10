@@ -60,7 +60,7 @@ export default async function InternalLinks({ currentStoreId, currentCategoryId,
             <div>
                 <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                     <TrendingUp className="w-5 h-5 text-violet-600" />
-                    Trending Deals You Might Like
+                    Popular this week
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {trendingCoupons.map((coupon) => (
@@ -104,7 +104,7 @@ export default async function InternalLinks({ currentStoreId, currentCategoryId,
                 <div>
                     <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                         <Tag className="w-5 h-5 text-green-500" />
-                        Freshly Added Offers
+                        Recently updated
                     </h3>
                     <ul className="space-y-3">
                         {newCoupons.map(coupon => (
@@ -127,7 +127,7 @@ export default async function InternalLinks({ currentStoreId, currentCategoryId,
                 <div>
                     <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                         <StoreIcon className="w-5 h-5 text-blue-500" />
-                        Popular Stores
+                        Similar merchants
                     </h3>
                     <div className="flex flex-wrap gap-2">
                         {popularStores.map((store) => (

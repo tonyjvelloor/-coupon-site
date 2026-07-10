@@ -3,6 +3,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { formatDistanceToNow } from "date-fns";
 import { Clock } from "lucide-react";
 import { DecisionCard } from "@/components/ui/DecisionCard";
 import SEOTextAndFAQ from "@/components/ui/SEOTextAndFAQ";
@@ -45,8 +46,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     if (!store) return { title: "Store Not Found" };
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
-    const ogTitle = store.seoTitle || `${store.name} Coupons & Promo Codes`;
-    const ogDescription = store.seoDescription || `Get the latest ${store.name} coupons, promo codes, and deals. Save up to ${store.cashbackRate || "80%"} with verified offers.`;
+    const monthYear = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(new Date());
+    const ogTitle = store.seoTitle || `${store.name} Coupons & Promo Codes – ${monthYear} | CouponHub`;
+    const ogDescription = store.seoDescription || `Save more with verified ${store.name} coupons, promo codes, cashback offers and shopping guides. Updated daily by CouponHub.`;
     
     return {
         title: ogTitle,
@@ -136,7 +138,7 @@ export default async function StorePage({ params }: PageProps) {
                         <div className="flex-grow space-y-4">
                             <div className="flex flex-col gap-1">
                                 <h1 className="text-3xl md:text-4xl font-headline-lg font-bold text-merchant-900 dark:text-merchant-50 flex items-center gap-3">
-                                    {store.name}
+                                    {store.name} Coupons, Promo Codes & Cashback Offers
                                     <Icon name="verified" className="text-verified-600 dark:text-verified-400 text-3xl" />
                                 </h1>
                                 {store.description && (
@@ -149,15 +151,27 @@ export default async function StorePage({ params }: PageProps) {
                                     <Icon name="local_offer" className="text-surface-500 text-[18px]" />
                                     <span className="font-bold text-sm text-merchant-900 dark:text-merchant-50">{activeCoupons.length} Active Offers</span>
                                 </div>
+                                <div className="flex items-center gap-2 bg-surface-50 dark:bg-surface-900 px-3 py-1.5 rounded-lg border border-surface-200 dark:border-surface-800">
+                                    <Icon name="update" className="text-surface-500 text-[18px]" />
+                                    <span className="font-bold text-sm text-merchant-900 dark:text-merchant-50">Updated {activeCoupons.length > 0 ? formatDistanceToNow(new Date(Math.max(...activeCoupons.map((c: any) => new Date(c.createdAt).getTime()))), { addSuffix: true }) : "recently"}</span>
+                                </div>
                                 {store.cashbackRate && (
                                     <div className="flex items-center gap-2 bg-success-50 dark:bg-success-900/30 px-3 py-1.5 rounded-lg border border-success-200 dark:border-success-800">
                                         <Icon name="payments" className="text-success-600 text-[18px]" />
-                                        <span className="font-bold text-sm text-success-700 dark:text-success-400">{store.cashbackRate}</span>
+                                        <span className="font-bold text-sm text-success-700 dark:text-success-400">{store.cashbackRate} Cashback</span>
                                     </div>
                                 )}
                                 <div className="flex items-center gap-2 bg-intelligence-50 dark:bg-intelligence-900/30 px-3 py-1.5 rounded-lg border border-intelligence-200 dark:border-intelligence-800">
                                     <Icon name="health_and_safety" className="text-intelligence-600 text-[18px]" />
                                     <span className="font-bold text-sm text-intelligence-700 dark:text-intelligence-400">98 Trust Score</span>
+                                </div>
+                                <div className="flex items-center gap-2 bg-intelligence-50 dark:bg-intelligence-900/30 px-3 py-1.5 rounded-lg border border-intelligence-200 dark:border-intelligence-800">
+                                    <Icon name="verified_user" className="text-intelligence-600 text-[18px]" />
+                                    <span className="font-bold text-sm text-intelligence-700 dark:text-intelligence-400">Verified Merchant</span>
+                                </div>
+                                <div className="flex items-center gap-2 bg-surface-50 dark:bg-surface-900 px-3 py-1.5 rounded-lg border border-surface-200 dark:border-surface-800">
+                                    <Icon name="menu_book" className="text-surface-500 text-[18px]" />
+                                    <span className="font-bold text-sm text-merchant-900 dark:text-merchant-50">Buying Guides</span>
                                 </div>
                             </Stack>
                         </div>
@@ -289,97 +303,102 @@ export default async function StorePage({ params }: PageProps) {
 // Helper to generate JSON-LD for Store
 function StoreSchema({ store, coupons }: { store: any, coupons: any }) {
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
-    const jsonLd = {
-        "@context": "https://schema.org",
-        "@type": "Store",
-        name: store.name,
-        image: store.logo,
-        description: store.description,
-        url: store.website,
-        sameAs: store.affiliateUrl ? [store.affiliateUrl] : [],
-        hasOfferCatalog: {
-            "@type": "OfferCatalog",
-            name: `${store.name} Offers`,
-            itemListElement: coupons.slice(0, 10).map((coupon: any, index: number) => ({
-                "@type": "Offer",
-                itemOffered: {
-                    "@type": "Service",
-                    name: coupon.title
-                },
-                priceCurrency: "USD",
-                price: "0",
-                description: coupon.description || coupon.title,
-                url: `${siteUrl}/stores/${store.slug}`,
-                validFrom: coupon.createdAt.toISOString()
-            }))
-        }
-    };
-
     const faqContent = store.storeContents?.find((c: any) => c.type === 'FAQ')?.content;
-    let faqSchema = null;
+    let faqs: any[] = [];
     if (faqContent) {
         try {
-            const faqs = JSON.parse(faqContent);
-            if (Array.isArray(faqs) && faqs.length > 0) {
-                faqSchema = {
-                    "@context": "https://schema.org",
-                    "@type": "FAQPage",
-                    mainEntity: faqs.map((faq: any) => ({
-                        "@type": "Question",
-                        name: faq.question,
-                        acceptedAnswer: {
-                            "@type": "Answer",
-                            text: faq.answer
-                        }
-                    }))
-                };
-            }
+            faqs = JSON.parse(faqContent);
         } catch (e) {
-            // ignore JSON parse errors
+            // ignore
         }
     }
 
-    const breadcrumbSchema = {
+    const jsonLd = {
         "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        itemListElement: [
+        "@graph": [
             {
-                "@type": "ListItem",
-                position: 1,
-                name: "Home",
-                item: siteUrl
+                "@type": "Organization",
+                "@id": `${siteUrl}/stores/${store.slug}/#organization`,
+                "name": store.name,
+                "url": store.website,
+                "image": store.logo,
+                "sameAs": store.affiliateUrl ? [store.affiliateUrl] : []
             },
             {
-                "@type": "ListItem",
-                position: 2,
-                name: "Stores",
-                item: `${siteUrl}/stores`
+                "@type": "CollectionPage",
+                "@id": `${siteUrl}/stores/${store.slug}/#webpage`,
+                "url": `${siteUrl}/stores/${store.slug}`,
+                "name": `${store.name} Coupons & Promo Codes`,
+                "about": { "@id": `${siteUrl}/stores/${store.slug}/#organization` },
+                "isPartOf": { "@id": `${siteUrl}/#website` }
             },
             {
-                "@type": "ListItem",
-                position: 3,
-                name: store.name,
-                item: `${siteUrl}/stores/${store.slug}`
-            }
+                "@type": "Store",
+                "@id": `${siteUrl}/stores/${store.slug}/#store`,
+                "name": store.name,
+                "image": store.logo,
+                "description": store.description,
+                "url": store.website,
+                "hasOfferCatalog": {
+                    "@type": "OfferCatalog",
+                    "name": `${store.name} Offers`,
+                    "itemListElement": coupons.slice(0, 10).map((coupon: any, index: number) => ({
+                        "@type": "Offer",
+                        "itemOffered": {
+                            "@type": "Service",
+                            "name": coupon.title
+                        },
+                        "priceCurrency": "USD",
+                        "price": "0",
+                        "description": coupon.description || coupon.title,
+                        "url": `${siteUrl}/stores/${store.slug}`,
+                        "validFrom": coupon.createdAt.toISOString()
+                    }))
+                }
+            },
+            {
+                "@type": "BreadcrumbList",
+                "@id": `${siteUrl}/stores/${store.slug}/#breadcrumb`,
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Home",
+                        "item": siteUrl
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Stores",
+                        "item": `${siteUrl}/stores`
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": store.name,
+                        "item": `${siteUrl}/stores/${store.slug}`
+                    }
+                ]
+            },
+            ...(Array.isArray(faqs) && faqs.length > 0 ? [{
+                "@type": "FAQPage",
+                "@id": `${siteUrl}/stores/${store.slug}/#faq`,
+                "mainEntity": faqs.map((faq: any) => ({
+                    "@type": "Question",
+                    "name": faq.question,
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": faq.answer
+                    }
+                }))
+            }] : [])
         ]
     };
 
     return (
-        <>
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-            />
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-            />
-            {faqSchema && (
-                <script
-                    type="application/ld+json"
-                    dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-                />
-            )}
-        </>
+        <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
     );
 }
