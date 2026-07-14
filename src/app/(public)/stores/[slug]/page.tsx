@@ -90,6 +90,7 @@ export default async function StorePage({ params }: PageProps) {
                 include: { category: true },
             },
             storeContents: true,
+            merchantHistories: true,
         },
     });
 
@@ -140,6 +141,18 @@ export default async function StorePage({ params }: PageProps) {
             type: "verified" as const,
         });
     });
+
+    if (store.merchantHistories) {
+        store.merchantHistories.forEach(history => {
+            synthesizedEvents.push({
+                id: `mh-${history.id}`,
+                date: new Date(history.date),
+                time: formatDistanceToNow(new Date(history.date), { addSuffix: true }),
+                title: history.title,
+                type: (history.type as any) || "milestone",
+            });
+        });
+    }
 
     // Sort by descending date and take top 5
     synthesizedEvents.sort((a, b) => b.date.getTime() - a.date.getTime());

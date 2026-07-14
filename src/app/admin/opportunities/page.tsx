@@ -51,11 +51,11 @@ export default async function OpportunitiesDashboard() {
                             
                             {/* Score & Type */}
                             <div className="flex flex-col items-center justify-center min-w-[120px] shrink-0 md:border-r border-surface-100 dark:border-surface-800 pr-0 md:pr-6">
-                                <span className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">{opp.type}</span>
-                                <span className={`text-5xl font-headline-lg font-black ${opp.priority >= 90 ? 'text-urgency-orange' : 'text-primary'}`}>
-                                    {opp.priority}
+                                <span className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">{opp.subType || opp.type}</span>
+                                <span className={`text-5xl font-headline-lg font-black ${opp.priorityScore >= 90 ? 'text-urgency-orange' : 'text-primary'}`}>
+                                    {opp.priorityScore}
                                 </span>
-                                <span className="text-xs font-semibold text-on-surface-variant mt-2 uppercase tracking-wide">Priority</span>
+                                <span className="text-xs font-semibold text-on-surface-variant mt-2 uppercase tracking-wide">Score</span>
                             </div>
 
                             {/* Details */}
@@ -81,8 +81,8 @@ export default async function OpportunitiesDashboard() {
                             <div className="flex flex-col gap-3 min-w-[220px] shrink-0">
                                 <div className="grid grid-cols-2 gap-2 text-xs">
                                     <div className="p-2.5 rounded-xl bg-surface-50 dark:bg-surface-800 border border-surface-100 dark:border-surface-700">
-                                        <span className="block text-on-surface-variant font-semibold mb-1">Traffic</span>
-                                        <span className={`font-bold ${getImpactColor(opp.trafficGain)} px-2 py-0.5 rounded`}>{opp.trafficGain}</span>
+                                        <span className="block text-on-surface-variant font-semibold mb-1">Traffic Gain</span>
+                                        <span className={`font-bold ${getImpactColor(opp.trafficGain)} px-2 py-0.5 rounded`}>+{opp.estimatedTrafficGain}%</span>
                                     </div>
                                     <div className="p-2.5 rounded-xl bg-surface-50 dark:bg-surface-800 border border-surface-100 dark:border-surface-700">
                                         <span className="block text-on-surface-variant font-semibold mb-1">Revenue</span>

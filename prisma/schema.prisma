@@ -31,8 +31,10 @@ model Store {
   activeOfferCount  Int                @default(0)
   lastImportedAt    DateTime?
   searchImpressions Int                @default(0)
-  healthScore       Json?
-  knowledgeDensity  Float              @default(0.0)
+  healthScore              Json?
+  knowledgeDensity         Float              @default(0.0)
+  visitors                 Int                @default(0)
+  conversions              Int                @default(0)
   affiliatePrograms AffiliateProgram[]
   campaignLinks     CampaignLink[]
   clickEvents       ClickEvent[]
@@ -40,6 +42,7 @@ model Store {
   aliases           MerchantAlias[]
   storeCategories   StoreCategory[]
   storeContents     StoreContent[]
+  merchantHistories MerchantHistory[]
 
   @@index([slug])
   @@index([createdAt])
@@ -92,6 +95,14 @@ model StoreContent {
   createdAt DateTime         @default(now())
   updatedAt DateTime         @updatedAt
   store     Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  revenueAttribution Float   @default(0)
+  totalClicks        Int     @default(0)
+  revenue            Float   @default(0.0)
+  clicks             Int     @default(0)
+  visitors           Int     @default(0)
+  conversions        Int     @default(0)
+  lastReviewed       DateTime?
+  lastVerified       DateTime?
 
   @@unique([storeId, type])
   @@index([storeId])
@@ -575,20 +586,33 @@ model KnowledgeEdge {
 model Opportunity {
   id                String            @id @default(uuid())
   type              OpportunityType
+  subType           String?
   title             String
-  description       String
-  priority          Int
-  trafficGain       String
-  revenueImpact     String
-  estimatedEffort   String
-  confidence        Int
-  recommendedAction String
-  dependencies      Json
+  engineVersion     String            @default("v1")
+  inputSnapshot     Json?
+  reasoning         String?
+  recommendation    String?
+  confidence        Int               @default(0)
   status            OpportunityStatus @default(GENERATED)
   targetEntityId    String
   nodeId            String?
+  decision          Decision?
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
+}
+
+model Decision {
+  id             String      @id @default(uuid())
+  opportunityId  String      @unique
+  opportunity    Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  decision       String      // APPROVED, REJECTED, IMPLEMENTED
+  owner          String?     // User ID or AI Agent ID
+  executedAt     DateTime?
+  expectedImpact String?
+  actualImpact   String?
+  notes          String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
 }
 
 enum StoreContentType {
@@ -685,15 +709,16 @@ enum EdgeType {
 }
 
 enum OpportunityType {
-  CONTENT
-  SEO
-  MERCHANT
-  REVENUE
-  KNOWLEDGE
-  TRUST
-  FRESHNESS
   COVERAGE
+  FRESHNESS
+  TRUST
+  SEO
+  CRO
+  REVENUE
   INTERNAL_LINKING
+  SEASONAL
+  MERCHANT
+  KNOWLEDGE
 }
 
 enum OpportunityStatus {
@@ -703,4 +728,19 @@ enum OpportunityStatus {
   IN_PROGRESS
   COMPLETED
   DISMISSED
+}
+
+model MerchantHistory {
+  id          String   @id @default(uuid())
+  storeId     String
+  date        DateTime
+  title       String
+  description String?
+  type        String   @default("milestone")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  store       Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@index([storeId])
+  @@index([date])
 }
