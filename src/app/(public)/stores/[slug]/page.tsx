@@ -280,6 +280,55 @@ export default async function StorePage({ params }: PageProps) {
 
                     {/* Sidebar Area (Right 1/3) */}
                     <div className="space-y-6 lg:pl-4">
+                        <div className="bg-white dark:bg-surface-950 rounded-2xl p-6 border border-surface-200 dark:border-surface-800 shadow-sm">
+                            <h3 className="font-bold text-merchant-900 dark:text-merchant-50 mb-4 flex items-center gap-2">
+                                <Icon name="info" className="text-primary-600" />
+                                {store.name} Information
+                            </h3>
+                            <ul className="space-y-3">
+                                {store.storeContents.some(c => c.type === 'BUYING_GUIDE') && (
+                                    <li>
+                                        <Link href={`/stores/${slug}/buying-guide`} className="flex items-center text-sm font-medium text-surface-600 hover:text-primary-600 dark:text-surface-400 dark:hover:text-primary-400">
+                                            <Icon name="menu_book" className="mr-2 text-[18px]" />
+                                            Buying Guide
+                                        </Link>
+                                    </li>
+                                )}
+                                {store.storeContents.some(c => c.type === 'SHIPPING') && (
+                                    <li>
+                                        <Link href={`/stores/${slug}/shipping`} className="flex items-center text-sm font-medium text-surface-600 hover:text-primary-600 dark:text-surface-400 dark:hover:text-primary-400">
+                                            <Icon name="local_shipping" className="mr-2 text-[18px]" />
+                                            Shipping Policy
+                                        </Link>
+                                    </li>
+                                )}
+                                {store.storeContents.some(c => c.type === 'RETURNS') && (
+                                    <li>
+                                        <Link href={`/stores/${slug}/returns`} className="flex items-center text-sm font-medium text-surface-600 hover:text-primary-600 dark:text-surface-400 dark:hover:text-primary-400">
+                                            <Icon name="assignment_return" className="mr-2 text-[18px]" />
+                                            Return Policy
+                                        </Link>
+                                    </li>
+                                )}
+                                {store.storeContents.some(c => c.type === 'STUDENT') && (
+                                    <li>
+                                        <Link href={`/stores/${slug}/student-discount`} className="flex items-center text-sm font-medium text-surface-600 hover:text-primary-600 dark:text-surface-400 dark:hover:text-primary-400">
+                                            <Icon name="school" className="mr-2 text-[18px]" />
+                                            Student Discount
+                                        </Link>
+                                    </li>
+                                )}
+                                {store.storeContents.some(c => c.type === 'FAQ') && (
+                                    <li>
+                                        <Link href={`/stores/${slug}/faq`} className="flex items-center text-sm font-medium text-surface-600 hover:text-primary-600 dark:text-surface-400 dark:hover:text-primary-400">
+                                            <Icon name="help_center" className="mr-2 text-[18px]" />
+                                            FAQ & Common Questions
+                                        </Link>
+                                    </li>
+                                )}
+                            </ul>
+                        </div>
+
                         <div className="bg-surface-50 dark:bg-surface-900/50 rounded-2xl p-6 border border-surface-200 dark:border-surface-800">
                             <DealTimeline events={timelineEvents} />
                         </div>
