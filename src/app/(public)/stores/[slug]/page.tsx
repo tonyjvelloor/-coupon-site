@@ -114,24 +114,36 @@ export default async function StorePage({ params }: PageProps) {
     const hasReturns = store.storeContents.some(c => c.type === 'RETURNS');
     const hasStudent = store.storeContents.some(c => c.type === 'STUDENT');
 
-    // Fetch related stores based on shared categories (Knowledge Graph traversal)
-    const categoryIds = store.storeCategories.map(sc => sc.categoryId);
-    const relatedStores = await prisma.store.findMany({
-        where: { 
-            isActive: true, 
-            id: { not: store.id },
-            storeCategories: { some: { categoryId: { in: categoryIds } } }
-        },
-        take: 4,
-        select: { name: true, slug: true, logo: true }
+    // Decision Graph will handle all internal linking for related knowledge nodes
+
+    // Synthesize Timeline Events
+    const synthesizedEvents = [];
+    store.coupons.forEach(c => {
+        synthesizedEvents.push({
+            id: `c-${c.id}`,
+            date: new Date(c.createdAt),
+            time: formatDistanceToNow(new Date(c.createdAt), { addSuffix: true }),
+            title: `Coupon Published: ${c.title}`,
+            type: "added" as const,
+        });
     });
 
-    // Mock timeline events for demonstration
-    const timelineEvents = [
-        { id: "1", time: "14 mins ago", title: `${store.name} offer verified`, type: "verified" as const, user: "Auto-Verifier" },
-        { id: "2", time: "2 hours ago", title: "New cashback tier unlocked", type: "added" as const },
-        { id: "3", time: "5 hours ago", title: "2 coupons expired", type: "expired" as const },
-    ];
+    store.storeContents.forEach(content => {
+        let typeStr = content.type.replace('_', ' ');
+        // capitalize first letter of each word
+        typeStr = typeStr.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+        synthesizedEvents.push({
+            id: `sc-${content.id}`,
+            date: new Date(content.updatedAt),
+            time: formatDistanceToNow(new Date(content.updatedAt), { addSuffix: true }),
+            title: `${typeStr} Updated`,
+            type: "verified" as const,
+        });
+    });
+
+    // Sort by descending date and take top 5
+    synthesizedEvents.sort((a, b) => b.date.getTime() - a.date.getTime());
+    const timelineEvents = synthesizedEvents.slice(0, 5);
 
     return (
         <div className="bg-background min-h-screen pb-24">
@@ -316,33 +328,7 @@ export default async function StorePage({ params }: PageProps) {
                             />
                         </div>
 
-                        {/* Knowledge Graph Internal Linking (Related Merchants) */}
-                        {relatedStores.length > 0 && (
-                            <div className="pt-8 border-t border-surface-200 dark:border-surface-800">
-                                <div className="flex items-center gap-2 mb-6">
-                                    <Icon name="hub" className="text-primary-600 text-2xl" />
-                                    <h2 className="text-xl font-bold text-merchant-900 dark:text-merchant-50">Related Merchants</h2>
-                                </div>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    {relatedStores.map((rs) => (
-                                        <Link 
-                                            key={rs.slug} 
-                                            href={`/stores/${rs.slug}`}
-                                            className="bg-white dark:bg-surface-950 border border-surface-200 dark:border-surface-800 rounded-xl p-4 flex flex-col items-center justify-center gap-3 hover:border-primary-500 hover:shadow-md transition-all group"
-                                        >
-                                            {rs.logo ? (
-                                                <Image src={rs.logo} alt={rs.name} width={48} height={48} className="object-contain h-12 w-auto group-hover:scale-110 transition-transform" />
-                                            ) : (
-                                                <div className="w-12 h-12 rounded-full bg-surface-100 dark:bg-surface-800 flex items-center justify-center font-bold text-surface-400">
-                                                    {rs.name.charAt(0)}
-                                                </div>
-                                            )}
-                                            <span className="font-semibold text-sm text-center text-merchant-900 dark:text-merchant-50">{rs.name}</span>
-                                        </Link>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+                        {/* Removed Related Merchants in favor of Decision Graph */}
 
                     </div>
 
@@ -412,13 +398,13 @@ export default async function StorePage({ params }: PageProps) {
                 </div>
             </div>
 
-            <StoreSchema store={store} coupons={store.coupons} />
+            <StoreSchema store={store} coupons={store.coupons} timelineEvents={timelineEvents} />
         </div>
     );
 }
 
 // Helper to generate JSON-LD for Store
-function StoreSchema({ store, coupons }: { store: any, coupons: any }) {
+function StoreSchema({ store, coupons, timelineEvents }: { store: any, coupons: any, timelineEvents: any[] }) {
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
     const faqContent = store.storeContents?.find((c: any) => c.type === 'FAQ')?.content;
     let faqs: any[] = [];
@@ -506,6 +492,21 @@ function StoreSchema({ store, coupons }: { store: any, coupons: any }) {
                     "acceptedAnswer": {
                         "@type": "Answer",
                         "text": faq.answer
+                    }
+                }))
+            }] : []),
+            ...(timelineEvents.length > 0 ? [{
+                "@type": "ItemList",
+                "@id": `${siteUrl}/stores/${store.slug}/#timeline`,
+                "name": `${store.name} Update Timeline`,
+                "itemListElement": timelineEvents.map((evt, idx) => ({
+                    "@type": "ListItem",
+                    "position": idx + 1,
+                    "item": {
+                        "@type": "Event",
+                        "name": evt.title,
+                        "startDate": evt.date.toISOString(),
+                        "eventStatus": "https://schema.org/EventScheduled"
                     }
                 }))
             }] : [])
