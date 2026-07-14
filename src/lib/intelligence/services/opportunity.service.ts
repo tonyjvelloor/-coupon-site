@@ -2,15 +2,18 @@ import { prisma } from "@/lib/db";
 import { OpportunityType } from "@prisma/client";
 import { CoverageService } from "./coverage.service";
 import { AuthorityService } from "./authority.service";
-import { LearningService } from "./learning.service";
+import { StrategyService } from "./strategy.service";
+import { FeatureExtractionService, FeatureVector } from "./feature.service";
+import { calculateSimilarity } from "../similarity";
 
 export class OpportunityService {
     private coverageService = new CoverageService();
     private authorityService = new AuthorityService();
-    private learningService = new LearningService();
+    private strategyService = new StrategyService();
+    private featureService = new FeatureExtractionService();
 
     /**
-     * Opportunity Engine v2.1: Generates hypotheses augmented by Knowledge Memory.
+     * Opportunity Engine v3.0: Generates hypotheses augmented by Cross-Merchant Intelligence Strategies.
      */
     async generateOpportunities(storeId: string): Promise<void> {
         const store = await prisma.store.findUnique({
@@ -26,8 +29,9 @@ export class OpportunityService {
         const coverage = await this.coverageService.calculateMerchantCoverage(storeId);
         const authority = await this.authorityService.calculateMerchantAuthority(storeId);
         
-        // Fetch Knowledge Memory from Learning Engine
-        const activeLearnings = await this.learningService.getActiveLearnings();
+        // Fetch feature vector and active strategies
+        const featureVector = await this.featureService.extractFeatures(storeId);
+        const activeStrategies = await this.strategyService.getActiveStrategies();
 
         const inputSnapshot = {
             coverage: coverage.granular,
@@ -38,19 +42,64 @@ export class OpportunityService {
         };
 
         const opportunities = [];
-        const ENGINE_VERSION = "v2.1";
+        const ENGINE_VERSION = "v3.0";
 
-        // Helper to append Knowledge Memory naturally
+        // Helper to append Intelligence Strategies
         const augmentReasoning = (base: string, oppType: OpportunityType) => {
-            const learning = activeLearnings.find(l => {
-                const conditions = l.conditions as Record<string, any>;
-                return conditions && conditions.opportunityType === oppType;
-            });
-            
-            if (learning) {
-                const impact = learning.impactMetrics as Record<string, any>;
-                const impactText = impact?.ctr ? `improved CTR by ${impact.ctr}` : `improved performance`;
-                return `${base} This pattern has ${impactText} across ${learning.timesConfirmed} comparable merchants.`;
+            if (!featureVector) return base;
+
+            const recommendations = [];
+
+            for (const strategy of activeStrategies) {
+                // Determine if this strategy targets this opportunity type
+                if (strategy.action !== `Resolve ${oppType}`) continue;
+
+                const conditions = strategy.conditions as Partial<FeatureVector>;
+                const { overall } = calculateSimilarity(featureVector, conditions);
+
+                // Recommendation Score = Confidence × Similarity × Impact × Evidence × Freshness
+                // For simplicity, Impact weight is assumed 1.0 here unless calculated.
+                // Evidence weight scales up to 1.0 at 50 confirmed merchants.
+                const evidenceWeight = Math.min(1.0, strategy.timesConfirmed / 50);
+                
+                // Freshness weight scales down based on lastObserved age. (assuming 1.0 for now)
+                const freshnessWeight = 1.0; 
+                
+                const confidenceFactor = strategy.confidence / 100;
+                
+                const recScore = confidenceFactor * overall * evidenceWeight * freshnessWeight;
+                
+                // If the strategy applies well enough (e.g., > 10% relevance)
+                if (recScore > 0.1) {
+                    recommendations.push({
+                        strategy,
+                        similarity: overall,
+                        recScore
+                    });
+                }
+            }
+
+            if (recommendations.length > 0) {
+                // Sort by highest Recommendation Score
+                recommendations.sort((a, b) => b.recScore - a.recScore);
+
+                let appended = `\n\n**Applicable Strategies:**\n`;
+                let totalConfidence = 0;
+                let cnt = 0;
+                
+                for (const rec of recommendations.slice(0, 2)) {
+                    const strategy = rec.strategy;
+                    const impact = strategy.impactMetrics as any;
+                    const impactText = impact?.ctr ? `CTR ${impact.ctr}` : `revenue ${impact?.revenue || '+??'}`;
+                    const name = strategy.explanation || `Merchants with matching profile`;
+                    appended += `${cnt+1}. ${name}\n   Confidence ${strategy.confidence}% | ${impactText} | Similarity: ${Math.round(rec.similarity * 100)}%\n`;
+                    totalConfidence += strategy.confidence;
+                    cnt++;
+                }
+                
+                const combinedConf = Math.round(totalConfidence / cnt);
+                appended += `\n**Combined Recommendation Confidence: ${combinedConf}%**`;
+                return base + appended;
             }
             return base;
         };

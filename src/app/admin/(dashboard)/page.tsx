@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/db";
 import { ShieldAlert, AlertTriangle, CheckCircle, Activity, BrainCircuit } from "lucide-react";
-import { LearningService } from "@/lib/intelligence/services/learning.service";
 
 async function getMissionBoardOpportunities() {
     const opportunities = await prisma.opportunity.findMany({
@@ -13,41 +12,48 @@ async function getMissionBoardOpportunities() {
 
 export default async function AdminDashboard() {
     const opportunities = await getMissionBoardOpportunities();
-    const learningService = new LearningService();
-    let learnings = await learningService.getActiveLearnings();
+    let strategies = await prisma.strategy.findMany({
+        orderBy: { confidence: 'desc' }
+    });
     
     // Fallback for visual demonstration if DB is empty
-    if (learnings.length === 0) {
-        learnings = [
+    if (strategies.length === 0) {
+        strategies = [
             {
                 id: "mock1",
-                conditions: { opportunityType: "COVERAGE", subType: "MISSING_FAQ" },
+                conditions: { categorySlugs: ["electronics"], missingFAQ: true } as any,
                 action: "Publish FAQ",
-                impactMetrics: { ctr: "+22%" },
-                timesConfirmed: 14,
-                timesBroken: 0,
+                impactMetrics: { ctr: "+18%", revenue: "+11%" } as any,
+                timesConfirmed: 27,
+                timesBroken: 1,
                 lastObserved: new Date(),
-                confidence: 94,
-                evidenceIds: [],
+                confidence: 96,
+                evidenceIds: [] as any,
                 validatedAt: null,
                 expiresAt: null,
                 isActive: true,
+                status: "STABLE",
+                version: 1,
+                explanation: "FAQ increased CTR on comparable merchants.",
                 createdAt: new Date(),
                 updatedAt: new Date()
             },
             {
                 id: "mock2",
-                conditions: { opportunityType: "REVENUE", subType: "MISSING_GUIDE" },
+                conditions: { merchantSize: "LARGE", authority: { gt: 80 } } as any,
                 action: "Publish Buying Guide",
-                impactMetrics: { roi: "6.1x" },
+                impactMetrics: { revenue: "+14%" } as any,
                 timesConfirmed: 8,
-                timesBroken: 1,
+                timesBroken: 0,
                 lastObserved: new Date(),
                 confidence: 85,
-                evidenceIds: [],
+                evidenceIds: [] as any,
                 validatedAt: null,
                 expiresAt: null,
                 isActive: true,
+                status: "EMERGING",
+                version: 1,
+                explanation: "High-authority merchants see revenue bumps from guides.",
                 createdAt: new Date(),
                 updatedAt: new Date()
             }
@@ -56,6 +62,47 @@ export default async function AdminDashboard() {
 
     const critical = opportunities.slice(0, 3);
     const high = opportunities.slice(3, 8);
+
+    const proven = strategies.filter(s => s.status === 'STABLE' || s.status === 'CONFIRMED');
+    const emerging = strategies.filter(s => s.status === 'EMERGING');
+    const declining = strategies.filter(s => s.status === 'DECLINING' || s.status === 'UNDER_REVIEW');
+    const retired = strategies.filter(s => s.status === 'RETIRED');
+
+    const renderStrategy = (l: any) => {
+        const conditions = l.conditions as Record<string, any>;
+        const impact = l.impactMetrics as Record<string, any>;
+        const conditionsStr = Object.entries(conditions || {}).map(([k, v]) => `${k}: ${JSON.stringify(v)}`).join(', ');
+        const impactStr = Object.entries(impact || {}).map(([k, v]) => `${k.toUpperCase()} ${v}`).join(', ');
+        
+        return (
+            <div key={l.id} className="p-4 bg-indigo-50/50 border border-indigo-100 rounded-xl hover:shadow-sm transition-shadow">
+                <p className="text-sm font-medium text-indigo-900 leading-relaxed mb-2">
+                    Action: {l.action}
+                </p>
+                <div className="text-xs text-indigo-800 space-y-1 mb-3">
+                    <p><strong>Reason:</strong> {l.explanation || 'Statistical pattern match'}</p>
+                    <p><strong>Conditions:</strong> <span className="font-mono bg-indigo-100/50 px-1 rounded">{conditionsStr}</span></p>
+                    <p><strong>Impact:</strong> <span className="text-emerald-700 font-semibold">{impactStr}</span></p>
+                </div>
+                
+                <div className="mt-3 pt-3 border-t border-indigo-100/50 grid grid-cols-2 gap-2 text-xs text-indigo-700 font-medium">
+                    <div className="bg-white p-2 rounded shadow-sm text-center">
+                        <p className="text-indigo-400 text-[10px] uppercase">Confidence</p>
+                        <p className="text-lg font-bold">{l.confidence}%</p>
+                    </div>
+                    <div className="bg-white p-2 rounded shadow-sm text-center">
+                        <p className="text-indigo-400 text-[10px] uppercase">Evidence</p>
+                        <p className="text-lg font-bold text-gray-700">{l.timesConfirmed} <span className="text-sm font-normal text-gray-400">stores</span></p>
+                    </div>
+                </div>
+                <div className="mt-3 text-[10px] text-indigo-400 flex items-center justify-between font-medium">
+                    <span>Status: {l.status}</span>
+                    {l.timesBroken > 0 && <span className="text-red-400">Broken by {l.timesBroken}</span>}
+                    <span>v{l.version}</span>
+                </div>
+            </div>
+        );
+    };
 
     return (
         <div className="pt-2 max-w-[1600px] mx-auto">
@@ -115,52 +162,50 @@ export default async function AdminDashboard() {
                             reasons={["Human Authored +15", "Editor Verified +15", "Data is Current -5"]} 
                         />
                     </div>
-                </div>
-
-                {/* 3. BUSINESS - 3 Cols */}
-                <div className="xl:col-span-3 space-y-6">
-                    <h2 className="text-xl font-bold border-b pb-2 border-gray-200">BUSINESS</h2>
+                    
+                    <h2 className="text-xl font-bold border-b pb-2 border-gray-200 mt-8">BUSINESS</h2>
                     <div className="space-y-4">
                         <BusinessMetric title="RPIP" value="$0.14" trend="+12%" />
                         <BusinessMetric title="RPKA" value="$4.22" trend="+8%" />
                         <BusinessMetric title="Knowledge Growth" value="1,204" trend="+45/day" />
                         <BusinessMetric title="Revenue Impact" value="$12,450" trend="Estimated" />
                     </div>
+                </div>
 
-                    <h2 className="text-xl font-bold border-b pb-2 border-gray-200 mt-10 flex items-center gap-2">
+                {/* 3. INTELLIGENCE STRATEGIES - 3 Cols */}
+                <div className="xl:col-span-3 space-y-6">
+                    <h2 className="text-xl font-bold border-b pb-2 border-gray-200 flex items-center gap-2">
                         <BrainCircuit className="w-5 h-5 text-indigo-600" />
-                        KNOWLEDGE MEMORY
+                        INTELLIGENCE STRATEGIES
                     </h2>
-                    <div className="space-y-4">
-                        {learnings.map(l => {
-                            const conditions = l.conditions as Record<string, any>;
-                            const impact = l.impactMetrics as Record<string, any>;
-                            const conditionsStr = Object.entries(conditions || {}).map(([k, v]) => `${k}: ${v}`).join(', ');
-                            const impactStr = Object.entries(impact || {}).map(([k, v]) => `${k.toUpperCase()} ${v}`).join(', ');
-                            
-                            return (
-                                <div key={l.id} className="p-4 bg-indigo-50/50 border border-indigo-100 rounded-xl hover:shadow-sm transition-shadow">
-                                    <p className="text-sm font-medium text-indigo-900 leading-relaxed">
-                                        Action: {l.action}
-                                    </p>
-                                    <p className="text-xs text-indigo-600 mt-1.5 font-mono bg-indigo-100/50 p-1.5 rounded inline-block">
-                                        When [{conditionsStr}]
-                                    </p>
-                                    <div className="mt-3 pt-3 border-t border-indigo-100/50 flex justify-between items-center text-xs text-indigo-700">
-                                        <span className="flex items-center gap-1 font-semibold">
-                                            <Activity className="w-3.5 h-3.5 text-emerald-600" />
-                                            Impact: <span className="text-emerald-600">{impactStr}</span>
-                                        </span>
-                                        <span className="bg-white px-2 py-1 rounded shadow-sm">Confidence: {l.confidence}%</span>
-                                    </div>
-                                    <div className="mt-2 text-[10px] text-indigo-400 flex items-center gap-2 font-medium">
-                                        <span>Confirmed: {l.timesConfirmed}</span>
-                                        {l.timesBroken > 0 && <span className="text-red-400">Broken: {l.timesBroken}</span>}
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
+                    
+                    {proven.length > 0 && (
+                        <div className="space-y-4">
+                            <h3 className="font-semibold text-gray-800 border-b border-gray-100 pb-1">Proven Strategies</h3>
+                            {proven.map(renderStrategy)}
+                        </div>
+                    )}
+                    
+                    {emerging.length > 0 && (
+                        <div className="space-y-4 mt-6">
+                            <h3 className="font-semibold text-gray-800 border-b border-gray-100 pb-1">Emerging Intelligence</h3>
+                            {emerging.map(renderStrategy)}
+                        </div>
+                    )}
+
+                    {declining.length > 0 && (
+                        <div className="space-y-4 mt-6">
+                            <h3 className="font-semibold text-gray-800 border-b border-gray-100 pb-1">Patterns Losing Confidence</h3>
+                            {declining.map(renderStrategy)}
+                        </div>
+                    )}
+
+                    {retired.length > 0 && (
+                        <div className="space-y-4 mt-6 opacity-60">
+                            <h3 className="font-semibold text-gray-800 border-b border-gray-100 pb-1">Retired Knowledge</h3>
+                            {retired.map(renderStrategy)}
+                        </div>
+                    )}
                 </div>
 
             </div>
@@ -184,7 +229,7 @@ function OpportunityCard({ opportunity, level }: { opportunity: any, level: 'cri
                 </span>
             </div>
             
-            <p className="text-sm text-gray-700 mt-2 leading-relaxed">
+            <p className="text-sm text-gray-700 mt-2 whitespace-pre-wrap leading-relaxed">
                 {opportunity.reasoning}
             </p>
             

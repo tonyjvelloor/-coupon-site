@@ -31,10 +31,10 @@ model Store {
   activeOfferCount  Int                @default(0)
   lastImportedAt    DateTime?
   searchImpressions Int                @default(0)
-  healthScore              Json?
-  knowledgeDensity         Float              @default(0.0)
-  visitors                 Int                @default(0)
-  conversions              Int                @default(0)
+  healthScore       Json?
+  knowledgeDensity  Float              @default(0.0)
+  visitors          Int                @default(0)
+  conversions       Int                @default(0)
   affiliatePrograms AffiliateProgram[]
   campaignLinks     CampaignLink[]
   clickEvents       ClickEvent[]
@@ -87,20 +87,20 @@ model StoreCategory {
 }
 
 model StoreContent {
-  id        String           @id @default(uuid())
-  storeId   String
-  type      StoreContentType
-  content   String
-  deletedAt DateTime?
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
-  store     Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  revenueAttribution Float   @default(0)
-  totalClicks        Int     @default(0)
-  revenue            Float   @default(0.0)
-  clicks             Int     @default(0)
-  visitors           Int     @default(0)
-  conversions        Int     @default(0)
+  id                 String           @id @default(uuid())
+  storeId            String
+  type               StoreContentType
+  content            String
+  deletedAt          DateTime?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  store              Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  revenueAttribution Float            @default(0)
+  totalClicks        Int              @default(0)
+  revenue            Float            @default(0.0)
+  clicks             Int              @default(0)
+  visitors           Int              @default(0)
+  conversions        Int              @default(0)
   lastReviewed       DateTime?
   lastVerified       DateTime?
 
@@ -584,29 +584,29 @@ model KnowledgeEdge {
 }
 
 model Opportunity {
-  id                String            @id @default(uuid())
-  type              OpportunityType
-  subType           String?
-  title             String
-  engineVersion     String            @default("v1")
-  inputSnapshot     Json?
-  reasoning         String?
-  recommendation    String?
-  confidence        Int               @default(0)
-  status            OpportunityStatus @default(GENERATED)
-  targetEntityId    String
-  nodeId            String?
-  decision          Decision?
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
+  id             String            @id @default(uuid())
+  type           OpportunityType
+  subType        String?
+  title          String
+  engineVersion  String            @default("v1")
+  inputSnapshot  Json?
+  reasoning      String?
+  recommendation String?
+  confidence     Int               @default(0)
+  status         OpportunityStatus @default(GENERATED)
+  targetEntityId String
+  nodeId         String?
+  decision       Decision?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
 }
 
 model Decision {
   id             String      @id @default(uuid())
   opportunityId  String      @unique
   opportunity    Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
-  decision       String      // APPROVED, REJECTED, IMPLEMENTED
-  owner          String?     // User ID or AI Agent ID
+  decision       String // APPROVED, REJECTED, IMPLEMENTED
+  owner          String? // User ID or AI Agent ID
   executedAt     DateTime?
   expectedImpact String?
   actualImpact   String?
@@ -745,27 +745,40 @@ model MerchantHistory {
   @@index([date])
 }
 
-model Learning {
-  id             String    @id @default(uuid())
-  // The machine-readable context where this rule applies
-  conditions     Json      // e.g., { "missingFAQ": true, "category": "electronics" }
-  action         String    // e.g., "Publish FAQ"
-  
-  // The expected impact
-  impactMetrics  Json      // e.g., { "ctr": "+18%", "confidence": 94 }
-  
-  // Half-life & Validation
-  confidence     Int       // 0-100 (decays if timesBroken increases or expiresAt approaches)
-  timesConfirmed Int       @default(0)
-  timesBroken    Int       @default(0)
-  lastObserved   DateTime  @default(now())
+enum StrategyStatus {
+  EMERGING
+  CONFIRMED
+  STABLE
+  DECLINING
+  UNDER_REVIEW
+  RETIRED
+}
+
+model Strategy {
+  id String @id @default(uuid())
+
+  // The internal Intelligence DSL rules where this applies
+  conditions Json // e.g., { "category": { "eq": "electronics" }, "authority": { "lt": 80 } }
+  action     String // e.g., "Publish FAQ"
+
+  // The expected/observed impact
+  impactMetrics Json // e.g., { "ctr": "+18%", "revenue": "+11%" }
+
+  // Scoring & Lifecycle
+  status         StrategyStatus @default(EMERGING)
+  version        Int            @default(1)
+  confidence     Int // 0-100
+  timesConfirmed Int            @default(0)
+  timesBroken    Int            @default(0)
+  lastObserved   DateTime       @default(now())
   validatedAt    DateTime?
   expiresAt      DateTime? // Knowledge ages
+  explanation    String? // AI-generated reasoning
 
   // Evidence Graph
-  evidenceIds    Json      // Array of supporting Decision IDs
-  
-  isActive       Boolean   @default(true)
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  evidenceIds Json // Array of supporting Decision IDs
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
