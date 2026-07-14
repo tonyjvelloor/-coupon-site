@@ -2,11 +2,13 @@ import { prisma } from "@/lib/db";
 import { connectorRegistry } from "@/lib/import-engine/registry";
 import { ImpactConnector } from "@/lib/import-engine/connectors/impact";
 import { CJConnector } from "@/lib/import-engine/connectors/cj";
+import { CuelinksConnector } from "@/lib/import-engine/connectors/cuelinks-connector";
 
 // Ensure connectors are loaded in API context
 const isDev = process.env.NODE_ENV !== "production";
 connectorRegistry.register(new ImpactConnector(isDev));
 connectorRegistry.register(new CJConnector(isDev));
+connectorRegistry.register(new CuelinksConnector());
 
 interface BenchmarkStats {
   sourceId: string;

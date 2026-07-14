@@ -3,6 +3,14 @@ import { getSession } from "@/lib/auth";
 import { connectorRegistry } from "@/lib/import-engine/registry";
 import { ImportPipeline } from "@/lib/import-engine/pipeline";
 import { prisma } from "@/lib/db";
+import { ImpactConnector } from "@/lib/import-engine/connectors/impact";
+import { CJConnector } from "@/lib/import-engine/connectors/cj";
+import { CuelinksConnector } from "@/lib/import-engine/connectors/cuelinks-connector";
+
+const isDev = process.env.NODE_ENV !== "production";
+connectorRegistry.register(new ImpactConnector(isDev));
+connectorRegistry.register(new CJConnector(isDev));
+connectorRegistry.register(new CuelinksConnector());
 
 // Ensure the pipeline doesn't run concurrently for the same connector
 const runningImports = new Set<string>();

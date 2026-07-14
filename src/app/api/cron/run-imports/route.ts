@@ -3,12 +3,14 @@ import { connectorRegistry } from "@/lib/import-engine/registry";
 import { ImportPipeline } from "@/lib/import-engine/pipeline";
 import { ImpactConnector } from "@/lib/import-engine/connectors/impact";
 import { CJConnector } from "@/lib/import-engine/connectors/cj";
+import { CuelinksConnector } from "@/lib/import-engine/connectors/cuelinks-connector";
 import { notificationEngine } from "@/lib/notifications";
 
 // Ensure connectors are loaded in API context
 const isDev = process.env.NODE_ENV !== "production";
 connectorRegistry.register(new ImpactConnector(isDev));
 connectorRegistry.register(new CJConnector(isDev));
+connectorRegistry.register(new CuelinksConnector());
 
 export async function GET(request: NextRequest) {
   // Security: Ensure this is called by Vercel Cron or a trusted source

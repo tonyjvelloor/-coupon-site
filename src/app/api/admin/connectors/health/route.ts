@@ -3,11 +3,13 @@ import { getSession } from "@/lib/auth";
 import { connectorRegistry } from "@/lib/import-engine/registry";
 import { ImpactConnector } from "@/lib/import-engine/connectors/impact";
 import { CJConnector } from "@/lib/import-engine/connectors/cj";
+import { CuelinksConnector } from "@/lib/import-engine/connectors/cuelinks-connector";
 
 // Register available connectors. In a real app this would happen at app boot.
 const isDev = process.env.NODE_ENV !== "production";
 connectorRegistry.register(new ImpactConnector(isDev));
 connectorRegistry.register(new CJConnector(isDev));
+connectorRegistry.register(new CuelinksConnector());
 
 export async function GET() {
   const session = await getSession();

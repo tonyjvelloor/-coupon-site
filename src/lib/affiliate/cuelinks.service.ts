@@ -39,6 +39,21 @@ export class CuelinksService {
     }
 
     /**
+     * Fetches live offers (coupons and deals).
+     */
+    async getOffers(limit = 50) {
+        const qs = new URLSearchParams({
+            per_page: limit.toString(),
+        });
+        const res = await fetch(`${this.BASE_URL}/offers?${qs}`, { headers: this.headers });
+        if (!res.ok) {
+            throw new Error(`Failed to fetch Cuelinks offers: ${res.statusText}`);
+        }
+        const json = await res.json();
+        return json.data || [];
+    }
+
+    /**
      * Converts an outbound merchant URL into a monetized Cuelinks tracking URL.
      */
     async convertUrl(url: string, subid?: string, shorten: boolean = true) {
