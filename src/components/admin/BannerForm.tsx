@@ -37,6 +37,36 @@ export default function BannerForm({ initialData }: BannerFormProps) {
         }));
     };
 
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsUploadingImage(true);
+        setError("");
+
+        try {
+            const uploadData = new FormData();
+            uploadData.append("file", file);
+            uploadData.append("folder", "banners");
+
+            const res = await fetch("/api/admin/upload", {
+                method: "POST",
+                body: uploadData,
+            });
+
+            if (!res.ok) throw new Error("Failed to upload image");
+
+            const data = await res.json();
+            setFormData((prev) => ({ ...prev, imageUrl: data.url }));
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Image upload failed");
+        } finally {
+            setIsUploadingImage(false);
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
@@ -91,16 +121,49 @@ export default function BannerForm({ initialData }: BannerFormProps) {
             <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-200 p-6 space-y-6">
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Image URL *
+                        Banner Image *
                     </label>
-                    <input
-                        type="url"
-                        name="imageUrl"
-                        value={formData.imageUrl}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-violet-500 outline-none"
-                    />
+                    <div className="flex gap-4 items-start">
+                        <div className="flex-1 space-y-2">
+                            <input
+                                type="url"
+                                name="imageUrl"
+                                value={formData.imageUrl}
+                                onChange={handleChange}
+                                required
+                                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-violet-500 outline-none"
+                                placeholder="https://example.com/banner.jpg"
+                            />
+                            <p className="text-sm text-gray-500">
+                                Provide a URL or upload an image
+                            </p>
+                        </div>
+                        <div className="relative">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageUpload}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                disabled={isUploadingImage}
+                            />
+                            <button
+                                type="button"
+                                disabled={isUploadingImage}
+                                className="btn-secondary px-4 py-2 flex items-center gap-2 whitespace-nowrap bg-gray-100 hover:bg-gray-200 text-gray-900 border border-gray-200 rounded-lg transition-colors"
+                            >
+                                {isUploadingImage ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                    "Upload Image"
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                    {formData.imageUrl && (
+                        <div className="mt-4 relative w-full h-32 rounded-lg border border-gray-200 overflow-hidden bg-gray-50">
+                            <img src={formData.imageUrl} alt="Preview" className="w-full h-full object-contain" />
+                        </div>
+                    )}
                 </div>
 
                 <div>
