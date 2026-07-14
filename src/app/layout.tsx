@@ -100,24 +100,26 @@ export default function RootLayout({
             })(window, document, "clarity", "script", "${process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID || "XXXXXXXX"}");
           `}
         </Script>
-        {/* Cuelinks */}
-        <Script id="cuelinks" strategy="afterInteractive">
-          {`
-            var cId = '302299';
-            (function(d, t) {
-              var s = document.createElement('script');
-              s.type = 'text/javascript';
-              s.async = true;
-              s.src = (document.location.protocol == 'https:' ? 'https://cdn0.cuelinks.com/js/' : 'http://cdn0.cuelinks.com/js/')  + 'cuelinksv2.js';
-              document.getElementsByTagName('body')[0].appendChild(s);
-            }());
-          `}
-        </Script>
       </head>
       <body
         className={`${outfit.variable} ${plusJakartaSans.variable} font-sans antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300`}
         suppressHydrationWarning
       >
+        <script
+          type="text/javascript"
+          dangerouslySetInnerHTML={{
+            __html: `
+              var cId = '302299';
+              (function(d, t) {
+                var s = document.createElement('script');
+                s.type = 'text/javascript';
+                s.async = true;
+                s.src = (document.location.protocol == 'https:' ? 'https://cdn0.cuelinks.com/js/' : 'http://cdn0.cuelinks.com/js/')  + 'cuelinksv2.js';
+                document.getElementsByTagName('body')[0].appendChild(s);
+              }());
+            `,
+          }}
+        />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           {children}
         </ThemeProvider>
