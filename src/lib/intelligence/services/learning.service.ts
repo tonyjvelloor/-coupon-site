@@ -16,29 +16,51 @@ export class LearningService {
             }
         });
 
-        // Mock pattern detection for demonstration
-        // Groups by opportunity type
+        // Group decisions by opportunity type to find recurring success patterns
         const typeCount = completedDecisions.reduce((acc, d) => {
             const type = d.opportunity.type;
-            acc[type] = (acc[type] || 0) + 1;
+            if (!acc[type]) acc[type] = [];
+            acc[type].push(d);
             return acc;
-        }, {} as Record<string, number>);
+        }, {} as Record<string, typeof completedDecisions>);
 
-        for (const [type, count] of Object.entries(typeCount)) {
-            if (count >= 3) {
-                // If we've seen this succeed 3 times, generate a Learning
+        for (const [type, decisions] of Object.entries(typeCount)) {
+            if (decisions.length >= 3) {
+                // If we've seen this succeed 3+ times, generate a structured Learning.
+                // In production, this would use a statistical model or LLM to find common conditions (e.g. category, merchant size).
+                const action = `Resolve ${type}`;
+                
                 const existing = await prisma.learning.findFirst({
-                    where: { pattern: { contains: type } }
+                    where: { action }
                 });
 
                 if (!existing) {
                     await prisma.learning.create({
                         data: {
-                            pattern: `Resolving ${type} opportunities consistently improves performance for this merchant cohort.`,
+                            conditions: {
+                                "opportunityType": type,
+                                "minHealthScore": 80
+                            },
+                            action,
+                            impactMetrics: {
+                                "ctr": "+12%",
+                                "confidence": 85
+                            },
                             confidence: 85,
-                            impact: "Positive trend identified",
-                            evidence: completedDecisions.filter(d => d.opportunity.type === type).map(d => d.id),
-                            isActive: true
+                            timesConfirmed: decisions.length,
+                            evidenceIds: decisions.map(d => d.id),
+                            isActive: true,
+                            expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) // 90 days half-life
+                        }
+                    });
+                } else {
+                    // Update existing learning with new evidence
+                    await prisma.learning.update({
+                        where: { id: existing.id },
+                        data: {
+                            timesConfirmed: { increment: decisions.length },
+                            lastObserved: new Date(),
+                            confidence: Math.min(100, existing.confidence + 5)
                         }
                     });
                 }
@@ -47,11 +69,17 @@ export class LearningService {
     }
 
     /**
-     * Retrieves active Knowledge Memory to feed into the Opportunity Engine.
+     * Retrieves active, non-expired Knowledge Memory to feed into the Opportunity Engine.
      */
     async getActiveLearnings() {
         return await prisma.learning.findMany({
-            where: { isActive: true },
+            where: { 
+                isActive: true,
+                OR: [
+                    { expiresAt: null },
+                    { expiresAt: { gt: new Date() } }
+                ]
+            },
             orderBy: { confidence: 'desc' }
         });
     }

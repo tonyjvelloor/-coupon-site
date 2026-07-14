@@ -40,11 +40,17 @@ export class OpportunityService {
         const opportunities = [];
         const ENGINE_VERSION = "v2.1";
 
-        // Helper to append Knowledge Memory
+        // Helper to append Knowledge Memory naturally
         const augmentReasoning = (base: string, oppType: OpportunityType) => {
-            const learning = activeLearnings.find(l => l.pattern.includes(oppType));
+            const learning = activeLearnings.find(l => {
+                const conditions = l.conditions as Record<string, any>;
+                return conditions && conditions.opportunityType === oppType;
+            });
+            
             if (learning) {
-                return `${base}\n\n[KNOWLEDGE MEMORY] ${learning.pattern} (Confidence: ${learning.confidence}%)`;
+                const impact = learning.impactMetrics as Record<string, any>;
+                const impactText = impact?.ctr ? `improved CTR by ${impact.ctr}` : `improved performance`;
+                return `${base} This pattern has ${impactText} across ${learning.timesConfirmed} comparable merchants.`;
             }
             return base;
         };

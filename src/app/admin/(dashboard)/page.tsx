@@ -21,20 +21,32 @@ export default async function AdminDashboard() {
         learnings = [
             {
                 id: "mock1",
-                pattern: "Adding FAQ to electronics merchants increases CTR on category pages.",
-                impact: "+22% CTR",
+                conditions: { opportunityType: "COVERAGE", subType: "MISSING_FAQ" },
+                action: "Publish FAQ",
+                impactMetrics: { ctr: "+22%" },
+                timesConfirmed: 14,
+                timesBroken: 0,
+                lastObserved: new Date(),
                 confidence: 94,
-                evidence: [],
+                evidenceIds: [],
+                validatedAt: null,
+                expiresAt: null,
                 isActive: true,
                 createdAt: new Date(),
                 updatedAt: new Date()
             },
             {
                 id: "mock2",
-                pattern: "Publishing Buying Guides for intent keywords captures top-of-funnel traffic.",
-                impact: "+6.1 ROI",
+                conditions: { opportunityType: "REVENUE", subType: "MISSING_GUIDE" },
+                action: "Publish Buying Guide",
+                impactMetrics: { roi: "6.1x" },
+                timesConfirmed: 8,
+                timesBroken: 1,
+                lastObserved: new Date(),
                 confidence: 85,
-                evidence: [],
+                evidenceIds: [],
+                validatedAt: null,
+                expiresAt: null,
                 isActive: true,
                 createdAt: new Date(),
                 updatedAt: new Date()
@@ -120,20 +132,34 @@ export default async function AdminDashboard() {
                         KNOWLEDGE MEMORY
                     </h2>
                     <div className="space-y-4">
-                        {learnings.map(l => (
-                            <div key={l.id} className="p-4 bg-indigo-50/50 border border-indigo-100 rounded-xl hover:shadow-sm transition-shadow">
-                                <p className="text-sm font-medium text-indigo-900 leading-relaxed">
-                                    "{l.pattern}"
-                                </p>
-                                <div className="mt-3 pt-3 border-t border-indigo-100/50 flex justify-between items-center text-xs text-indigo-700">
-                                    <span className="flex items-center gap-1 font-semibold">
-                                        <Activity className="w-3.5 h-3.5 text-emerald-600" />
-                                        Impact: <span className="text-emerald-600">{l.impact}</span>
-                                    </span>
-                                    <span className="bg-white px-2 py-1 rounded shadow-sm">Confidence: {l.confidence}%</span>
+                        {learnings.map(l => {
+                            const conditions = l.conditions as Record<string, any>;
+                            const impact = l.impactMetrics as Record<string, any>;
+                            const conditionsStr = Object.entries(conditions || {}).map(([k, v]) => `${k}: ${v}`).join(', ');
+                            const impactStr = Object.entries(impact || {}).map(([k, v]) => `${k.toUpperCase()} ${v}`).join(', ');
+                            
+                            return (
+                                <div key={l.id} className="p-4 bg-indigo-50/50 border border-indigo-100 rounded-xl hover:shadow-sm transition-shadow">
+                                    <p className="text-sm font-medium text-indigo-900 leading-relaxed">
+                                        Action: {l.action}
+                                    </p>
+                                    <p className="text-xs text-indigo-600 mt-1.5 font-mono bg-indigo-100/50 p-1.5 rounded inline-block">
+                                        When [{conditionsStr}]
+                                    </p>
+                                    <div className="mt-3 pt-3 border-t border-indigo-100/50 flex justify-between items-center text-xs text-indigo-700">
+                                        <span className="flex items-center gap-1 font-semibold">
+                                            <Activity className="w-3.5 h-3.5 text-emerald-600" />
+                                            Impact: <span className="text-emerald-600">{impactStr}</span>
+                                        </span>
+                                        <span className="bg-white px-2 py-1 rounded shadow-sm">Confidence: {l.confidence}%</span>
+                                    </div>
+                                    <div className="mt-2 text-[10px] text-indigo-400 flex items-center gap-2 font-medium">
+                                        <span>Confirmed: {l.timesConfirmed}</span>
+                                        {l.timesBroken > 0 && <span className="text-red-400">Broken: {l.timesBroken}</span>}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
 

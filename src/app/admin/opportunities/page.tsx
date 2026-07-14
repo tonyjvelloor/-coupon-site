@@ -5,7 +5,7 @@ import { Icon } from "@/components/ui/Icon";
 export default async function OpportunitiesDashboard() {
     const opportunities = await prisma.opportunity.findMany({
         where: { status: { notIn: ["COMPLETED", "DISMISSED"] } },
-        orderBy: { priority: 'desc' },
+        orderBy: { confidence: 'desc' },
     });
 
     const getImpactColor = (impact: string) => {
@@ -52,8 +52,8 @@ export default async function OpportunitiesDashboard() {
                             {/* Score & Type */}
                             <div className="flex flex-col items-center justify-center min-w-[120px] shrink-0 md:border-r border-surface-100 dark:border-surface-800 pr-0 md:pr-6">
                                 <span className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">{opp.subType || opp.type}</span>
-                                <span className={`text-5xl font-headline-lg font-black ${opp.priorityScore >= 90 ? 'text-urgency-orange' : 'text-primary'}`}>
-                                    {opp.priorityScore}
+                                <span className={`text-5xl font-headline-lg font-black ${opp.confidence >= 90 ? 'text-urgency-orange' : 'text-primary'}`}>
+                                    {opp.confidence}
                                 </span>
                                 <span className="text-xs font-semibold text-on-surface-variant mt-2 uppercase tracking-wide">Score</span>
                             </div>
