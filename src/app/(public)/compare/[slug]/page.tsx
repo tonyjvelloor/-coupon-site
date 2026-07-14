@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, ShieldAlert, Star, TrendingUp, HelpCircle, Package, Truck, Wallet, Shield } from "lucide-react";
-import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { Button } from "@/components/ui/Button";
 
 export const revalidate = 3600;
