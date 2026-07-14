@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { BookOpen, Store as StoreIcon, Tags, Layers, Zap, Calendar } from "lucide-react";
 
