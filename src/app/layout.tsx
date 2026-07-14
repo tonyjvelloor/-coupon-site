@@ -71,10 +71,11 @@ export default function RootLayout({
       <head>
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
         <meta name="google-adsense-account" content="ca-pub-2697580332564903" />
-        <script
+        <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2697580332564903"
           crossOrigin="anonymous"
+          strategy="afterInteractive"
         />
         {/* Google Analytics 4 Placeholder */}
         <Script

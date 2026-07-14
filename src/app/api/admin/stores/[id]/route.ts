@@ -55,7 +55,26 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             );
         }
 
-        const { categoryIds, aboutContent, storeContents, ...storeData } = data;
+        const { categoryIds, storeContents, ...storeData } = data;
+
+        // Calculate knowledgeDensity
+        if (storeContents && Array.isArray(storeContents)) {
+            let score = 0;
+            const validContents = storeContents.filter((c: any) => c.content && c.content.trim() !== '');
+            const validTypes = new Set(validContents.map((c: any) => c.type));
+            if (validTypes.has('ABOUT')) score += 10;
+            if (validTypes.has('FAQ')) score += 15;
+            if (validTypes.has('BUYING_GUIDE')) score += 20;
+            if (validTypes.has('SHIPPING')) score += 10;
+            if (validTypes.has('RETURNS')) score += 10;
+            if (validTypes.has('PAYMENTS')) score += 10;
+            if (validTypes.has('STUDENT')) score += 5;
+            if (validTypes.has('REFUND')) score += 5;
+            if (validTypes.has('EXCHANGE')) score += 5;
+            if (validTypes.has('WARRANTY')) score += 5;
+            if (validTypes.has('GIFT_CARDS')) score += 5;
+            storeData.knowledgeDensity = Math.min(100, score);
+        }
 
         const store = await prisma.store.update({
             where: { id },
@@ -73,16 +92,24 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             });
         }
 
-        if (aboutContent !== undefined) {
-            if (aboutContent) {
+        if (storeContents && Array.isArray(storeContents)) {
+            const validContents = storeContents.filter((c: any) => c.content && c.content.trim() !== '');
+            const validTypes = validContents.map((c: any) => c.type);
+            
+            // Delete types that are no longer present
+            await prisma.storeContent.deleteMany({
+                where: { 
+                    storeId: id,
+                    type: { notIn: validTypes }
+                }
+            });
+
+            // Upsert valid ones
+            for (const item of validContents) {
                 await prisma.storeContent.upsert({
-                    where: { storeId_type: { storeId: id, type: 'ABOUT' } },
-                    update: { content: aboutContent },
-                    create: { storeId: id, type: 'ABOUT', content: aboutContent }
-                });
-            } else {
-                await prisma.storeContent.deleteMany({
-                    where: { storeId: id, type: 'ABOUT' }
+                    where: { storeId_type: { storeId: id, type: item.type } },
+                    update: { content: item.content },
+                    create: { storeId: id, type: item.type, content: item.content }
                 });
             }
         }

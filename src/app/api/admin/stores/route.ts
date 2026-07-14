@@ -40,7 +40,26 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const { categoryIds, aboutContent, ...storeData } = data;
+        const { categoryIds, storeContents, ...storeData } = data;
+
+        // Calculate knowledgeDensity
+        let score = 0;
+        if (storeContents && Array.isArray(storeContents)) {
+            const validContents = storeContents.filter(c => c.content && c.content.trim() !== '');
+            const validTypes = new Set(validContents.map(c => c.type));
+            if (validTypes.has('ABOUT')) score += 10;
+            if (validTypes.has('FAQ')) score += 15;
+            if (validTypes.has('BUYING_GUIDE')) score += 20;
+            if (validTypes.has('SHIPPING')) score += 10;
+            if (validTypes.has('RETURNS')) score += 10;
+            if (validTypes.has('PAYMENTS')) score += 10;
+            if (validTypes.has('STUDENT')) score += 5;
+            if (validTypes.has('REFUND')) score += 5;
+            if (validTypes.has('EXCHANGE')) score += 5;
+            if (validTypes.has('WARRANTY')) score += 5;
+            if (validTypes.has('GIFT_CARDS')) score += 5;
+        }
+        storeData.knowledgeDensity = Math.min(100, score);
 
         const store = await prisma.store.create({
             data: storeData,
@@ -56,10 +75,17 @@ export async function POST(request: NextRequest) {
             });
         }
 
-        if (aboutContent) {
-            await prisma.storeContent.create({
-                data: { storeId: store.id, type: 'ABOUT', content: aboutContent }
-            });
+        if (storeContents && Array.isArray(storeContents)) {
+            const validContents = storeContents.filter(c => c.content && c.content.trim() !== '');
+            if (validContents.length > 0) {
+                await prisma.storeContent.createMany({
+                    data: validContents.map(c => ({
+                        storeId: store.id,
+                        type: c.type,
+                        content: c.content
+                    }))
+                });
+            }
         }
 
         return NextResponse.json(store, { status: 201 });
