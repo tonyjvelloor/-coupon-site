@@ -757,28 +757,54 @@ enum StrategyStatus {
 model Strategy {
   id String @id @default(uuid())
 
-  // The internal Intelligence DSL rules where this applies
-  conditions Json // e.g., { "category": { "eq": "electronics" }, "authority": { "lt": 80 } }
   action     String // e.g., "Publish FAQ"
 
-  // The expected/observed impact
-  impactMetrics Json // e.g., { "ctr": "+18%", "revenue": "+11%" }
+  // The expected/observed aggregated impact
+  averageImpact Json? // e.g., { "ctr": "+18%" }
 
   // Scoring & Lifecycle
   status         StrategyStatus @default(EMERGING)
   version        Int            @default(1)
+  previousVersionId String?
   confidence     Int // 0-100
-  timesConfirmed Int            @default(0)
-  timesBroken    Int            @default(0)
+  timesApplied   Int            @default(0)
+  positiveOutcomes Int          @default(0)
+  negativeOutcomes Int          @default(0)
+  neutralOutcomes  Int          @default(0)
+  
   lastObserved   DateTime       @default(now())
   validatedAt    DateTime?
   expiresAt      DateTime? // Knowledge ages
   explanation    String? // AI-generated reasoning
 
-  // Evidence Graph
-  evidenceIds Json // Array of supporting Decision IDs
-
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  conditions StrategyCondition[]
+  evidence   StrategyEvidence[]
+}
+
+model StrategyCondition {
+  id String @id @default(uuid())
+  strategyId String
+  field String
+  operator String
+  value String
+  strategy Strategy @relation(fields: [strategyId], references: [id], onDelete: Cascade)
+
+  @@index([strategyId])
+}
+
+model StrategyEvidence {
+  id String @id @default(uuid())
+  strategyId String
+  decisionId String
+  outcome String // POSITIVE, NEGATIVE, NEUTRAL
+  impactMetrics Json? // Store actual metrics like { "ctr": "+2%" }
+  createdAt DateTime @default(now())
+  strategy Strategy @relation(fields: [strategyId], references: [id], onDelete: Cascade)
+
+  @@index([strategyId])
+  @@index([decisionId])
 }

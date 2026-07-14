@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { FeatureExtractionService, FeatureVector } from "./feature.service";
+import { StrategyStatus } from "@prisma/client";
 
 export class StrategyService {
     private featureService = new FeatureExtractionService();
@@ -36,53 +37,96 @@ export class StrategyService {
                 if (!sampleFeature) continue;
 
                 // Formulate the base conditions from the sample. 
-                // A real statistical engine would intersect features across all successes.
-                const conditions: Partial<FeatureVector> = {
-                    merchantSize: sampleFeature.merchantSize,
-                };
+                const conditionsInput = [
+                    { field: 'merchantSize', operator: '=', value: sampleFeature.merchantSize }
+                ];
                 if (sampleFeature.categorySlugs.length > 0) {
-                    conditions.categorySlugs = [sampleFeature.categorySlugs[0]];
+                    conditionsInput.push({ field: 'categorySlugs', operator: 'includes', value: sampleFeature.categorySlugs[0] });
                 }
 
                 const action = `Resolve ${type}`;
                 
                 const existing = await prisma.strategy.findFirst({
-                    where: { action },
-                    orderBy: { version: 'desc' }
+                    where: { action, isActive: true },
+                    orderBy: { version: 'desc' },
+                    include: { evidence: true, conditions: true }
                 });
 
                 if (!existing) {
                     await prisma.strategy.create({
                         data: {
-                            conditions: conditions as any,
                             action,
-                            impactMetrics: {
-                                "ctr": "+12%",
-                                "confidence": 85
-                            },
+                            averageImpact: { "ctr": "+12%" },
                             confidence: 85,
-                            timesConfirmed: decisions.length,
-                            evidenceIds: decisions.map(d => d.id),
-                            status: "EMERGING",
+                            timesApplied: decisions.length,
+                            positiveOutcomes: decisions.length,
+                            status: StrategyStatus.EMERGING,
                             explanation: `Resolving this opportunity type shows positive impact for ${sampleFeature.merchantSize} merchants in this category.`,
-                            expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) // 90 days half-life
+                            expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 days half-life
+                            conditions: {
+                                create: conditionsInput
+                            },
+                            evidence: {
+                                create: decisions.map(d => ({
+                                    decisionId: d.id,
+                                    outcome: 'POSITIVE',
+                                    impactMetrics: { "ctr": "+12%" }
+                                }))
+                            }
                         }
                     });
                 } else {
-                    // Update existing strategy with new evidence
-                    // If timesConfirmed > 10, move to CONFIRMED. If > 50, STABLE.
-                    const newConfirmed = existing.timesConfirmed + decisions.length;
-                    let newStatus = existing.status;
-                    if (newStatus === "EMERGING" && newConfirmed >= 10) newStatus = "CONFIRMED";
-                    if (newStatus === "CONFIRMED" && newConfirmed >= 50) newStatus = "STABLE";
+                    const existingDecisionIds = existing.evidence.map(e => e.decisionId);
+                    const newDecisions = decisions.filter(d => !existingDecisionIds.includes(d.id));
 
+                    if (newDecisions.length === 0) continue;
+
+                    let newStatus = existing.status;
+                    const totalApplied = existing.timesApplied + newDecisions.length;
+                    
+                    if (newStatus === StrategyStatus.EMERGING && totalApplied >= 10) newStatus = StrategyStatus.CONFIRMED;
+                    if (newStatus === StrategyStatus.CONFIRMED && totalApplied >= 50) newStatus = StrategyStatus.STABLE;
+
+                    // Retire the old version to maintain history (immutability)
                     await prisma.strategy.update({
                         where: { id: existing.id },
                         data: {
-                            timesConfirmed: newConfirmed,
-                            lastObserved: new Date(),
-                            confidence: Math.min(100, existing.confidence + 5),
-                            status: newStatus
+                            isActive: false,
+                            status: StrategyStatus.RETIRED
+                        }
+                    });
+
+                    const newConditions = existing.conditions.map(c => ({
+                        field: c.field,
+                        operator: c.operator,
+                        value: c.value
+                    }));
+
+                    // Create new version
+                    await prisma.strategy.create({
+                        data: {
+                            action: existing.action,
+                            averageImpact: existing.averageImpact as any,
+                            confidence: Math.min(100, existing.confidence + (newDecisions.length * 1)),
+                            timesApplied: totalApplied,
+                            positiveOutcomes: existing.positiveOutcomes + newDecisions.length,
+                            negativeOutcomes: existing.negativeOutcomes,
+                            neutralOutcomes: existing.neutralOutcomes,
+                            status: newStatus,
+                            version: existing.version + 1,
+                            previousVersionId: existing.id,
+                            explanation: existing.explanation,
+                            expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // Reset decay timer
+                            conditions: {
+                                create: newConditions
+                            },
+                            evidence: {
+                                create: newDecisions.map(d => ({
+                                    decisionId: d.id,
+                                    outcome: 'POSITIVE',
+                                    impactMetrics: { "ctr": "+12%" }
+                                }))
+                            }
                         }
                     });
                 }
@@ -92,9 +136,10 @@ export class StrategyService {
 
     /**
      * Retrieves all active strategies for the Opportunity Engine to consider.
+     * Also applies a dynamic confidence decay (Freshness) based on lastObserved age.
      */
     async getActiveStrategies() {
-        return await prisma.strategy.findMany({
+        const strategies = await prisma.strategy.findMany({
             where: { 
                 isActive: true,
                 status: {
@@ -105,7 +150,21 @@ export class StrategyService {
                     { expiresAt: { gt: new Date() } }
                 ]
             },
+            include: {
+                conditions: true
+            },
             orderBy: { confidence: 'desc' }
+        });
+
+        // Apply freshness decay: lose 1 confidence point every 10 days since last observed
+        const now = new Date().getTime();
+        return strategies.map(strategy => {
+            const daysOld = Math.floor((now - strategy.lastObserved.getTime()) / (1000 * 3600 * 24));
+            const decay = Math.floor(daysOld / 10);
+            return {
+                ...strategy,
+                currentConfidence: Math.max(0, strategy.confidence - decay)
+            };
         });
     }
 }

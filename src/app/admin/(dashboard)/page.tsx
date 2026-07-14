@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { ShieldAlert, AlertTriangle, CheckCircle, Activity, BrainCircuit } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
 
 async function getMissionBoardOpportunities() {
     const opportunities = await prisma.opportunity.findMany({
@@ -13,6 +14,7 @@ async function getMissionBoardOpportunities() {
 export default async function AdminDashboard() {
     const opportunities = await getMissionBoardOpportunities();
     let strategies = await prisma.strategy.findMany({
+        include: { conditions: true },
         orderBy: { confidence: 'desc' }
     });
     
@@ -21,38 +23,48 @@ export default async function AdminDashboard() {
         strategies = [
             {
                 id: "mock1",
-                conditions: { categorySlugs: ["electronics"], missingFAQ: true } as any,
+                conditions: [
+                    { field: 'categorySlugs', operator: 'includes', value: 'electronics' },
+                    { field: 'merchantSize', operator: '=', value: 'LARGE' }
+                ] as any,
                 action: "Publish FAQ",
-                impactMetrics: { ctr: "+18%", revenue: "+11%" } as any,
-                timesConfirmed: 27,
-                timesBroken: 1,
-                lastObserved: new Date(),
+                averageImpact: { ctr: "+18%", revenue: "+11%" } as any,
+                timesApplied: 42,
+                positiveOutcomes: 36,
+                negativeOutcomes: 4,
+                neutralOutcomes: 2,
+                lastObserved: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000), // 6 days ago
                 confidence: 96,
-                evidenceIds: [] as any,
                 validatedAt: null,
                 expiresAt: null,
                 isActive: true,
                 status: "STABLE",
                 version: 1,
+                previousVersionId: null,
                 explanation: "FAQ increased CTR on comparable merchants.",
                 createdAt: new Date(),
                 updatedAt: new Date()
             },
             {
                 id: "mock2",
-                conditions: { merchantSize: "LARGE", authority: { gt: 80 } } as any,
+                conditions: [
+                    { field: 'merchantSize', operator: '=', value: 'LARGE' },
+                    { field: 'authority', operator: '>', value: '80' }
+                ] as any,
                 action: "Publish Buying Guide",
-                impactMetrics: { revenue: "+14%" } as any,
-                timesConfirmed: 8,
-                timesBroken: 0,
-                lastObserved: new Date(),
+                averageImpact: { revenue: "+14%" } as any,
+                timesApplied: 8,
+                positiveOutcomes: 6,
+                negativeOutcomes: 1,
+                neutralOutcomes: 1,
+                lastObserved: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), // 14 days ago
                 confidence: 85,
-                evidenceIds: [] as any,
                 validatedAt: null,
                 expiresAt: null,
                 isActive: true,
                 status: "EMERGING",
                 version: 1,
+                previousVersionId: null,
                 explanation: "High-authority merchants see revenue bumps from guides.",
                 createdAt: new Date(),
                 updatedAt: new Date()
@@ -69,36 +81,61 @@ export default async function AdminDashboard() {
     const retired = strategies.filter(s => s.status === 'RETIRED');
 
     const renderStrategy = (l: any) => {
-        const conditions = l.conditions as Record<string, any>;
-        const impact = l.impactMetrics as Record<string, any>;
-        const conditionsStr = Object.entries(conditions || {}).map(([k, v]) => `${k}: ${JSON.stringify(v)}`).join(', ');
+        const conditions = l.conditions as any[];
+        const impact = l.averageImpact as Record<string, any>;
+        const appliesTo = conditions?.map(c => `${c.field} ${c.operator} ${c.value}`).join(', ') || 'Any';
         const impactStr = Object.entries(impact || {}).map(([k, v]) => `${k.toUpperCase()} ${v}`).join(', ');
         
+        const successRate = l.timesApplied > 0 ? Math.round((l.positiveOutcomes / l.timesApplied) * 100) : 0;
+        const lastValidated = formatDistanceToNow(new Date(l.lastObserved), { addSuffix: true });
+
         return (
-            <div key={l.id} className="p-4 bg-indigo-50/50 border border-indigo-100 rounded-xl hover:shadow-sm transition-shadow">
-                <p className="text-sm font-medium text-indigo-900 leading-relaxed mb-2">
-                    Action: {l.action}
-                </p>
-                <div className="text-xs text-indigo-800 space-y-1 mb-3">
-                    <p><strong>Reason:</strong> {l.explanation || 'Statistical pattern match'}</p>
-                    <p><strong>Conditions:</strong> <span className="font-mono bg-indigo-100/50 px-1 rounded">{conditionsStr}</span></p>
-                    <p><strong>Impact:</strong> <span className="text-emerald-700 font-semibold">{impactStr}</span></p>
+            <div key={l.id} className="p-5 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow mb-4">
+                <div className="flex justify-between items-start mb-3">
+                    <h4 className="text-sm font-bold text-gray-900">{l.action}</h4>
+                    <span className="text-[10px] font-mono bg-gray-100 px-2 py-1 rounded text-gray-500 border border-gray-200">
+                        v{l.version}
+                    </span>
                 </div>
                 
-                <div className="mt-3 pt-3 border-t border-indigo-100/50 grid grid-cols-2 gap-2 text-xs text-indigo-700 font-medium">
-                    <div className="bg-white p-2 rounded shadow-sm text-center">
-                        <p className="text-indigo-400 text-[10px] uppercase">Confidence</p>
-                        <p className="text-lg font-bold">{l.confidence}%</p>
+                <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-3 border-b border-gray-100 pb-1">
+                    Why should I trust this strategy?
+                </p>
+
+                <div className="grid grid-cols-2 gap-4 text-sm mb-4">
+                    <div>
+                        <p className="text-gray-500 text-xs">Confidence</p>
+                        <p className="font-bold text-gray-900">{l.confidence}%</p>
                     </div>
-                    <div className="bg-white p-2 rounded shadow-sm text-center">
-                        <p className="text-indigo-400 text-[10px] uppercase">Evidence</p>
-                        <p className="text-lg font-bold text-gray-700">{l.timesConfirmed} <span className="text-sm font-normal text-gray-400">stores</span></p>
+                    <div>
+                        <p className="text-gray-500 text-xs">Success Rate</p>
+                        <p className="font-bold text-emerald-600">{successRate}%</p>
+                    </div>
+                    <div>
+                        <p className="text-gray-500 text-xs">Evidence</p>
+                        <p className="font-medium text-gray-900">{l.timesApplied} merchants</p>
+                    </div>
+                    <div>
+                        <p className="text-gray-500 text-xs">Avg Impact</p>
+                        <p className="font-medium text-indigo-600">{impactStr}</p>
                     </div>
                 </div>
-                <div className="mt-3 text-[10px] text-indigo-400 flex items-center justify-between font-medium">
+
+                <div className="bg-gray-50 p-3 rounded-lg text-xs space-y-2 mb-3">
+                    <p className="text-gray-600">
+                        <span className="font-medium text-gray-900">Applies to:</span> {appliesTo}
+                    </p>
+                    <p className="text-gray-600">
+                        <span className="font-medium text-gray-900">Last validated:</span> {lastValidated}
+                    </p>
+                </div>
+
+                <div className="flex justify-between items-center text-[10px] text-gray-400 font-medium pt-2 border-t border-gray-100">
                     <span>Status: {l.status}</span>
-                    {l.timesBroken > 0 && <span className="text-red-400">Broken by {l.timesBroken}</span>}
-                    <span>v{l.version}</span>
+                    <span className="flex gap-2">
+                        <span>Pos: {l.positiveOutcomes}</span>
+                        <span>Neg: {l.negativeOutcomes}</span>
+                    </span>
                 </div>
             </div>
         );
@@ -108,7 +145,7 @@ export default async function AdminDashboard() {
         <div className="pt-2 max-w-[1600px] mx-auto">
             <div className="mb-8 flex justify-between items-end">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Commerce OS</h1>
+                    <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Commerce Decision Platform</h1>
                     <p className="text-gray-500 mt-2 text-lg">One screen. Five minutes. Everything.</p>
                 </div>
             </div>
@@ -176,33 +213,33 @@ export default async function AdminDashboard() {
                 <div className="xl:col-span-3 space-y-6">
                     <h2 className="text-xl font-bold border-b pb-2 border-gray-200 flex items-center gap-2">
                         <BrainCircuit className="w-5 h-5 text-indigo-600" />
-                        INTELLIGENCE STRATEGIES
+                        STRATEGY ENGINE
                     </h2>
                     
                     {proven.length > 0 && (
-                        <div className="space-y-4">
-                            <h3 className="font-semibold text-gray-800 border-b border-gray-100 pb-1">Proven Strategies</h3>
+                        <div className="space-y-2">
+                            <h3 className="font-semibold text-gray-800 border-b border-gray-100 pb-2 mb-3">Proven Strategies</h3>
                             {proven.map(renderStrategy)}
                         </div>
                     )}
                     
                     {emerging.length > 0 && (
-                        <div className="space-y-4 mt-6">
-                            <h3 className="font-semibold text-gray-800 border-b border-gray-100 pb-1">Emerging Intelligence</h3>
+                        <div className="space-y-2 mt-6">
+                            <h3 className="font-semibold text-gray-800 border-b border-gray-100 pb-2 mb-3">Emerging Intelligence</h3>
                             {emerging.map(renderStrategy)}
                         </div>
                     )}
 
                     {declining.length > 0 && (
-                        <div className="space-y-4 mt-6">
-                            <h3 className="font-semibold text-gray-800 border-b border-gray-100 pb-1">Patterns Losing Confidence</h3>
+                        <div className="space-y-2 mt-6">
+                            <h3 className="font-semibold text-gray-800 border-b border-gray-100 pb-2 mb-3">Patterns Losing Confidence</h3>
                             {declining.map(renderStrategy)}
                         </div>
                     )}
 
                     {retired.length > 0 && (
-                        <div className="space-y-4 mt-6 opacity-60">
-                            <h3 className="font-semibold text-gray-800 border-b border-gray-100 pb-1">Retired Knowledge</h3>
+                        <div className="space-y-2 mt-6 opacity-60">
+                            <h3 className="font-semibold text-gray-800 border-b border-gray-100 pb-2 mb-3">Retired Knowledge</h3>
                             {retired.map(renderStrategy)}
                         </div>
                     )}
@@ -220,6 +257,9 @@ function OpportunityCard({ opportunity, level }: { opportunity: any, level: 'cri
         medium: "border-blue-200 bg-blue-50 hover:border-blue-300"
     };
 
+    const snapshot = typeof opportunity.inputSnapshot === 'string' ? JSON.parse(opportunity.inputSnapshot) : opportunity.inputSnapshot;
+    const bd = snapshot?.strategyBreakdown;
+
     return (
         <div className={`p-4 rounded-xl border ${colors[level]} transition-colors group`}>
             <div className="flex justify-between items-start mb-2">
@@ -236,6 +276,18 @@ function OpportunityCard({ opportunity, level }: { opportunity: any, level: 'cri
             <div className="mt-3 p-3 bg-white rounded-lg border border-gray-100/50 shadow-sm">
                 <p className="text-sm font-medium text-gray-900">{opportunity.recommendation}</p>
             </div>
+
+            {bd && (
+                <div className="mt-3 bg-white rounded border border-gray-200 p-2 flex gap-3 text-xs items-center justify-between shadow-sm">
+                    <span className="font-semibold text-gray-900">Score: {bd.score}</span>
+                    <div className="flex gap-2 text-gray-500">
+                        <span title="Similarity">Sim: {bd.similarity}</span>
+                        <span title="Evidence">Ev: {bd.evidence}</span>
+                        <span title="Freshness">Fr: {bd.freshness}</span>
+                        <span title="Confidence">Conf: {bd.confidence}</span>
+                    </div>
+                </div>
+            )}
 
             <div className="mt-4 flex items-center gap-3">
                 <button className="flex-1 bg-white border border-gray-200 rounded-lg py-2 text-xs font-bold hover:bg-gray-50 flex justify-center items-center gap-1.5 transition-colors">
