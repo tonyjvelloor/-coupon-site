@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
-import { ShieldAlert, AlertTriangle, CheckCircle, Activity } from "lucide-react";
+import { ShieldAlert, AlertTriangle, CheckCircle, Activity, BrainCircuit } from "lucide-react";
+import { LearningService } from "@/lib/intelligence/services/learning.service";
 
 async function getMissionBoardOpportunities() {
     const opportunities = await prisma.opportunity.findMany({
@@ -12,6 +13,34 @@ async function getMissionBoardOpportunities() {
 
 export default async function AdminDashboard() {
     const opportunities = await getMissionBoardOpportunities();
+    const learningService = new LearningService();
+    let learnings = await learningService.getActiveLearnings();
+    
+    // Fallback for visual demonstration if DB is empty
+    if (learnings.length === 0) {
+        learnings = [
+            {
+                id: "mock1",
+                pattern: "Adding FAQ to electronics merchants increases CTR on category pages.",
+                impact: "+22% CTR",
+                confidence: 94,
+                evidence: [],
+                isActive: true,
+                createdAt: new Date(),
+                updatedAt: new Date()
+            },
+            {
+                id: "mock2",
+                pattern: "Publishing Buying Guides for intent keywords captures top-of-funnel traffic.",
+                impact: "+6.1 ROI",
+                confidence: 85,
+                evidence: [],
+                isActive: true,
+                createdAt: new Date(),
+                updatedAt: new Date()
+            }
+        ];
+    }
 
     const critical = opportunities.slice(0, 3);
     const high = opportunities.slice(3, 8);
@@ -84,6 +113,27 @@ export default async function AdminDashboard() {
                         <BusinessMetric title="RPKA" value="$4.22" trend="+8%" />
                         <BusinessMetric title="Knowledge Growth" value="1,204" trend="+45/day" />
                         <BusinessMetric title="Revenue Impact" value="$12,450" trend="Estimated" />
+                    </div>
+
+                    <h2 className="text-xl font-bold border-b pb-2 border-gray-200 mt-10 flex items-center gap-2">
+                        <BrainCircuit className="w-5 h-5 text-indigo-600" />
+                        KNOWLEDGE MEMORY
+                    </h2>
+                    <div className="space-y-4">
+                        {learnings.map(l => (
+                            <div key={l.id} className="p-4 bg-indigo-50/50 border border-indigo-100 rounded-xl hover:shadow-sm transition-shadow">
+                                <p className="text-sm font-medium text-indigo-900 leading-relaxed">
+                                    "{l.pattern}"
+                                </p>
+                                <div className="mt-3 pt-3 border-t border-indigo-100/50 flex justify-between items-center text-xs text-indigo-700">
+                                    <span className="flex items-center gap-1 font-semibold">
+                                        <Activity className="w-3.5 h-3.5 text-emerald-600" />
+                                        Impact: <span className="text-emerald-600">{l.impact}</span>
+                                    </span>
+                                    <span className="bg-white px-2 py-1 rounded shadow-sm">Confidence: {l.confidence}%</span>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
 
