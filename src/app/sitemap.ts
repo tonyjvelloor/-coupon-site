@@ -35,15 +35,49 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // 2. Dynamic Store Routes
     const stores = await prisma.store.findMany({
         where: { isActive: true },
-        select: { slug: true, updatedAt: true },
+        select: { 
+            slug: true, 
+            updatedAt: true,
+            storeContents: {
+                select: {
+                    type: true,
+                    updatedAt: true
+                }
+            }
+        },
     });
 
-    const storeRoutes = stores.map((store) => ({
-        url: `${baseUrl}/stores/${store.slug}`,
-        lastModified: store.updatedAt,
-        changeFrequency: "daily" as const,
-        priority: 0.9, // Stores are high priority
-    }));
+    const storeRoutes: MetadataRoute.Sitemap = [];
+    
+    stores.forEach((store) => {
+        // Base store route
+        storeRoutes.push({
+            url: `${baseUrl}/stores/${store.slug}`,
+            lastModified: store.updatedAt,
+            changeFrequency: "daily" as const,
+            priority: 0.9,
+        });
+
+        // Sub-routes based on available content
+        store.storeContents.forEach((content) => {
+            let path = "";
+            switch (content.type) {
+                case "SHIPPING": path = "/shipping"; break;
+                case "RETURNS": path = "/returns"; break;
+                case "STUDENT": path = "/student-discount"; break;
+                case "BUYING_GUIDE": path = "/buying-guide"; break;
+                case "FAQ": path = "/faq"; break;
+            }
+            if (path) {
+                storeRoutes.push({
+                    url: `${baseUrl}/stores/${store.slug}${path}`,
+                    lastModified: content.updatedAt,
+                    changeFrequency: "weekly" as const,
+                    priority: 0.7,
+                });
+            }
+        });
+    });
 
     // 3. Dynamic Category Routes
     const categories = await prisma.category.findMany({
