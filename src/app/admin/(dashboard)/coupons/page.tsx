@@ -5,7 +5,7 @@ import { Plus, Search, Ticket, ExternalLink } from "lucide-react";
 export default async function CouponsPage() {
     const coupons = await prisma.coupon.findMany({
         orderBy: { createdAt: "desc" },
-        include: { store: true },
+        include: { merchantIdentity: true },
     });
 
     return (
@@ -68,7 +68,7 @@ export default async function CouponsPage() {
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className="text-gray-700">{coupon.store.name}</span>
+                                        <span className="text-gray-700">{coupon.merchantIdentity?.name || "Unknown"}</span>
                                     </td>
                                     <td className="px-6 py-4">
                                         {coupon.code ? (
