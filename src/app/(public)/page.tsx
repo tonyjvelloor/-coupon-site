@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 };
 
 // Dynamic Imports for heavy below-the-fold components
-const DynamicNewsletter = dynamic(() => import('@/components/ui/NewsletterSignup'), { ssr: false });
+const DynamicNewsletter = dynamic(() => import('@/components/ui/NewsletterSignup'));
 
 export default function Home() {
     return (
