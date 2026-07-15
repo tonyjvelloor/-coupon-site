@@ -17,9 +17,9 @@ export const metadata: Metadata = {
 
 export default async function Home() {
     const featuredStores = await prisma.store.findMany({
-        where: { isFeatured: true, isActive: true },
-        take: 8,
-        orderBy: { name: "asc" },
+        where: { isActive: true },
+        take: 16,
+        orderBy: { createdAt: "desc" },
     });
 
     const categories = await prisma.category.findMany({
@@ -45,20 +45,28 @@ export default async function Home() {
             {/* HERO SECTION */}
             <section className="relative pt-24 pb-20 px-4 overflow-hidden border-b border-surface-200 dark:border-surface-800 bg-white dark:bg-black">
                 <div className="max-w-4xl mx-auto text-center space-y-8">
-                    <h1 className="text-5xl md:text-6xl font-headline-lg font-bold text-merchant-900 dark:text-white tracking-tight leading-tight">
+                    <h1 className="text-5xl md:text-6xl font-headline-lg font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
                         Save more every time you shop.
                     </h1>
                     
                     {/* COMMAND SEARCH */}
-                    <div className="relative max-w-3xl mx-auto group">
-                        <div className="relative flex items-center bg-surface-50 dark:bg-surface-900 rounded-2xl p-2 border-2 border-surface-200 focus-within:border-primary-500 transition-colors shadow-lg hover:shadow-xl">
-                            <Icon name="search" className="ml-4 text-primary text-[28px]" />
+                    <div className="relative group">
+                        <form action="/search" method="GET" className="relative flex items-center bg-white dark:bg-surface-900 rounded-2xl border-2 border-surface-200 dark:border-surface-700 focus-within:border-primary focus-within:shadow-lg transition-all duration-300">
+                            <div className="pl-6 text-surface-400">
+                                <Icon name="search" className="text-[24px]" />
+                            </div>
                             <input 
-                                type="text" 
-                                placeholder="Search stores, products, brands..." 
-                                className="flex-1 bg-transparent border-none focus:ring-0 px-6 py-4 text-lg text-merchant-900 dark:text-white font-medium placeholder-surface-400 outline-none"
+                                type="text"
+                                name="q"
+                                placeholder="Search stores, categories, or specific deals..."
+                                className="flex-1 bg-transparent border-none focus:ring-0 px-6 py-4 text-lg text-slate-900 dark:text-white font-medium placeholder-surface-400 outline-none"
                             />
-                        </div>
+                            <div className="pr-2">
+                                <button type="submit" className="bg-primary hover:bg-primary-600 text-white px-6 py-3 rounded-xl font-bold transition-colors shadow-sm">
+                                    Search
+                                </button>
+                            </div>
+                        </form>
                         <div className="mt-4 flex flex-wrap justify-center items-center gap-2 text-sm max-w-2xl mx-auto">
                             <span className="text-surface-500 font-medium mr-1 flex items-center gap-1"><Icon name="trending_up" className="text-[16px]" /> Trending Searches:</span>
                             <Link href="/stores/amazon" className="text-surface-600 hover:text-primary transition underline decoration-surface-300 hover:decoration-primary underline-offset-4">Amazon Coupon</Link>
@@ -88,25 +96,25 @@ export default async function Home() {
                                 <div className="w-12 h-12 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center mb-3 group-hover:scale-110 transition">
                                     <Icon name="storefront" className="text-2xl" />
                                 </div>
-                                <span className="text-sm font-semibold text-merchant-900 dark:text-merchant-50 text-center">Shop at<br/>a store</span>
+                                <span className="text-sm font-semibold text-slate-900 dark:text-white text-center">Shop at<br/>a store</span>
                             </Link>
                             <Link href="/category/electronics" className="flex flex-col items-center p-4 rounded-xl border border-surface-200 hover:border-primary hover:bg-primary-50 dark:hover:bg-primary-900/20 transition group min-h-[96px]">
                                 <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mb-3 group-hover:scale-110 transition">
                                     <Icon name="devices" className="text-2xl" />
                                 </div>
-                                <span className="text-sm font-semibold text-merchant-900 dark:text-merchant-50 text-center">Buy<br/>Electronics</span>
+                                <span className="text-sm font-semibold text-slate-900 dark:text-white text-center">Buy<br/>Electronics</span>
                             </Link>
                             <Link href="/cashback" className="flex flex-col items-center p-4 rounded-xl border border-surface-200 hover:border-primary hover:bg-primary-50 dark:hover:bg-primary-900/20 transition group min-h-[96px]">
                                 <div className="w-12 h-12 rounded-full bg-green-100 text-green-700 flex items-center justify-center mb-3 group-hover:scale-110 transition">
                                     <Icon name="payments" className="text-2xl" />
                                 </div>
-                                <span className="text-sm font-semibold text-merchant-900 dark:text-merchant-50 text-center">Find<br/>Cashback</span>
+                                <span className="text-sm font-semibold text-slate-900 dark:text-white text-center">Find<br/>Cashback</span>
                             </Link>
                             <Link href="/best-offers" className="flex flex-col items-center p-4 rounded-xl border border-surface-200 hover:border-primary hover:bg-primary-50 dark:hover:bg-primary-900/20 transition group min-h-[96px]">
                                 <div className="w-12 h-12 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center mb-3 group-hover:scale-110 transition">
                                     <Icon name="local_fire_department" className="text-2xl" />
                                 </div>
-                                <span className="text-sm font-semibold text-merchant-900 dark:text-merchant-50 text-center">Today's<br/>Deals</span>
+                                <span className="text-sm font-semibold text-slate-900 dark:text-white text-center">Today's<br/>Deals</span>
                             </Link>
                         </div>
                     </div>
@@ -118,7 +126,7 @@ export default async function Home() {
                 {/* Popular Stores */}
                 <section>
                     <div className="flex items-center justify-between mb-8">
-                        <h2 className="text-2xl md:text-3xl font-headline-md font-bold text-merchant-900 flex items-center gap-3">
+                        <h2 className="text-2xl md:text-3xl font-headline-md font-bold text-slate-900 flex items-center gap-3">
                             Popular Stores
                         </h2>
                         <Link href="/stores" className="text-primary font-bold hover:underline flex items-center gap-1 min-h-[48px] px-2">
@@ -148,7 +156,7 @@ export default async function Home() {
                 {/* Today's Best Offers */}
                 <section>
                     <div className="flex items-center justify-between mb-8">
-                        <h2 className="text-2xl md:text-3xl font-headline-md font-bold text-merchant-900 flex items-center gap-3">
+                        <h2 className="text-2xl md:text-3xl font-headline-md font-bold text-slate-900 flex items-center gap-3">
                             Today's Best Offers
                         </h2>
                         <Link href="/best-offers" className="text-primary font-bold hover:underline flex items-center gap-1 min-h-[48px] px-2">
@@ -182,23 +190,18 @@ export default async function Home() {
                 {/* Categories */}
                 <section>
                     <div className="flex items-center justify-between mb-8">
-                        <h2 className="text-2xl md:text-3xl font-headline-md font-bold text-merchant-900 flex items-center gap-3">
+                        <h2 className="text-2xl md:text-3xl font-headline-md font-bold text-slate-900 flex items-center gap-3">
                             Categories
                         </h2>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
                         {categories.map((cat) => {
-                            const hasImage = ['fashion', 'electronics', 'food-dining', 'health-beauty', 'home-living', 'sports-fitness', 'entertainment', 'travel'].includes(cat.slug);
                             return (
-                                <Link key={cat.id} href={`/category/${cat.slug}`} className="flex flex-col items-center justify-center p-4 rounded-xl border border-surface-200 hover:border-primary transition group bg-white min-h-[96px]">
-                                    <div className="w-16 h-16 flex items-center justify-center overflow-hidden mb-3 rounded-full bg-surface-100 group-hover:bg-primary-50 transition">
-                                        {hasImage ? (
-                                            <Image src={`/images/categories/${cat.slug}.jpg`} alt={cat.name} width={64} height={64} className="object-cover w-full h-full group-hover:scale-110 transition duration-300" />
-                                        ) : (
-                                            <Icon name={(cat.icon || "category").toLowerCase().replace(/[^a-z0-9_]/g, "_")} className="text-[32px] text-surface-500 group-hover:text-primary transition" />
-                                        )}
+                                <Link key={cat.id} href={`/category/${cat.slug}`} className="flex flex-col items-center justify-center p-6 rounded-2xl border border-surface-200 hover:border-primary-500 hover:shadow-sm transition-all group bg-white group hover:-translate-y-1">
+                                    <div className="w-16 h-16 flex items-center justify-center mb-4 rounded-full bg-surface-100 group-hover:bg-primary-50 group-hover:text-primary-600 transition-colors">
+                                        <Icon name={(cat.icon || "category").toLowerCase().replace(/[^a-z0-9_]/g, "_")} className="text-[32px] text-surface-500 group-hover:text-primary-600 transition-colors" />
                                     </div>
-                                    <span className="font-semibold text-merchant-900 text-sm text-center w-full">{cat.name}</span>
+                                    <span className="font-semibold text-slate-900 text-sm text-center w-full group-hover:text-primary-600 transition-colors">{cat.name}</span>
                                 </Link>
                             );
                         })}

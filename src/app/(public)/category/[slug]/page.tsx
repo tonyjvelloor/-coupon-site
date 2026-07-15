@@ -124,7 +124,7 @@ export default async function CategoryPage({ params }: PageProps) {
                             )}
                         </div>
                         <div className="flex-1 space-y-2">
-                            <h1 className="text-3xl md:text-5xl font-headline-lg font-bold text-merchant-900 dark:text-merchant-50">
+                            <h1 className="text-3xl md:text-5xl font-headline-lg font-bold text-slate-900 dark:text-white">
                                 {category.name} Coupons & Promo Codes
                             </h1>
                             <p className="text-surface-600 dark:text-surface-400 text-lg max-w-3xl">
@@ -146,7 +146,7 @@ export default async function CategoryPage({ params }: PageProps) {
                                 <Link
                                     key={child.id}
                                     href={`/category/${child.slug}`}
-                                    className="px-4 py-2 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-lg text-sm font-semibold text-merchant-800 dark:text-merchant-200 hover:border-primary-300 hover:text-primary-600 transition-colors shadow-sm"
+                                    className="px-4 py-2 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-lg text-sm font-semibold text-slate-800 dark:text-slate-200 hover:border-primary-300 hover:text-primary-600 transition-colors shadow-sm"
                                 >
                                     {child.name}
                                 </Link>
@@ -160,7 +160,7 @@ export default async function CategoryPage({ params }: PageProps) {
                     <section>
                         <div className="flex items-center gap-2 mb-6">
                             <Icon name="storefront" className="text-2xl text-primary-600" />
-                            <h2 className="text-2xl font-headline-md font-bold text-merchant-900 dark:text-merchant-50">
+                            <h2 className="text-2xl font-headline-md font-bold text-slate-900 dark:text-white">
                                 Top {category.name} Merchants
                             </h2>
                         </div>
@@ -189,7 +189,7 @@ export default async function CategoryPage({ params }: PageProps) {
                 <section>
                     <div className="flex items-center gap-2 mb-6">
                         <Icon name="bolt" className="text-2xl text-urgency-orange" variant="fill" />
-                        <h2 className="text-2xl font-headline-md font-bold text-merchant-900 dark:text-merchant-50">
+                        <h2 className="text-2xl font-headline-md font-bold text-slate-900 dark:text-white">
                             Verified {category.name} Deals
                         </h2>
                     </div>
@@ -220,7 +220,7 @@ export default async function CategoryPage({ params }: PageProps) {
                     ) : (
                         <div className="text-center py-16 bg-surface-50 dark:bg-surface-900 rounded-2xl border border-dashed border-surface-300 dark:border-surface-700">
                             <Icon name="tag" className="text-4xl text-surface-400 mb-4" />
-                            <h3 className="text-xl font-bold text-merchant-900 dark:text-merchant-50 mb-2">No active deals found</h3>
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">No active deals found</h3>
                             <p className="text-surface-500 max-w-md mx-auto mb-6">
                                 There are currently no active offers in this category. Browse merchants directly to find deals.
                             </p>
@@ -242,7 +242,7 @@ export default async function CategoryPage({ params }: PageProps) {
                         </div>
                         <div>
                             <div className="bg-surface-50 dark:bg-surface-900 rounded-2xl p-6 border border-surface-200 dark:border-surface-800">
-                                <h3 className="font-bold text-merchant-900 dark:text-merchant-50 mb-4 flex items-center gap-2">
+                                <h3 className="font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
                                     <Icon name="hub" className="text-surface-400" />
                                     Related Categories
                                 </h3>

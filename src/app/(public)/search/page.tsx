@@ -26,7 +26,7 @@ export default async function SearchPage({
         return (
             <div className="max-w-container-max mx-auto px-4 py-20 text-center min-h-[60vh]">
                 <Icon name="search" className="text-6xl text-surface-300 mb-4" />
-                <h1 className="text-3xl font-bold text-merchant-900 mb-3">Search CouponHub</h1>
+                <h1 className="text-3xl font-bold text-slate-900 mb-3">Search CouponHub</h1>
                 <p className="text-surface-500">Enter a store, brand, or category in the search bar above.</p>
             </div>
         );
@@ -89,7 +89,7 @@ export default async function SearchPage({
             {/* Result Header */}
             <div className="bg-white border-b border-surface-200 py-8">
                 <div className="max-w-container-max mx-auto px-4 sm:px-6 lg:px-8">
-                    <h1 className="text-2xl md:text-3xl font-headline-md font-bold text-merchant-900 mb-1">
+                    <h1 className="text-2xl md:text-3xl font-headline-md font-bold text-slate-900 mb-1">
                         Results for "<span className="text-primary">{q}</span>"
                     </h1>
                     <p className="text-surface-500">
@@ -103,7 +103,7 @@ export default async function SearchPage({
                 {!hasResults ? (
                     <div className="text-center py-24 bg-white rounded-2xl border border-dashed border-surface-300 shadow-sm">
                         <Icon name="search_off" className="text-6xl text-surface-300 mb-4" />
-                        <h3 className="text-xl font-bold text-merchant-900 mb-2">No results found</h3>
+                        <h3 className="text-xl font-bold text-slate-900 mb-2">No results found</h3>
                         <p className="text-surface-500 max-w-md mx-auto mb-8">
                             We couldn't find anything matching "<strong>{q}</strong>". Try a different store name, brand, or category.
                         </p>
@@ -123,7 +123,7 @@ export default async function SearchPage({
                             <section>
                                 <div className="flex items-center gap-2 mb-6">
                                     <Icon name="storefront" className="text-2xl text-primary-600" />
-                                    <h2 className="text-2xl font-headline-md font-bold text-merchant-900">Stores</h2>
+                                    <h2 className="text-2xl font-headline-md font-bold text-slate-900">Stores</h2>
                                     <span className="bg-surface-100 text-surface-600 text-sm font-bold px-2.5 py-0.5 rounded-full ml-1">{stores.length}</span>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -152,7 +152,7 @@ export default async function SearchPage({
                             <section>
                                 <div className="flex items-center gap-2 mb-6">
                                     <Icon name="category" className="text-2xl text-violet-600" />
-                                    <h2 className="text-2xl font-headline-md font-bold text-merchant-900">Categories & Collections</h2>
+                                    <h2 className="text-2xl font-headline-md font-bold text-slate-900">Categories & Collections</h2>
                                 </div>
                                 <div className="flex flex-wrap gap-3">
                                     {categories.map(cat => (
@@ -174,7 +174,7 @@ export default async function SearchPage({
                             <section>
                                 <div className="flex items-center gap-2 mb-6">
                                     <Icon name="bolt" className="text-2xl text-urgency-orange" variant="fill" />
-                                    <h2 className="text-2xl font-headline-md font-bold text-merchant-900">Active Deals</h2>
+                                    <h2 className="text-2xl font-headline-md font-bold text-slate-900">Active Deals</h2>
                                     <span className="bg-surface-100 text-surface-600 text-sm font-bold px-2.5 py-0.5 rounded-full ml-1">{coupons.length}</span>
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -20,7 +20,7 @@ export function CrossShoppingWidgets({ storeName, competitors, popularCategories
         <div className="space-y-6">
             {/* Can I save more elsewhere? */}
             <div className="bg-surface-50 border border-surface-200 rounded-2xl p-6">
-                <h3 className="font-bold text-merchant-900 mb-4 flex items-center gap-2 text-sm uppercase tracking-widest">
+                <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2 text-sm uppercase tracking-widest">
                     <Icon name="compare" className="text-surface-500" /> Save more elsewhere?
                 </h3>
                 <div className="space-y-3">
@@ -31,7 +31,7 @@ export function CrossShoppingWidgets({ storeName, competitors, popularCategories
                     ]).map(comp => (
                         <Link href={`/stores/${comp.slug}`} key={comp.name} className={`flex items-center justify-between p-3 bg-white rounded-xl border ${comp.isBetter ? 'border-primary/50 shadow-sm relative overflow-hidden' : 'border-surface-200'}`}>
                             {comp.isBetter && <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>}
-                            <span className="font-bold text-merchant-900">{comp.name}</span>
+                            <span className="font-bold text-slate-900">{comp.name}</span>
                             <span className="font-bold text-green-600">{comp.savings}</span>
                         </Link>
                     ))}
@@ -41,7 +41,7 @@ export function CrossShoppingWidgets({ storeName, competitors, popularCategories
             {/* Popular Shopping Categories */}
             <div className="bg-white rounded-2xl border border-surface-200 overflow-hidden">
                 <div className="p-4 bg-surface-50 border-b border-surface-200">
-                    <h3 className="font-bold text-merchant-900 text-sm flex items-center gap-2">
+                    <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
                         <Icon name="category" className="text-surface-400" /> Popular Categories
                     </h3>
                 </div>
@@ -63,7 +63,7 @@ export function CrossShoppingWidgets({ storeName, competitors, popularCategories
             {/* Continue Shopping (Recently Viewed) */}
             <div className="bg-white rounded-2xl border border-surface-200 overflow-hidden">
                 <div className="p-4 bg-surface-50 border-b border-surface-200">
-                    <h3 className="font-bold text-merchant-900 text-sm flex items-center gap-2">
+                    <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
                         <Icon name="history" className="text-surface-400" /> Continue Shopping
                     </h3>
                 </div>

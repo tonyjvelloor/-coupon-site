@@ -50,7 +50,7 @@ export default async function CalendarPage() {
                     <div className="inline-flex items-center gap-2 bg-primary-50 text-primary-700 font-bold text-sm px-4 py-2 rounded-full mb-6 border border-primary-200">
                         <Icon name="event" className="text-[16px]" /> Shopping Calendar 2026
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-headline-lg font-bold text-merchant-900 mb-4">
+                    <h1 className="text-4xl md:text-5xl font-headline-lg font-bold text-slate-900 mb-4">
                         Plan Every Purchase.<br />Miss No Sale.
                     </h1>
                     <p className="text-lg text-surface-500 max-w-xl mx-auto">
@@ -92,7 +92,7 @@ export default async function CalendarPage() {
                                                         {event.storeName}
                                                     </span>
                                                 </div>
-                                                <h2 className="text-xl font-bold text-merchant-900 mb-1">{event.title}</h2>
+                                                <h2 className="text-xl font-bold text-slate-900 mb-1">{event.title}</h2>
                                                 <p className="text-surface-500 text-sm">{event.description}</p>
                                             </div>
                                             <div className="text-right shrink-0">
@@ -128,7 +128,7 @@ export default async function CalendarPage() {
                 {/* Strategy Tip */}
                 <div className="mt-16 bg-primary-50 border border-primary-200 rounded-2xl p-8 text-center">
                     <Icon name="tips_and_updates" className="text-4xl text-primary-600 mb-4" />
-                    <h3 className="text-xl font-bold text-merchant-900 mb-2">Pro Tip: Stack Your Savings</h3>
+                    <h3 className="text-xl font-bold text-slate-900 mb-2">Pro Tip: Stack Your Savings</h3>
                     <p className="text-surface-600 max-w-lg mx-auto mb-6">
                         During any sale, use a promo code <strong>+</strong> cashback <strong>+</strong> bank card offer together. A ₹10,000 laptop can realistically cost ₹7,000.
                     </p>

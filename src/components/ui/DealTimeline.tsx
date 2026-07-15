@@ -38,7 +38,7 @@ export function DealTimeline({ events }: { events: DealTimelineEvent[] }) {
                                 </div>
                                 <div className="flex flex-col pt-1">
                                     <div className="flex items-baseline gap-2">
-                                        <span className="text-sm font-bold text-merchant-900 dark:text-merchant-50">
+                                        <span className="text-sm font-bold text-slate-900 dark:text-white">
                                             {event.title}
                                         </span>
                                         <span className="text-xs font-medium text-surface-400">

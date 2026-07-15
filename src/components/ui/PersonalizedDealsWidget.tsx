@@ -64,7 +64,7 @@ export function PersonalizedDealsWidget() {
             {/* Recently Viewed */}
             {recentStores.length > 0 && (
                 <div className="lg:col-span-1">
-                    <h2 className="text-xl font-headline-md font-bold text-merchant-900 mb-4 flex items-center gap-2">
+                    <h2 className="text-xl font-headline-md font-bold text-slate-900 mb-4 flex items-center gap-2">
                         <Icon name="history" className="text-primary" /> Continue Shopping
                     </h2>
                     <div className="bg-white rounded-2xl border border-surface-200 overflow-hidden shadow-sm">
@@ -90,7 +90,7 @@ export function PersonalizedDealsWidget() {
             {/* For You */}
             {deals.length > 0 && (
                 <div className={recentStores.length > 0 ? "lg:col-span-2" : "lg:col-span-3"}>
-                    <h2 className="text-xl font-headline-md font-bold text-merchant-900 mb-4 flex items-center gap-2">
+                    <h2 className="text-xl font-headline-md font-bold text-slate-900 mb-4 flex items-center gap-2">
                         <Icon name="auto_awesome" className="text-primary" /> Recommended For You
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

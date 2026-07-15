@@ -12,7 +12,7 @@ export async function ShoppingCalendarWidget() {
             <div className="max-w-container-max mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between mb-8">
                     <div>
-                        <h2 className="text-2xl font-headline-md font-bold text-merchant-900 dark:text-white flex items-center gap-2">
+                        <h2 className="text-2xl font-headline-md font-bold text-slate-900 dark:text-white flex items-center gap-2">
                             <Icon name="event" className="text-primary" /> Upcoming Sales
                         </h2>
                         <p className="text-surface-500 mt-1">Don't miss the biggest drops of the year.</p>
@@ -30,7 +30,7 @@ export async function ShoppingCalendarWidget() {
                                     Soonest
                                 </div>
                             )}
-                            <h3 className="font-bold text-lg text-merchant-900 dark:text-white mb-2">{sale.title}</h3>
+                            <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-2">{sale.title}</h3>
                             <div className="flex items-center gap-2 text-surface-600 dark:text-surface-400 text-sm mb-4">
                                 <Icon name="calendar_today" className="text-[16px]" /> {sale.startDate}
                                 {sale.storeName && (
@@ -40,7 +40,7 @@ export async function ShoppingCalendarWidget() {
                                 )}
                             </div>
                             <p className="text-sm text-surface-500 mb-4">{sale.description}</p>
-                            <button className={`w-full flex items-center justify-center gap-2 py-2 font-bold rounded-xl transition ${index === 0 ? 'bg-surface-100 hover:bg-primary hover:text-white text-merchant-900' : 'bg-surface-50 hover:bg-surface-100 text-surface-700 border border-surface-200'}`}>
+                            <button className={`w-full flex items-center justify-center gap-2 py-2 font-bold rounded-xl transition ${index === 0 ? 'bg-surface-100 hover:bg-primary hover:text-white text-slate-900' : 'bg-surface-50 hover:bg-surface-100 text-surface-700 border border-surface-200'}`}>
                                 <Icon name={index === 0 ? "notifications_active" : "notifications_none"} className="text-[18px]" /> Remind Me
                             </button>
                         </div>

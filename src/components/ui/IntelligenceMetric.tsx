@@ -42,7 +42,7 @@ export function IntelligenceMetric({
                 </div>
                 
                 <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-bold text-merchant-900 dark:text-merchant-50">{value}</span>
+                    <span className="text-2xl font-bold text-slate-900 dark:text-white">{value}</span>
                     {trend && (
                         <div className="flex items-center gap-1">
                             {renderTrendIcon()}
@@ -69,7 +69,7 @@ export function IntelligenceMetric({
                     <span className="text-sm font-medium">{label}</span>
                 </div>
                 <div className="flex flex-col items-end">
-                    <span className="text-sm font-bold text-merchant-900 dark:text-merchant-50">{value}</span>
+                    <span className="text-sm font-bold text-slate-900 dark:text-white">{value}</span>
                     {freshness && <span className="text-[10px] text-surface-400 mt-0.5">{freshness}</span>}
                 </div>
             </div>
@@ -83,7 +83,7 @@ export function IntelligenceMetric({
                 <Icon name={icon} className="text-[20px]" />
             </div>
             <div className="flex flex-col">
-                <span className="text-lg font-bold text-merchant-900 dark:text-merchant-50 leading-tight">{value}</span>
+                <span className="text-lg font-bold text-slate-900 dark:text-white leading-tight">{value}</span>
                 <span className="text-xs text-surface-500 uppercase tracking-wide font-semibold mt-0.5">{label}</span>
             </div>
         </div>

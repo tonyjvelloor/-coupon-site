@@ -45,7 +45,7 @@ export function MerchantSnapshot({ store }: MerchantSnapshotProps) {
                     
                     <div className="flex flex-col justify-center flex-grow">
                         <div className="flex items-center gap-1">
-                            <h3 className="font-bold text-lg text-merchant-900 line-clamp-1">{store.name}</h3>
+                            <h3 className="font-bold text-lg text-slate-900 line-clamp-1">{store.name}</h3>
                             {isVerified && (
                                 <Icon name="verified" className="text-verified shrink-0 text-[18px]" variant="fill" />
                             )}
@@ -57,7 +57,7 @@ export function MerchantSnapshot({ store }: MerchantSnapshotProps) {
                 <div className="space-y-3 mb-4">
                     <div className="flex items-center justify-between text-sm">
                         <span className="text-surface-600 font-medium">Working Offers</span>
-                        <span className="font-bold text-merchant-900">{store.offerCount} Active</span>
+                        <span className="font-bold text-slate-900">{store.offerCount} Active</span>
                     </div>
                     {store.cashbackRate && (
                         <div className="flex items-center justify-between text-sm">

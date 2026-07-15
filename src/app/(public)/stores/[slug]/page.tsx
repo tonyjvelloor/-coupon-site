@@ -117,7 +117,7 @@ export default async function StorePage({ params }: PageProps) {
                         <section className="space-y-6">
                             <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                                 <div>
-                                    <h1 className="text-3xl md:text-4xl font-headline-lg font-bold text-merchant-900 mb-2">
+                                    <h1 className="text-3xl md:text-4xl font-headline-lg font-bold text-slate-900 mb-2">
                                         {store.name} Savings & Promo Codes
                                     </h1>
                                     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
@@ -142,7 +142,7 @@ export default async function StorePage({ params }: PageProps) {
                             {bestDeal ? (
                                 <div id={`deal-${bestDeal.id}`}>
                                     <div className="mb-3">
-                                        <span className="inline-block bg-merchant-900 text-white font-bold px-3 py-1 rounded text-sm tracking-wide uppercase">
+                                        <span className="inline-block bg-slate-900 text-white font-bold px-3 py-1 rounded text-sm tracking-wide uppercase">
                                             ⭐ Best Way to Save Today
                                         </span>
                                     </div>
@@ -159,7 +159,7 @@ export default async function StorePage({ params }: PageProps) {
                                 </div>
                             ) : (
                                 <div className="bg-surface-50 p-6 rounded-xl border border-surface-200 text-center">
-                                    <h3 className="text-lg font-bold text-merchant-900 mb-2">No active codes right now</h3>
+                                    <h3 className="text-lg font-bold text-slate-900 mb-2">No active codes right now</h3>
                                     <p className="text-surface-600">We are checking for new {store.name} deals continuously.</p>
                                 </div>
                             )}
@@ -168,7 +168,7 @@ export default async function StorePage({ params }: PageProps) {
                         {/* FOLD 2: Shopping Strategy (Best Way to Save) */}
                         {bestDeal && (
                             <section className="bg-primary-50 dark:bg-primary-900/10 border-2 border-primary-100 dark:border-primary-900 rounded-2xl p-6 md:p-8">
-                                <h2 className="text-xl font-headline-md font-bold text-merchant-900 mb-6 flex items-center gap-2">
+                                <h2 className="text-xl font-headline-md font-bold text-slate-900 mb-6 flex items-center gap-2">
                                     <Icon name="magic_button" className="text-primary text-2xl" /> Best Way to Save Today
                                 </h2>
                                 <div className="space-y-4 relative">
@@ -178,26 +178,26 @@ export default async function StorePage({ params }: PageProps) {
                                     <div className="flex flex-col md:flex-row md:items-center justify-between relative z-10 gap-2">
                                         <div className="flex items-center gap-3">
                                             <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-primary shadow-sm border border-primary-100 font-bold flex-shrink-0">1</div>
-                                            <span className="font-semibold text-merchant-900">Copy Coupon {bestDeal.code || 'Deal'}</span>
+                                            <span className="font-semibold text-slate-900">Copy Coupon {bestDeal.code || 'Deal'}</span>
                                         </div>
                                     </div>
                                     {store.cashbackRate && (
                                         <div className="flex flex-col md:flex-row md:items-center justify-between relative z-10 gap-2 pl-0 md:pl-0">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-primary shadow-sm border border-primary-100 font-bold flex-shrink-0">2</div>
-                                                <span className="font-semibold text-merchant-900">Activate {store.cashbackRate} Cashback</span>
+                                                <span className="font-semibold text-slate-900">Activate {store.cashbackRate} Cashback</span>
                                             </div>
                                         </div>
                                     )}
                                     <div className="flex flex-col md:flex-row md:items-center justify-between relative z-10 gap-2 pl-0 md:pl-0">
                                         <div className="flex items-center gap-3">
                                             <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-primary shadow-sm border border-primary-100 font-bold flex-shrink-0">3</div>
-                                            <span className="font-semibold text-merchant-900">Pay with HDFC Card</span>
+                                            <span className="font-semibold text-slate-900">Pay with HDFC Card</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="mt-6 pt-6 border-t border-primary-200 dark:border-primary-800 flex items-center justify-between">
-                                    <span className="text-lg font-bold text-merchant-900">Expected Savings</span>
+                                    <span className="text-lg font-bold text-slate-900">Expected Savings</span>
                                     <span className="text-2xl font-black text-green-600">₹{totalExpectedSavings.toLocaleString()}</span>
                                 </div>
                             </section>
@@ -215,7 +215,7 @@ export default async function StorePage({ params }: PageProps) {
                         {/* FOLD 3: Working Offers */}
                         {remainingOffers.length > 0 && (
                             <section>
-                                <h3 className="text-2xl font-headline-md font-bold text-merchant-900 mb-6">
+                                <h3 className="text-2xl font-headline-md font-bold text-slate-900 mb-6">
                                     Working Offers
                                 </h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -237,30 +237,30 @@ export default async function StorePage({ params }: PageProps) {
                         
                         {/* FOLD 4: Other Saving Methods */}
                         <section className="bg-surface-50 border border-surface-200 rounded-2xl p-6 md:p-8">
-                            <h3 className="text-xl font-headline-md font-bold text-merchant-900 mb-6">More Ways to Save</h3>
+                            <h3 className="text-xl font-headline-md font-bold text-slate-900 mb-6">More Ways to Save</h3>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 {store.cashbackRate && (
                                     <div className="flex flex-col items-center justify-center p-4 bg-white rounded-xl border border-surface-200 text-center">
                                         <Icon name="payments" className="text-3xl text-green-500 mb-2" />
-                                        <span className="font-bold text-sm text-merchant-900">Save with Cashback</span>
+                                        <span className="font-bold text-sm text-slate-900">Save with Cashback</span>
                                         <span className="text-xs text-surface-500">{store.cashbackRate}</span>
                                     </div>
                                 )}
                                 {hasStudent && (
                                     <div className="flex flex-col items-center justify-center p-4 bg-white rounded-xl border border-surface-200 text-center">
                                         <Icon name="school" className="text-3xl text-primary mb-2" />
-                                        <span className="font-bold text-sm text-merchant-900">Save as Student</span>
+                                        <span className="font-bold text-sm text-slate-900">Save as Student</span>
                                         <span className="text-xs text-surface-500">Discount</span>
                                     </div>
                                 )}
                                 <div className="flex flex-col items-center justify-center p-4 bg-white rounded-xl border border-surface-200 text-center">
                                     <Icon name="credit_card" className="text-3xl text-blue-500 mb-2" />
-                                    <span className="font-bold text-sm text-merchant-900">Save with Card</span>
+                                    <span className="font-bold text-sm text-slate-900">Save with Card</span>
                                     <span className="text-xs text-surface-500">Offers Available</span>
                                 </div>
                                 <div className="flex flex-col items-center justify-center p-4 bg-white rounded-xl border border-surface-200 text-center">
                                     <Icon name="card_giftcard" className="text-3xl text-purple-500 mb-2" />
-                                    <span className="font-bold text-sm text-merchant-900">Gift Cards</span>
+                                    <span className="font-bold text-sm text-slate-900">Gift Cards</span>
                                     <span className="text-xs text-surface-500">Available</span>
                                 </div>
                             </div>
@@ -289,16 +289,16 @@ export default async function StorePage({ params }: PageProps) {
                                 <Icon name="shield" /> Savings Verified
                             </h3>
                             <div className="space-y-3 mb-4">
-                                <div className="flex items-center gap-2 font-semibold text-merchant-900">
+                                <div className="flex items-center gap-2 font-semibold text-slate-900">
                                     <Icon name="check" className="text-verified-high text-[18px]" /> Coupon checked today
                                 </div>
-                                <div className="flex items-center gap-2 font-semibold text-merchant-900">
+                                <div className="flex items-center gap-2 font-semibold text-slate-900">
                                     <Icon name="check" className="text-verified-high text-[18px]" /> Cashback active
                                 </div>
-                                <div className="flex items-center gap-2 font-semibold text-merchant-900">
+                                <div className="flex items-center gap-2 font-semibold text-slate-900">
                                     <Icon name="check" className="text-verified-high text-[18px]" /> Card offer available
                                 </div>
-                                <div className="flex items-center gap-2 font-semibold text-merchant-900">
+                                <div className="flex items-center gap-2 font-semibold text-slate-900">
                                     <Icon name="check" className="text-verified-high text-[18px]" /> Store verified
                                 </div>
                             </div>
@@ -310,19 +310,19 @@ export default async function StorePage({ params }: PageProps) {
                                 <ul className="mt-4 space-y-3 text-sm">
                                     <li className="flex justify-between">
                                         <span className="text-surface-600">Coupon verified</span>
-                                        <span className="font-bold text-merchant-900">11 minutes ago</span>
+                                        <span className="font-bold text-slate-900">11 minutes ago</span>
                                     </li>
                                     <li className="flex justify-between">
                                         <span className="text-surface-600">Cashback checked</span>
-                                        <span className="font-bold text-merchant-900">Today</span>
+                                        <span className="font-bold text-slate-900">Today</span>
                                     </li>
                                     <li className="flex justify-between">
                                         <span className="text-surface-600">Offer tested</span>
-                                        <span className="font-bold text-merchant-900">Recently</span>
+                                        <span className="font-bold text-slate-900">Recently</span>
                                     </li>
                                     <li className="flex justify-between">
                                         <span className="text-surface-600">Merchant verified</span>
-                                        <span className="font-bold text-merchant-900">Yes</span>
+                                        <span className="font-bold text-slate-900">Yes</span>
                                     </li>
                                 </ul>
                             </details>

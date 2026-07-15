@@ -64,7 +64,7 @@ export function DecisionCard({ coupon, storeName, isBestDeal = false }: Decision
                 {/* 1. Primary Value Proposition */}
                 <div className="flex flex-col pr-8">
                     {coupon.discountValue && (
-                        <div className={`text-3xl font-bold font-headline-lg leading-tight ${isBestDeal ? 'text-primary' : 'text-merchant-900 dark:text-white'}`}>
+                        <div className={`text-3xl font-bold font-headline-lg leading-tight ${isBestDeal ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>
                             {coupon.discountValue}
                         </div>
                     )}
@@ -99,7 +99,7 @@ export function DecisionCard({ coupon, storeName, isBestDeal = false }: Decision
                 <div className="mt-2">
                     {coupon.type === "coupon" && coupon.code ? (
                         <div className="flex items-stretch h-12 border border-surface-200 dark:border-surface-700 rounded-xl overflow-hidden shadow-sm group-hover:shadow-md transition-shadow">
-                            <div className="flex-1 bg-surface-50 dark:bg-surface-900 flex items-center justify-center font-mono font-bold text-merchant-900 dark:text-white text-lg tracking-widest border-r border-surface-200 dark:border-surface-700">
+                            <div className="flex-1 bg-surface-50 dark:bg-surface-900 flex items-center justify-center font-mono font-bold text-slate-900 dark:text-white text-lg tracking-widest border-r border-surface-200 dark:border-surface-700">
                                 {coupon.code}
                             </div>
                             <button 
@@ -112,7 +112,7 @@ export function DecisionCard({ coupon, storeName, isBestDeal = false }: Decision
                     ) : (
                         <button 
                             onClick={handleAction}
-                            className="w-full h-12 bg-merchant-900 dark:bg-primary hover:bg-merchant-800 dark:hover:bg-primary-600 text-white font-bold text-sm rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm group-hover:shadow-md"
+                            className="w-full h-12 bg-slate-900 dark:bg-primary hover:bg-slate-800 dark:hover:bg-primary-600 text-white font-bold text-sm rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm group-hover:shadow-md"
                         >
                             Get Deal <Icon name="arrow_forward" className="text-[16px]" />
                         </button>

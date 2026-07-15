@@ -22,7 +22,7 @@ export function ConfidenceExplanation({ score }: ConfidenceExplanationProps) {
             </button>
 
             {isOpen && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 md:translate-x-0 md:left-auto md:right-0 mt-2 w-64 bg-merchant dark:bg-merchant-dark border border-surface-700 shadow-overlay rounded-xl p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-fast">
+                <div className="absolute top-full left-1/2 -translate-x-1/2 md:translate-x-0 md:left-auto md:right-0 mt-2 w-64 bg-slate-900 dark:bg-slate-900-dark border border-surface-700 shadow-overlay rounded-xl p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-fast">
                     <div className="text-xs font-bold text-surface-400 uppercase tracking-wider mb-3">
                         Confidence Score Breakdown
                     </div>

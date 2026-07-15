@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Icon } from '../ui/Icon';
 import { ThemeToggle } from '../ui/ThemeToggle';
 import { MobileNav } from './MobileNav';
+import { GlobalSearch } from '../ui/GlobalSearch';
 
 export interface Category {
     id: string;
@@ -19,6 +20,7 @@ export interface Category {
 export function Header({ categories = [] }: { categories?: Category[] }) {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
 
     return (
         <header className="sticky top-0 z-50 bg-white/90 dark:bg-surface-900/90 backdrop-blur-md border-b border-surface-200 dark:border-surface-800 transition-colors duration-300">
@@ -43,14 +45,13 @@ export function Header({ categories = [] }: { categories?: Category[] }) {
 
                     {/* Primary Search System (Desktop) */}
                     <div className="hidden md:flex flex-1 max-w-2xl relative">
-                        <Icon name="search" className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]" />
-                        <input
-                            type="text"
-                            placeholder="Search merchants, categories, or specific deals..."
-                            className="w-full pl-12 pr-12 py-3.5 rounded-full bg-surface-100 dark:bg-surface-800 border-2 border-transparent focus:bg-white dark:focus:bg-surface-900 focus:border-primary outline-none text-sm text-on-surface font-medium transition-all shadow-inner focus:shadow-md"
-                        />
-                        <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary text-white p-2 rounded-full hover:bg-primary-600 transition-colors">
-                            <Icon name="arrow_forward" className="text-[18px]" />
+                        <button
+                            onClick={() => setIsSearchOpen(true)}
+                            className="w-full flex items-center gap-3 pl-4 pr-4 py-3 rounded-full bg-surface-100 dark:bg-surface-800 border-2 border-transparent hover:border-primary/50 transition-all text-sm text-on-surface-variant font-medium shadow-inner"
+                        >
+                            <Icon name="search" className="text-[20px]" />
+                            <span>Search merchants, categories, or specific deals...</span>
+                            <span className="ml-auto text-[10px] bg-white dark:bg-surface-900 px-2 py-0.5 rounded-md border border-surface-200 dark:border-surface-700">⌘K</span>
                         </button>
                     </div>
 
@@ -85,9 +86,9 @@ export function Header({ categories = [] }: { categories?: Category[] }) {
                     <div className="flex items-center gap-3 shrink-0">
                         <button 
                             className="md:hidden w-10 h-10 rounded-full bg-surface-100 dark:bg-surface-800 flex items-center justify-center text-on-surface hover:bg-surface-200 transition-colors"
-                            onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
+                            onClick={() => setIsSearchOpen(true)}
                         >
-                            <Icon name={mobileSearchOpen ? "close" : "search"} className="text-[20px]" />
+                            <Icon name="search" className="text-[20px]" />
                         </button>
                         <ThemeToggle />
                         <button 
@@ -120,6 +121,8 @@ export function Header({ categories = [] }: { categories?: Category[] }) {
                 onClose={() => setMobileMenuOpen(false)} 
                 categories={categories}
             />
+            {/* Global Search Modal */}
+            <GlobalSearch isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
         </header>
     );
 }

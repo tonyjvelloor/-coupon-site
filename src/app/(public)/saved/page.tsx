@@ -12,7 +12,7 @@ export default function SavedHubPage() {
                         <Icon name="person" className="text-2xl" />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-headline-md font-bold text-merchant-900">My Dashboard</h1>
+                        <h1 className="text-2xl font-headline-md font-bold text-slate-900">My Dashboard</h1>
                         <p className="text-sm text-surface-500">Manage your saved stores, deals, and alerts.</p>
                     </div>
                 </div>
@@ -20,7 +20,7 @@ export default function SavedHubPage() {
                 <div className="space-y-8">
                     {/* Saved Stores */}
                     <section>
-                        <h2 className="text-xl font-bold text-merchant-900 mb-4 flex items-center gap-2">
+                        <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
                             <Icon name="storefront" className="text-primary" /> Saved Stores
                         </h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -30,7 +30,7 @@ export default function SavedHubPage() {
                                         <span className="font-bold text-surface-400 text-xs">{store[0]}</span>
                                     </div>
                                     <div className="flex-1">
-                                        <h3 className="font-bold text-merchant-900 group-hover:text-primary transition">{store}</h3>
+                                        <h3 className="font-bold text-slate-900 group-hover:text-primary transition">{store}</h3>
                                         <p className="text-xs text-green-600 font-medium">Active Cashback</p>
                                     </div>
                                     <Icon name="chevron_right" className="text-surface-300 group-hover:text-primary transition" />
@@ -44,7 +44,7 @@ export default function SavedHubPage() {
 
                     {/* Active Alerts */}
                     <section>
-                        <h2 className="text-xl font-bold text-merchant-900 mb-4 flex items-center gap-2">
+                        <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
                             <Icon name="notifications_active" className="text-blue-500" /> Active Alerts
                         </h2>
                         <div className="bg-white border border-surface-200 rounded-xl overflow-hidden">
@@ -55,7 +55,7 @@ export default function SavedHubPage() {
                                             <Icon name="trending_down" />
                                         </div>
                                         <div>
-                                            <p className="font-bold text-merchant-900">Price Drop Alert</p>
+                                            <p className="font-bold text-slate-900">Price Drop Alert</p>
                                             <p className="text-xs text-surface-500">Tracking iPhone 15 Pro on Amazon</p>
                                         </div>
                                     </div>
@@ -69,7 +69,7 @@ export default function SavedHubPage() {
                                             <Icon name="local_offer" />
                                         </div>
                                         <div>
-                                            <p className="font-bold text-merchant-900">New Coupon Alert</p>
+                                            <p className="font-bold text-slate-900">New Coupon Alert</p>
                                             <p className="text-xs text-surface-500">Tracking Swiggy Instamart</p>
                                         </div>
                                     </div>
@@ -82,7 +82,7 @@ export default function SavedHubPage() {
                     </section>
                     {/* My Wallet / Bank Preferences */}
                     <section>
-                        <h2 className="text-xl font-bold text-merchant-900 mb-4 flex items-center gap-2">
+                        <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
                             <Icon name="account_balance_wallet" className="text-purple-500" /> My Wallet
                         </h2>
                         <div className="bg-white border border-surface-200 rounded-xl overflow-hidden p-6">
@@ -94,14 +94,14 @@ export default function SavedHubPage() {
                                     <div className="absolute -top-2 -right-2 bg-primary text-white rounded-full p-1 shadow-sm">
                                         <Icon name="check" className="text-[14px]" />
                                     </div>
-                                    <span className="font-bold text-merchant-900">HDFC Bank</span>
+                                    <span className="font-bold text-slate-900">HDFC Bank</span>
                                 </div>
                                 {/* Selected Bank */}
                                 <div className="border-2 border-primary bg-primary-50 rounded-xl p-3 flex flex-col items-center justify-center gap-2 cursor-pointer hover:shadow-sm transition relative">
                                     <div className="absolute -top-2 -right-2 bg-primary text-white rounded-full p-1 shadow-sm">
                                         <Icon name="check" className="text-[14px]" />
                                     </div>
-                                    <span className="font-bold text-merchant-900">ICICI Bank</span>
+                                    <span className="font-bold text-slate-900">ICICI Bank</span>
                                 </div>
                                 {/* Unselected Bank */}
                                 <div className="border border-surface-200 hover:border-primary-300 rounded-xl p-3 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-surface-50 transition">

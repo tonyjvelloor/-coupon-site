@@ -32,7 +32,7 @@ export async function DecisionGraph({ merchantId, storeSlug }: { merchantId: str
                 {/* 1. Explore */}
                 {graph.explore.length > 0 && (
                     <div className="space-y-4">
-                        <h3 className="font-bold text-merchant-900 dark:text-merchant-50 flex items-center gap-2 text-lg border-b border-surface-200 dark:border-surface-800 pb-2">
+                        <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2 text-lg border-b border-surface-200 dark:border-surface-800 pb-2">
                             <Icon name="explore" className="text-primary" /> Explore
                         </h3>
                         <ul className="space-y-3">
@@ -40,7 +40,7 @@ export async function DecisionGraph({ merchantId, storeSlug }: { merchantId: str
                                 <li key={idx}>
                                     <Link href={`/search?q=${encodeURIComponent(item.node.name)}`} className="group flex items-center justify-between p-3 rounded-xl bg-surface-50 dark:bg-surface-900 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors border border-surface-200 dark:border-surface-800">
                                         <div>
-                                            <span className="block text-sm font-bold text-merchant-900 dark:text-merchant-50 group-hover:text-primary transition-colors">{item.node.name}</span>
+                                            <span className="block text-sm font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">{item.node.name}</span>
                                             <span className="text-xs text-surface-500 uppercase tracking-wider font-semibold">{item.node.type}</span>
                                         </div>
                                         <Icon name="arrow_forward" className="text-surface-400 group-hover:text-primary transition-colors" />
@@ -54,7 +54,7 @@ export async function DecisionGraph({ merchantId, storeSlug }: { merchantId: str
                 {/* 2. What's New */}
                 {graph.whatsNew.length > 0 && (
                     <div className="space-y-4">
-                        <h3 className="font-bold text-merchant-900 dark:text-merchant-50 flex items-center gap-2 text-lg border-b border-surface-200 dark:border-surface-800 pb-2">
+                        <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2 text-lg border-b border-surface-200 dark:border-surface-800 pb-2">
                             <Icon name="new_releases" className="text-secondary" /> What's New
                         </h3>
                         <ul className="space-y-3">
@@ -62,7 +62,7 @@ export async function DecisionGraph({ merchantId, storeSlug }: { merchantId: str
                                 <li key={idx}>
                                     <Link href={`/events/${item.node.id}`} className="group flex items-center justify-between p-3 rounded-xl bg-surface-50 dark:bg-surface-900 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors border border-surface-200 dark:border-surface-800">
                                         <div>
-                                            <span className="block text-sm font-bold text-merchant-900 dark:text-merchant-50 group-hover:text-secondary transition-colors">{item.node.name}</span>
+                                            <span className="block text-sm font-bold text-slate-900 dark:text-white group-hover:text-secondary transition-colors">{item.node.name}</span>
                                             <span className="text-xs text-surface-500 uppercase tracking-wider font-semibold">{item.node.type}</span>
                                         </div>
                                         <Icon name="arrow_forward" className="text-surface-400 group-hover:text-secondary transition-colors" />
@@ -76,7 +76,7 @@ export async function DecisionGraph({ merchantId, storeSlug }: { merchantId: str
                 {/* 3. Trust & Policies */}
                 {graph.trustAndPolicies.length > 0 && (
                     <div className="space-y-4">
-                        <h3 className="font-bold text-merchant-900 dark:text-merchant-50 flex items-center gap-2 text-lg border-b border-surface-200 dark:border-surface-800 pb-2">
+                        <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2 text-lg border-b border-surface-200 dark:border-surface-800 pb-2">
                             <Icon name="shield" className="text-verified" /> Trust & Policies
                         </h3>
                         <ul className="space-y-3">
@@ -84,7 +84,7 @@ export async function DecisionGraph({ merchantId, storeSlug }: { merchantId: str
                                 <li key={idx} className="flex items-center gap-3 p-3 rounded-xl bg-surface-50 dark:bg-surface-900 border border-surface-200 dark:border-surface-800">
                                     <Icon name="verified" className="text-verified text-[20px]" />
                                     <div>
-                                        <span className="block text-sm font-bold text-merchant-900 dark:text-merchant-50">{item.node.name}</span>
+                                        <span className="block text-sm font-bold text-slate-900 dark:text-white">{item.node.name}</span>
                                         <span className="text-xs text-surface-500 font-medium">Verified Source</span>
                                     </div>
                                 </li>
@@ -96,7 +96,7 @@ export async function DecisionGraph({ merchantId, storeSlug }: { merchantId: str
                 {/* 4. Continue Shopping */}
                 {graph.continueShopping.length > 0 && (
                     <div className="space-y-4">
-                        <h3 className="font-bold text-merchant-900 dark:text-merchant-50 flex items-center gap-2 text-lg border-b border-surface-200 dark:border-surface-800 pb-2">
+                        <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2 text-lg border-b border-surface-200 dark:border-surface-800 pb-2">
                             <Icon name="shopping_bag" className="text-urgency" /> Continue Shopping
                         </h3>
                         <ul className="space-y-3">
@@ -104,7 +104,7 @@ export async function DecisionGraph({ merchantId, storeSlug }: { merchantId: str
                                 <li key={idx}>
                                     <Link href={`/guides/${item.node.id}`} className="group flex items-center justify-between p-3 rounded-xl bg-surface-50 dark:bg-surface-900 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors border border-surface-200 dark:border-surface-800">
                                         <div>
-                                            <span className="block text-sm font-bold text-merchant-900 dark:text-merchant-50 group-hover:text-urgency transition-colors">{item.node.name}</span>
+                                            <span className="block text-sm font-bold text-slate-900 dark:text-white group-hover:text-urgency transition-colors">{item.node.name}</span>
                                             <span className="text-xs text-surface-500 uppercase tracking-wider font-semibold">{item.node.type}</span>
                                         </div>
                                         <Icon name="arrow_forward" className="text-surface-400 group-hover:text-urgency transition-colors" />

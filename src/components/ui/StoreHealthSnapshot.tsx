@@ -28,7 +28,7 @@ export function StoreHealthSnapshot({ healthScore, healthText, metrics }: StoreH
                         Merchant Health
                     </div>
                     <div className="flex items-baseline gap-3">
-                        <span className="text-5xl font-black font-metric-xl text-merchant-900 dark:text-merchant-50">
+                        <span className="text-5xl font-black font-metric-xl text-slate-900 dark:text-white">
                             {healthScore}
                         </span>
                         <span className="text-lg font-bold text-verified">
@@ -51,19 +51,19 @@ export function StoreHealthSnapshot({ healthScore, healthText, metrics }: StoreH
                 <div className="flex-grow grid grid-cols-2 sm:grid-cols-5 gap-6">
                     <div className="flex flex-col">
                         <span className="text-xs font-bold text-surface-500 uppercase tracking-wider mb-1">Offers</span>
-                        <span className="text-xl font-bold font-metric-xl text-merchant-900 dark:text-merchant-50">{metrics.offers}</span>
+                        <span className="text-xl font-bold font-metric-xl text-slate-900 dark:text-white">{metrics.offers}</span>
                     </div>
                     <div className="flex flex-col">
                         <span className="text-xs font-bold text-surface-500 uppercase tracking-wider mb-1">Guides</span>
-                        <span className="text-xl font-bold font-metric-xl text-merchant-900 dark:text-merchant-50">{metrics.guides}</span>
+                        <span className="text-xl font-bold font-metric-xl text-slate-900 dark:text-white">{metrics.guides}</span>
                     </div>
                     <div className="flex flex-col">
                         <span className="text-xs font-bold text-surface-500 uppercase tracking-wider mb-1">Policies</span>
-                        <span className="text-xl font-bold font-metric-xl text-merchant-900 dark:text-merchant-50">{metrics.policies}</span>
+                        <span className="text-xl font-bold font-metric-xl text-slate-900 dark:text-white">{metrics.policies}</span>
                     </div>
                     <div className="flex flex-col">
                         <span className="text-xs font-bold text-surface-500 uppercase tracking-wider mb-1">Freshness</span>
-                        <span className="text-xl font-bold font-metric-xl text-merchant-900 dark:text-merchant-50">{metrics.freshness}</span>
+                        <span className="text-xl font-bold font-metric-xl text-slate-900 dark:text-white">{metrics.freshness}</span>
                     </div>
                     <div className="flex flex-col">
                         <span className="text-xs font-bold text-surface-500 uppercase tracking-wider mb-1 flex items-center gap-1">

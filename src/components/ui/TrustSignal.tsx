@@ -28,7 +28,7 @@ export function TrustSignal({
                     <Icon name={icon} className="text-[18px]" />
                 </div>
                 <div className="flex flex-col">
-                    <span className="font-bold text-sm text-merchant-900 dark:text-merchant-50">{title}</span>
+                    <span className="font-bold text-sm text-slate-900 dark:text-white">{title}</span>
                     <span className="text-xs text-surface-600 dark:text-surface-400 mt-0.5 leading-relaxed">{description}</span>
                 </div>
             </CardContent>

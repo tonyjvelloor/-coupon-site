@@ -17,7 +17,7 @@ export function DecisionSummary({ storeName, shouldShop, reasons, bestOption }: 
                 <h2 className="text-sm font-bold text-surface-500 uppercase tracking-widest">
                     Decision Summary
                 </h2>
-                <div className="text-lg font-semibold text-merchant-900 dark:text-merchant-50">
+                <div className="text-lg font-semibold text-slate-900 dark:text-white">
                     Should you shop here today?
                 </div>
                 <div className={`text-4xl font-black font-headline-lg flex items-center gap-2 ${shouldShop ? 'text-verified' : 'text-warning'}`}>
