@@ -6,7 +6,6 @@ export default async function StoresPage() {
     const stores = await prisma.store.findMany({
         orderBy: { name: "asc" },
         include: {
-            _count: { select: { coupons: true } },
             storeCategories: { include: { category: true } },
         },
     });
@@ -78,7 +77,7 @@ export default async function StoresPage() {
                             </p>
 
                             <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
-                                <span>{store._count.coupons} coupons</span>
+                                <span>{store.activeOfferCount} coupons</span>
                                 {store.cashbackRate && (
                                     <span className="text-green-600 font-medium">
                                         {store.cashbackRate}

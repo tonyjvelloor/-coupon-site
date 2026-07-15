@@ -13,7 +13,7 @@ export default async function TrendingWidget() {
         },
         orderBy: { clicks: 'desc' },
         take: 5,
-        include: { store: true }
+        include: { merchantIdentity: { include: { store: true } } }
     });
 
     if (trendingCoupons.length === 0) return null;
@@ -31,7 +31,7 @@ export default async function TrendingWidget() {
                 {trendingCoupons.map((coupon, index) => (
                     <Link 
                         key={coupon.id} 
-                        href={`/stores/${coupon.store.slug}`}
+                        href={`/stores/${coupon.merchantIdentity?.store?.slug}`}
                         className="flex items-start gap-3 group"
                     >
                         <div className="w-8 h-8 rounded-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center shrink-0 border border-gray-200 dark:border-gray-700 text-gray-400 font-semibold text-sm group-hover:bg-violet-100 group-hover:text-violet-600 transition-colors">
@@ -42,7 +42,7 @@ export default async function TrendingWidget() {
                                 {coupon.title}
                             </p>
                             <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                                {coupon.store.name}
+                                {coupon.merchantIdentity?.store?.name}
                                 {coupon.clicks > 100 && (
                                     <span className="flex items-center text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded text-[10px] font-bold ml-1">
                                         <Flame className="w-3 h-3 mr-0.5" /> Hot

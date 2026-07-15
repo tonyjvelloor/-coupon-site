@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/db";
+import { couponService } from "@/lib/services/coupon.service";
 import CouponCard from "@/components/ui/CouponCard";
 import { Sparkles } from "lucide-react";
 
@@ -8,24 +8,7 @@ export const metadata = {
 };
 
 async function getBestOffers() {
-    const coupons = await prisma.coupon.findMany({
-        where: {
-            OR: [
-                { isFeatured: true },
-                { isVerified: true },
-                { discountType: "percentage" }, // Assuming high percentage deals are good
-            ],
-            expiresAt: {
-                gte: new Date(), // Only active coupons
-            },
-        },
-        include: { store: true },
-        orderBy: {
-            createdAt: "desc",
-        },
-        take: 50,
-    });
-    return coupons;
+    return await couponService.getRecentCoupons(50);
 }
 
 export default async function BestOffersPage() {
@@ -54,8 +37,8 @@ export default async function BestOffersPage() {
                             <CouponCard
                                 key={coupon.id}
                                 coupon={coupon}
-                                storeName={coupon.store.name}
-                                storeLogo={coupon.store.logo}
+                                storeName={coupon.merchantName}
+                                storeLogo={coupon.merchantLogo}
                             />
                         ))}
                     </div>

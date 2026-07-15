@@ -3,7 +3,7 @@ import { connectorRegistry } from "@/lib/import-engine/registry";
 import { ImportPipeline } from "@/lib/import-engine/pipeline";
 import { ImpactConnector } from "@/lib/import-engine/connectors/impact";
 import { CJConnector } from "@/lib/import-engine/connectors/cj";
-import { CuelinksConnector } from "@/lib/import-engine/connectors/cuelinks-connector";
+import { CuelinksConnector } from "@/lib/import-engine/connectors/cuelinks/cuelinks.connector";
 import { notificationEngine } from "@/lib/notifications";
 
 // Ensure connectors are loaded in API context
@@ -30,7 +30,9 @@ export async function GET(request: NextRequest) {
       try {
         await pipeline.run(connector, "v1.0");
       } catch (err) {
-        console.error(`Scheduled run failed for ${connector.sourceId}:`, err);
+        const c = connector as any;
+        const cid = c.sourceId || c.id || c.manifest?.id;
+        console.error(`Scheduled run failed for ${cid}:`, err);
         // The pipeline already notifies on failure, but we log it here just in case.
       }
     });

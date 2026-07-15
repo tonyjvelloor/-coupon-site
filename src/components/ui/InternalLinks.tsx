@@ -19,27 +19,27 @@ export default async function InternalLinks({ currentStoreId, currentCategoryId,
     ] = await Promise.all([
         // Trending
         prisma.coupon.findMany({
-            where: { storeId: { not: currentStoreId || undefined } },
+            where: { merchantIdentity: { canonicalStoreId: { not: currentStoreId || undefined } } },
             orderBy: { usageCount: 'desc' },
             take: 6,
-            include: { store: { select: { name: true, slug: true } } }
+            include: { merchantIdentity: { include: { store: { select: { name: true, slug: true } } } } }
         }),
         // Expiring Soon
         prisma.coupon.findMany({
             where: {
                 expiresAt: { not: null, gt: new Date() },
-                storeId: { not: currentStoreId || undefined }
+                merchantIdentity: { canonicalStoreId: { not: currentStoreId || undefined } }
             },
             orderBy: { expiresAt: 'asc' },
             take: 6,
-            include: { store: { select: { name: true, slug: true } } }
+            include: { merchantIdentity: { include: { store: { select: { name: true, slug: true } } } } }
         }),
         // New
         prisma.coupon.findMany({
-            where: { storeId: { not: currentStoreId || undefined } },
+            where: { merchantIdentity: { canonicalStoreId: { not: currentStoreId || undefined } } },
             orderBy: { createdAt: 'desc' },
             take: 6,
-            include: { store: { select: { name: true, slug: true } } }
+            include: { merchantIdentity: { include: { store: { select: { name: true, slug: true } } } } }
         }),
         // Popular Stores
         prisma.store.findMany({
@@ -66,10 +66,10 @@ export default async function InternalLinks({ currentStoreId, currentCategoryId,
                     {trendingCoupons.map((coupon) => (
                         <Link 
                             key={coupon.id} 
-                            href={`/stores/${coupon.store.slug}`}
+                            href={`/stores/${coupon.merchantIdentity?.store?.slug}`}
                             className="bg-white border border-gray-100 rounded-xl p-4 hover:border-violet-200 hover:shadow-md transition-all group"
                         >
-                            <div className="text-xs text-gray-500 mb-1">{coupon.store.name}</div>
+                            <div className="text-xs text-gray-500 mb-1">{coupon.merchantIdentity?.store?.name}</div>
                             <div className="font-medium text-gray-900 group-hover:text-violet-600 transition-colors line-clamp-2">
                                 {coupon.title}
                             </div>
@@ -88,7 +88,7 @@ export default async function InternalLinks({ currentStoreId, currentCategoryId,
                     <ul className="space-y-3">
                         {expiringSoon.map(coupon => (
                             <li key={coupon.id}>
-                                <Link href={`/stores/${coupon.store.slug}`} className="flex items-start gap-3 group">
+                                <Link href={`/stores/${coupon.merchantIdentity?.store?.slug}`} className="flex items-start gap-3 group">
                                     <ChevronRight className="w-4 h-4 text-gray-300 mt-0.5 group-hover:text-violet-500" />
                                     <div>
                                         <div className="font-medium text-gray-800 group-hover:text-violet-600 text-sm">{coupon.title}</div>
@@ -109,11 +109,11 @@ export default async function InternalLinks({ currentStoreId, currentCategoryId,
                     <ul className="space-y-3">
                         {newCoupons.map(coupon => (
                             <li key={coupon.id}>
-                                <Link href={`/stores/${coupon.store.slug}`} className="flex items-start gap-3 group">
+                                <Link href={`/stores/${coupon.merchantIdentity?.store?.slug}`} className="flex items-start gap-3 group">
                                     <ChevronRight className="w-4 h-4 text-gray-300 mt-0.5 group-hover:text-violet-500" />
                                     <div>
                                         <div className="font-medium text-gray-800 group-hover:text-violet-600 text-sm">{coupon.title}</div>
-                                        <div className="text-xs text-gray-500 mt-0.5">from {coupon.store.name}</div>
+                                        <div className="text-xs text-gray-500 mt-0.5">from {coupon.merchantIdentity?.store?.name}</div>
                                     </div>
                                 </Link>
                             </li>

@@ -5,7 +5,7 @@ import { ImportPipeline } from "@/lib/import-engine/pipeline";
 import { prisma } from "@/lib/db";
 import { ImpactConnector } from "@/lib/import-engine/connectors/impact";
 import { CJConnector } from "@/lib/import-engine/connectors/cj";
-import { CuelinksConnector } from "@/lib/import-engine/connectors/cuelinks-connector";
+import { CuelinksConnector } from "@/lib/import-engine/connectors/cuelinks/cuelinks.connector";
 
 const isDev = process.env.NODE_ENV !== "production";
 connectorRegistry.register(new ImpactConnector(isDev));

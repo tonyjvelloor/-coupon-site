@@ -21,14 +21,96 @@ export interface QualityMetrics {
   finalScore: number; // 0-100
 }
 
+export interface QualityRule {
+  id: string;
+  name: string;
+  description: string;
+  evaluate(offer: NormalizedOffer): Partial<QualityMetrics>;
+}
+
+export interface EnrichmentHook {
+  id: string;
+  name: string;
+  execute(offer: NormalizedOffer): Promise<NormalizedOffer>;
+}
+
+export interface ConnectorConfig {
+  requestsPerMinute: number;
+  burst: number;
+  concurrency: number;
+  timeoutMs: number;
+}
+
+export interface ConnectorManifest {
+  id: string;
+  name: string;
+  version: string;
+  capabilities: string[];
+  supportsWebhooks: boolean;
+  supportsPagination: boolean;
+  supportsIncrementalSync: boolean;
+  rateLimit: number;
+  trustLevel: number; // 0-100
+}
+
+export interface ConnectorHealth {
+  rowsFetched: number;
+  rowsValidated: number;
+  rowsPublished: number;
+  duplicates: number;
+  candidates: number;
+  averageQuality: number;
+  averageResponseTimeMs: number;
+  failures: number;
+  retryCount: number;
+  lastSuccessfulRun?: Date;
+  successRate: number; // 0-100
+}
+
+export type RawOffer = Record<string, any>;
+
+export interface ValidationScoreDetails {
+  merchant: number;
+  affiliateUrl: number;
+  destinationUrl: number;
+  expiry: number;
+  duplicate: number;
+  couponQuality: number;
+  title: number;
+  discount: number;
+  trackingParams: number;
+  https: number;
+  httpStatus: number;
+}
+
+export interface ValidationResult {
+  errors: ValidationError[];
+  scores: ValidationScoreDetails;
+  overallScore: number;
+}
+
+export interface OfferProvenance {
+  connector: string;
+  connectorVersion: string;
+  normalizerVersion?: string;
+  connectorOfferId?: string;
+  connectorMerchantId?: string;
+  connectorFetchedAt: Date;
+  connectorPayload: RawOffer;
+}
+
 /**
  * The canonical, minimalistic schema for all imported offers.
- * This represents exactly what the core platform needs, entirely isolated from SEO fields.
  */
 export interface NormalizedOffer {
   merchantName: string;
   title: string;
+  
   description?: string;
+  rawDescription?: string;
+  cleanDescription?: string;
+  markdownDescription?: string;
+  
   code?: string;
   destinationUrl: string;
   affiliateUrl: string;
@@ -36,72 +118,29 @@ export interface NormalizedOffer {
   discountValue?: string;
   expiry?: Date;
   category?: string;
-  source: string;
-  externalId?: string; // External network ID to prevent duplicates
+  
+  qualityScore?: number;
+  provenance: OfferProvenance;
 }
 
 /**
- * Defines what a connector is capable of providing.
- */
-export type ConnectorCapability = 
-  | "coupons" 
-  | "deals" 
-  | "products" 
-  | "merchantMetadata" 
-  | "commissionData";
-
-/**
  * Interface for all affiliate connectors.
- * Connectors strictly translate external sources into NormalizedOffers.
  */
 export interface AffiliateConnector {
-  /**
-   * Identifies the connector internally (e.g., 'impact')
-   */
-  readonly sourceId: string;
+  id: string;
+  version: string;
+  config: ConnectorConfig;
+  manifest: ConnectorManifest;
 
-  /**
-   * Display name for the connector (e.g., "Impact Radius")
-   */
-  readonly name: string;
-
-  /**
-   * What this connector can provide to the pipeline
-   */
-  readonly capabilities: ConnectorCapability[];
-
-  /**
-   * Version of the connector plugin implementation (e.g. "1.0.0")
-   */
-  readonly connectorVersion: string;
-
-  /**
-   * Version of the external API this connector targets (e.g. "REST v1")
-   */
-  readonly apiVersion: string;
-
-  /**
-   * Hook to initialize connections (e.g., login, setup API clients)
-   */
-  connect(): Promise<void>;
-
-  /**
-   * Fetch raw data from the external network/file
-   */
-  fetch(): AsyncGenerator<any, void, unknown>;
-
-  /**
-   * Translate a single piece of raw data into the Canonical model
-   */
-  normalize(rawData: any): NormalizedOffer;
-
-  /**
-   * Validate the raw payload for basic sanity checks prior to full pipeline validation
-   */
-  validate(normalized: NormalizedOffer): ValidationError[];
-
-  /**
-   * Cleanup hook (e.g., close connections, destroy API clients)
-   */
-  disconnect(): Promise<void>;
+  authenticate(): Promise<void>;
+  
+  fetch(cursor?: string, since?: Date): AsyncGenerator<RawOffer>;
+  
+  normalize(raw: RawOffer): Promise<NormalizedOffer>;
+  
+  validate(offer: NormalizedOffer): ValidationResult;
+  
+  enrich?(offer: NormalizedOffer): Promise<NormalizedOffer>;
+  
+  health(): Promise<ConnectorHealth>;
 }

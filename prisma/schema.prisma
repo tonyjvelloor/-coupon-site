@@ -38,11 +38,11 @@ model Store {
   affiliatePrograms AffiliateProgram[]
   campaignLinks     CampaignLink[]
   clickEvents       ClickEvent[]
-  coupons           Coupon[]
   aliases           MerchantAlias[]
   storeCategories   StoreCategory[]
   storeContents     StoreContent[]
   merchantHistories MerchantHistory[]
+  merchantIdentity  MerchantIdentity?
 
   @@index([slug])
   @@index([createdAt])
@@ -126,10 +126,16 @@ model Coupon {
   usageCount         Int                 @default(0)
   clicks             Int                 @default(0)
   displayOrder       Int                 @default(0)
-  storeId            String
+  merchantIdentityId String
   bank               String?
   categoryId         String?
   version            Int                 @default(1)
+  publishedByType    String              @default("SYSTEM")
+  publishedById      String?
+  connector          String?
+  connectorVersion   String?
+  importJobId        String?
+  qualityScore       Float?
   deletedAt          DateTime?
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
@@ -138,14 +144,141 @@ model Coupon {
   totalConversions   Int                 @default(0)
   clickEvents        ClickEvent[]
   category           Category?           @relation(fields: [categoryId], references: [id])
-  store              Store               @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  merchantIdentity   MerchantIdentity    @relation(fields: [merchantIdentityId], references: [id], onDelete: Cascade)
   campaigns          AffiliateCampaign[] @relation("AffiliateCampaignToCoupon")
   collections        Collection[]        @relation("CollectionToCoupon")
 
-  @@index([storeId])
+  @@index([merchantIdentityId])
   @@index([categoryId])
   @@index([expiresAt])
   @@index([createdAt])
+}
+
+enum MerchantIdentityType {
+  CANONICAL
+  CANDIDATE
+}
+
+model MerchantIdentity {
+  id               String               @id @default(uuid())
+  type             MerchantIdentityType
+  canonicalStoreId String?            @unique
+  candidateId      String?            @unique
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  
+  store            Store?             @relation(fields: [canonicalStoreId], references: [id], onDelete: Cascade)
+  candidate        MerchantCandidate? @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  coupons          Coupon[]
+  events           IdentityEvent[]
+
+  @@index([type])
+  @@index([canonicalStoreId])
+  @@index([candidateId])
+}
+
+enum MerchantCandidateStatus {
+  DISCOVERED
+  ENRICHING
+  READY
+  MERGED
+  ARCHIVED
+}
+
+model MerchantCandidate {
+  id              String                  @id @default(uuid())
+  name            String
+  website         String?
+  logo            String?
+  source          String
+  confidence      Int
+  status          MerchantCandidateStatus @default(DISCOVERED)
+  confidenceSource ConfidenceSource?
+  metadata        Json?
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  
+  identity        MerchantIdentity?
+
+  @@index([status])
+}
+
+model IdentityMerge {
+  id              String   @id @default(uuid())
+  candidateId     String
+  canonicalId     String
+  mergedById      String?
+  performedByType String?
+  mergedAt        DateTime @default(now())
+  reason          String?
+  confidenceSource ConfidenceSource?
+  
+  @@index([candidateId])
+  @@index([canonicalId])
+}
+
+enum IdentityEventType {
+  CREATED
+  MATCHED
+  MERGED
+  VERIFIED
+  ENRICHED
+  SPLIT
+}
+
+model IdentityEvent {
+  id                 String            @id @default(uuid())
+  merchantIdentityId String
+  type               IdentityEventType
+  metadata           Json?
+  actorType          String?
+  actorId            String?
+  createdAt          DateTime          @default(now())
+
+  identity           MerchantIdentity  @relation(fields: [merchantIdentityId], references: [id], onDelete: Cascade)
+  
+  @@index([merchantIdentityId])
+}
+
+model ConnectorSource {
+  id                String   @id @default(uuid())
+  name              String   @unique
+  version           String
+  trustLevel        Int      @default(0)
+  supportsCoupons   Boolean  @default(true)
+  supportsCashback  Boolean  @default(false)
+  supportsProducts  Boolean  @default(false)
+  supportsDeepLinks Boolean  @default(true)
+  rateLimit         Int      @default(100)
+  enabled           Boolean  @default(true)
+  avgQuality        Float    @default(0.0)
+  publishRate       Float    @default(0.0)
+  unknownMerchants  Int      @default(0)
+  revenue           Float    @default(0.0)
+  epc               Float    @default(0.0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model ConnectorRun {
+  id             String    @id @default(uuid())
+  connector      String
+  startedAt      DateTime  @default(now())
+  finishedAt     DateTime?
+  rowsFetched    Int       @default(0)
+  rowsValidated  Int       @default(0)
+  rowsPublished  Int       @default(0)
+  rowsRejected   Int       @default(0)
+  rowsDuplicated Int       @default(0)
+  rowsCandidates Int       @default(0)
+  avgQuality     Float     @default(0.0)
+  errorReasons   Json?
+  durationMs     Int?
+  status         String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([connector, startedAt])
 }
 
 model AffiliateNetwork {
@@ -412,7 +545,6 @@ model ClickEvent {
   store       Store?             @relation(fields: [storeId], references: [id])
 
   @@index([couponId, createdAt])
-  @@index([storeId, createdAt])
   @@index([campaignId, createdAt])
 }
 
@@ -476,11 +608,22 @@ model ImportedOffer {
   aiStatus             String    @default("none")
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
+  rawDescription       String?
+  cleanDescription     String?
+  markdownDescription  String?
+  connectorOfferId     String?
+  connectorMerchantId  String?
+  connectorFetchedAt   DateTime?
+  connectorPayload     Json?
   resolutionConfidence Json?
   resolutionReason     String?
   suggestedStoreId     String?
   resolutionSource     String?
   resolvedStoreId      String?
+  resolutionMethod     ResolutionMethod?
+  confidenceSource     ConfidenceSource?
+  resolverVersion      String?
+  publishDecision      PublishDecision?
   importJob            ImportJob @relation(fields: [importJobId], references: [id], onDelete: Cascade)
 
   @@index([importJobId])
@@ -640,6 +783,30 @@ enum ImportStatus {
   PROCESSING
   COMPLETED
   FAILED
+}
+
+enum ResolutionMethod {
+  EXACT
+  DOMAIN
+  ALIAS
+  FUZZY
+  MANUAL
+}
+
+enum ConfidenceSource {
+  DOMAIN
+  NAME
+  ALIAS
+  FUZZY
+  MANUAL
+  AI
+}
+
+enum PublishDecision {
+  AUTO
+  MANUAL
+  REJECTED
+  REVIEW
 }
 
 enum AuditAction {

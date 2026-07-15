@@ -9,15 +9,40 @@ export class CuelinksService {
         return { Authorization: `Token ${this.API_KEY}` };
     }
 
+    private async fetchWithRetry(url: string, options: RequestInit = {}, maxRetries = 3): Promise<any> {
+        let attempt = 0;
+        let delay = 1000;
+
+        while (attempt < maxRetries) {
+            try {
+                const response = await fetch(url, options);
+
+                if (response.ok) {
+                    if (response.status === 204) return null;
+                    return await response.json();
+                }
+
+                if (response.status === 429 || response.status >= 500) {
+                    throw new Error(`Transient error: ${response.status}`);
+                }
+
+                throw new Error(`Client error: ${response.status} ${response.statusText}`);
+            } catch (error: any) {
+                attempt++;
+                if (attempt >= maxRetries || error.message.startsWith("Client error")) {
+                    throw error;
+                }
+                await new Promise(resolve => setTimeout(resolve, delay));
+                delay *= 2;
+            }
+        }
+    }
+
     /**
      * Pings the Cuelinks API to verify authentication and status.
      */
     async ping() {
-        const res = await fetch(`${this.BASE_URL}/ping`, { headers: this.headers });
-        if (!res.ok) {
-            throw new Error(`Cuelinks Ping Failed: ${res.statusText}`);
-        }
-        return await res.json();
+        return await this.fetchWithRetry(`${this.BASE_URL}/ping`, { headers: this.headers });
     }
 
     /**
@@ -30,12 +55,8 @@ export class CuelinksService {
             order: "desc", 
             per_page: limit.toString(),
         });
-        const res = await fetch(`${this.BASE_URL}/campaigns?${qs}`, { headers: this.headers });
-        if (!res.ok) {
-            throw new Error(`Failed to fetch Cuelinks campaigns: ${res.statusText}`);
-        }
-        const json = await res.json();
-        return json.data || [];
+        const json = await this.fetchWithRetry(`${this.BASE_URL}/campaigns?${qs}`, { headers: this.headers });
+        return json?.data || [];
     }
 
     /**
@@ -45,12 +66,8 @@ export class CuelinksService {
         const qs = new URLSearchParams({
             per_page: limit.toString(),
         });
-        const res = await fetch(`${this.BASE_URL}/offers?${qs}`, { headers: this.headers });
-        if (!res.ok) {
-            throw new Error(`Failed to fetch Cuelinks offers: ${res.statusText}`);
-        }
-        const json = await res.json();
-        return json.data || [];
+        const json = await this.fetchWithRetry(`${this.BASE_URL}/offers?${qs}`, { headers: this.headers });
+        return json?.data || [];
     }
 
     /**
@@ -60,7 +77,7 @@ export class CuelinksService {
         const body: Record<string, any> = { url, shorten };
         if (subid) body.subid = subid;
 
-        const res = await fetch(`${this.BASE_URL}/links/convert`, {
+        const json = await this.fetchWithRetry(`${this.BASE_URL}/links/convert`, {
             method: "POST",
             headers: { 
                 ...this.headers, 
@@ -69,11 +86,6 @@ export class CuelinksService {
             body: JSON.stringify(body),
         });
         
-        if (!res.ok) {
-            throw new Error(`Failed to convert Cuelinks URL: ${res.statusText}`);
-        }
-        
-        const json = await res.json();
-        return json.url; // The monetized URL
+        return json?.url;
     }
 }

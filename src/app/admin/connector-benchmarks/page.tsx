@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 import { connectorRegistry } from "@/lib/import-engine/registry";
 import { ImpactConnector } from "@/lib/import-engine/connectors/impact";
 import { CJConnector } from "@/lib/import-engine/connectors/cj";
-import { CuelinksConnector } from "@/lib/import-engine/connectors/cuelinks-connector";
+import { CuelinksConnector } from "@/lib/import-engine/connectors/cuelinks/cuelinks.connector";
 
 // Ensure connectors are loaded in API context
 const isDev = process.env.NODE_ENV !== "production";
@@ -30,8 +30,12 @@ export default async function ConnectorBenchmarksPage() {
   const benchmarks: BenchmarkStats[] = [];
 
   for (const connector of registeredConnectors) {
+    const c = connector as any;
+    const cid = c.sourceId || c.id || c.manifest?.id;
+    const cname = c.name || c.manifest?.name || cid;
+
     const jobs = await prisma.importJob.findMany({
-      where: { source: connector.sourceId },
+      where: { source: cid },
       orderBy: { createdAt: "desc" }
     });
 
@@ -57,8 +61,8 @@ export default async function ConnectorBenchmarksPage() {
     }
 
     benchmarks.push({
-      sourceId: connector.sourceId,
-      name: connector.name || connector.sourceId,
+      sourceId: cid,
+      name: cname,
       totalRuns,
       totalRows,
       validRows,

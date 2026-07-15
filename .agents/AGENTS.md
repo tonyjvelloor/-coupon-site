@@ -1,10 +1,10 @@
-# Agent Rules for CouponHub
+# Agent Behavioral Constraints
 
-## Core Directives
-1. **Schema Freeze:** No schema changes without a measurable production reason. Future work should almost never begin with "Let's add another table." Instead it should begin with: "What business problem are we solving?"
-2. **AI Enrichment:** AI should enrich structured data, not replace editorial judgment.
+Infrastructure is complete. The architecture is frozen.
 
-## Operations Cadence Focus
-- **Daily:** Import new offers, Verify expiring coupons, Review failed imports, Publish new collections.
-- **Weekly:** Review Search Console, Review analytics, Optimize top pages, Refresh stale content.
-- **Monthly:** Review merchant performance, Expand topical authority, Negotiate affiliate partnerships, Prune low-value content.
+**Default action: compose, not extend.**
+
+Every AI agent must first ask:
+"Can I solve this with a Rule, Worker, Connector, Repository, Strategy, Prompt, or Dashboard?"
+
+**DO NOT** touch the Prisma schema or foundational interfaces unless it solves a production problem, improves a measurable business KPI, and absolutely cannot be implemented by composition on top of existing services.

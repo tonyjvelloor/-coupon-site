@@ -1,22 +1,19 @@
 import { prisma } from "@/lib/db";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { MobileNav } from "@/components/ui/MobileNav";
 
 export default async function PublicLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
-    const categories = await prisma.category.findMany({
-        where: { isActive: true },
-        orderBy: { displayOrder: "asc" },
-    });
-
     return (
-        <div className="min-h-screen flex flex-col">
-            <Header categories={categories} />
-            <main className="flex-1">{children}</main>
+        <div className="min-h-screen flex flex-col relative pb-[env(safe-area-inset-bottom)]">
+            <Header />
+            <main className="flex-1 md:pb-0 pb-16">{children}</main>
             <Footer />
+            <MobileNav />
         </div>
     );
 }

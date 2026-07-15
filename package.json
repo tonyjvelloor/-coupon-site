@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "connector:cuelinks:seed": "npx tsx --env-file=.env.production scripts/connectors/cuelinks-seed-stores.ts",
+    "connector:cuelinks:run": "npx tsx --env-file=.env.production scripts/connectors/cuelinks-connector.ts",
+    "connector:cuelinks:dry": "npx tsx --env-file=.env.production scripts/connectors/cuelinks-connector.ts --dry-run"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",

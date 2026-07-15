@@ -7,7 +7,6 @@ export async function GET() {
     try {
         const stores = await prisma.store.findMany({
             orderBy: { name: "asc" },
-            include: { _count: { select: { coupons: true } } },
         });
         return NextResponse.json(stores);
     } catch (error) {

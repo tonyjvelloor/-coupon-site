@@ -81,15 +81,11 @@ export default async function CategoryPage({ params }: PageProps) {
             children: { where: { isActive: true } },
             storeCategories: {
                 include: {
-                    store: {
-                        include: {
-                            _count: { select: { coupons: true } },
-                        },
-                    },
+                    store: true,
                 },
             },
             coupons: {
-                include: { store: true },
+                include: { merchantIdentity: { include: { store: true } } },
                 orderBy: { createdAt: "desc" },
                 take: 12,
             },
@@ -102,7 +98,7 @@ export default async function CategoryPage({ params }: PageProps) {
 
     const stores = category.storeCategories.map((sc) => ({
         ...sc.store,
-        offerCount: sc.store._count.coupons,
+        offerCount: sc.store.activeOfferCount || sc.store.offerCount,
     }));
 
     return (
@@ -216,8 +212,8 @@ export default async function CategoryPage({ params }: PageProps) {
                                         expiresAt: coupon.expiresAt,
                                         successRate: 95
                                     }}
-                                    storeName={coupon.store.name}
-                                    storeLogo={coupon.store.logo}
+                                    storeName={coupon.merchantIdentity?.store?.name}
+                                    storeLogo={coupon.merchantIdentity?.store?.logo}
                                 />
                             ))}
                         </div>

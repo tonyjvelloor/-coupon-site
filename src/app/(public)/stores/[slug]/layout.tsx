@@ -27,7 +27,6 @@ export default async function StoreLayout({ params, children }: LayoutProps) {
         include: {
             storeCategories: { include: { category: true } },
             storeContents: true,
-            _count: { select: { coupons: true } },
         }
     });
 
@@ -83,7 +82,7 @@ export default async function StoreLayout({ params, children }: LayoutProps) {
                                     </span>
                                 )}
                                 <span className="px-3 py-1 bg-violet-100 text-violet-700 rounded-full text-sm font-medium">
-                                    {store._count.coupons} Offers
+                                    {store.activeOfferCount} Offers
                                 </span>
                                 {store.storeCategories.map((sc) => (
                                     <Link
@@ -146,7 +145,7 @@ export default async function StoreLayout({ params, children }: LayoutProps) {
                                     </div>
                                     <div className="flex justify-between">
                                         <dt className="text-gray-500">Total Offers</dt>
-                                        <dd className="font-medium">{store._count.coupons}</dd>
+                                        <dd className="font-medium">{store.activeOfferCount}</dd>
                                     </div>
                                     {store.cashbackRate && (
                                         <div className="flex justify-between">

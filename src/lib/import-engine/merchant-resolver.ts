@@ -9,8 +9,8 @@ export interface ResolutionSignals {
 }
 
 export interface ResolutionResult {
-  storeId: string | null;
-  suggestedStoreId: string | null;
+  identityId: string | null;
+  suggestedIdentityId: string | null;
   confidence: number;
   signals: ResolutionSignals & { resolverVersion?: string };
   reason: string;
@@ -23,9 +23,8 @@ const NORMALIZATION_SUFFIXES = [
 ];
 
 export class MerchantResolver {
-  public static readonly VERSION = "v1.0.0";
+  public static readonly VERSION = "v1.1.0";
 
-  
   static normalize(input: string): string {
     if (!input) return '';
     let normalized = input.toLowerCase();
@@ -48,7 +47,6 @@ export class MerchantResolver {
     return normalized;
   }
 
-  // Domain normalizer extracts root domain e.g. "https://www.amazon.in/foo" -> "amazon.in"
   static normalizeDomain(input: string): string {
     if (!input) return '';
     try {
@@ -64,14 +62,40 @@ export class MerchantResolver {
     }
   }
 
+  private async ensureIdentity(storeId?: string, candidateId?: string): Promise<string> {
+    if (storeId) {
+      const store = await prisma.store.findUnique({ where: { id: storeId }, include: { merchantIdentity: true } });
+      if (store?.merchantIdentity) return store.merchantIdentity.id;
+      // Auto-backfill for existing stores
+      const newIdentity = await prisma.merchantIdentity.create({
+        data: {
+          type: "CANONICAL",
+          canonicalStoreId: storeId,
+        }
+      });
+      return newIdentity.id;
+    } else if (candidateId) {
+      const candidate = await prisma.merchantCandidate.findUnique({ where: { id: candidateId }, include: { identity: true } });
+      if (candidate?.identity) return candidate.identity.id;
+      const newIdentity = await prisma.merchantIdentity.create({
+        data: {
+          type: "CANDIDATE",
+          candidateId: candidateId,
+        }
+      });
+      return newIdentity.id;
+    }
+    throw new Error("Must provide storeId or candidateId");
+  }
+
   async resolve(merchantName: string, domainContext?: string): Promise<ResolutionResult> {
     const signals: ResolutionSignals & { resolverVersion?: string } = { domain: 0, alias: 0, normalizedName: 0, fuzzy: 0, resolverVersion: MerchantResolver.VERSION };
     
     if (!merchantName) {
-      return { storeId: null, suggestedStoreId: null, confidence: 0, signals, reason: 'No merchant name provided' };
+      return { identityId: null, suggestedIdentityId: null, confidence: 0, signals, reason: 'No merchant name provided' };
     }
 
-    // STAGE 1: Exact Match (Name or Slug)
+    // STAGE 1: Exact Match (Store Name or Slug)
     const exactStore = await prisma.store.findFirst({
       where: {
         OR: [
@@ -79,15 +103,28 @@ export class MerchantResolver {
           { slug: { equals: merchantName, mode: 'insensitive' } }
         ]
       },
-      select: { id: true, name: true }
+      select: { id: true }
     });
 
     if (exactStore) {
       signals.normalizedName = 100;
-      return { storeId: exactStore.id, suggestedStoreId: null, confidence: 100, signals, reason: 'Exact Name Match', resolutionSource: 'Exact' };
+      const identityId = await this.ensureIdentity(exactStore.id, undefined);
+      return { identityId, suggestedIdentityId: null, confidence: 100, signals, reason: 'Exact Name Match', resolutionSource: 'Exact Store' };
     }
 
-    // STAGE 2: Alias Match
+    // STAGE 1b: Exact Match (Candidate Name)
+    const exactCandidate = await prisma.merchantCandidate.findFirst({
+      where: { name: { equals: merchantName, mode: 'insensitive' } },
+      select: { id: true }
+    });
+
+    if (exactCandidate) {
+      signals.normalizedName = 100;
+      const identityId = await this.ensureIdentity(undefined, exactCandidate.id);
+      return { identityId, suggestedIdentityId: null, confidence: 100, signals, reason: 'Exact Name Match', resolutionSource: 'Exact Candidate' };
+    }
+
+    // STAGE 2: Alias Match (Only checks stores for now)
     const normalizedAliasInput = MerchantResolver.normalize(merchantName);
     const aliasMatch = await prisma.merchantAlias.findFirst({
       where: {
@@ -96,19 +133,19 @@ export class MerchantResolver {
           { normalizedAlias: { equals: normalizedAliasInput, mode: 'insensitive' } }
         ]
       },
-      include: { merchant: true },
       orderBy: { confidence: 'desc' }
     });
 
     if (aliasMatch) {
       signals.alias = aliasMatch.confidence;
-      // Fire-and-forget: update lastSeenAt
       prisma.merchantAlias.update({ where: { id: aliasMatch.id }, data: { lastSeenAt: new Date() } }).catch(() => {});
       
+      const identityId = await this.ensureIdentity(aliasMatch.merchantId, undefined);
+
       if (aliasMatch.confidence >= 98) {
-        return { storeId: aliasMatch.merchantId, suggestedStoreId: null, confidence: aliasMatch.confidence, signals, reason: 'Alias Match', resolutionSource: 'Alias' };
+        return { identityId, suggestedIdentityId: null, confidence: aliasMatch.confidence, signals, reason: 'Alias Match', resolutionSource: 'Alias' };
       } else {
-        return { storeId: null, suggestedStoreId: aliasMatch.merchantId, confidence: aliasMatch.confidence, signals, reason: 'Low Confidence Alias Match', resolutionSource: 'Alias' };
+        return { identityId: null, suggestedIdentityId: identityId, confidence: aliasMatch.confidence, signals, reason: 'Low Confidence Alias Match', resolutionSource: 'Alias' };
       }
     }
 
@@ -120,45 +157,64 @@ export class MerchantResolver {
         select: { id: true }
       });
       if (domainStore) {
-        signals.domain = 98; // Very high confidence per user spec
-        return { storeId: domainStore.id, suggestedStoreId: null, confidence: 98, signals, reason: 'Domain Match', resolutionSource: 'Domain' };
+        signals.domain = 98;
+        const identityId = await this.ensureIdentity(domainStore.id, undefined);
+        return { identityId, suggestedIdentityId: null, confidence: 98, signals, reason: 'Domain Match', resolutionSource: 'Domain Store' };
+      }
+
+      const domainCandidate = await prisma.merchantCandidate.findFirst({
+        where: { website: { contains: normDomain, mode: 'insensitive' } },
+        select: { id: true }
+      });
+      if (domainCandidate) {
+        signals.domain = 98;
+        const identityId = await this.ensureIdentity(undefined, domainCandidate.id);
+        return { identityId, suggestedIdentityId: null, confidence: 98, signals, reason: 'Domain Match', resolutionSource: 'Domain Candidate' };
       }
     }
 
     // STAGE 4: Normalize & Fuzzy Match
-    // In a real huge database, we might cache this or search differently, but for now we fetch all stores
     const allStores = await prisma.store.findMany({ select: { id: true, name: true } });
-    if (allStores.length === 0) {
-      return { storeId: null, suggestedStoreId: null, confidence: 0, signals, reason: 'No stores in database', resolutionSource: 'Unknown' };
+    const allCandidates = await prisma.merchantCandidate.findMany({ select: { id: true, name: true } });
+    
+    const combined = [
+      ...allStores.map(s => ({ ...s, isStore: true })),
+      ...allCandidates.map(c => ({ ...c, isStore: false }))
+    ];
+
+    if (combined.length === 0) {
+      return { identityId: null, suggestedIdentityId: null, confidence: 0, signals, reason: 'No entities in database', resolutionSource: 'Unknown' };
     }
 
     const searchInput = MerchantResolver.normalize(merchantName);
     
-    // Check if normalized matches any store's normalized name exactly
-    const exactNorm = allStores.find(s => MerchantResolver.normalize(s.name) === searchInput);
+    const exactNorm = combined.find(s => MerchantResolver.normalize(s.name) === searchInput);
     if (exactNorm) {
       signals.normalizedName = 98;
-      return { storeId: exactNorm.id, suggestedStoreId: null, confidence: 98, signals, reason: 'Normalized Name Match', resolutionSource: 'Fuzzy' };
+      const identityId = await this.ensureIdentity(exactNorm.isStore ? exactNorm.id : undefined, exactNorm.isStore ? undefined : exactNorm.id);
+      return { identityId, suggestedIdentityId: null, confidence: 98, signals, reason: 'Normalized Name Match', resolutionSource: 'Fuzzy' };
     }
 
-    // Fuzzy Search using fast-fuzzy
-    const fuzzyResults = allStores.map(store => {
-      const storeNorm = MerchantResolver.normalize(store.name);
-      // fast-fuzzy returns 0 to 1
-      const score = Math.round(fuzzy(searchInput, storeNorm) * 100);
-      return { id: store.id, score, name: store.name };
+    const fuzzyResults = combined.map(entity => {
+      const entityNorm = MerchantResolver.normalize(entity.name);
+      const score = Math.round(fuzzy(searchInput, entityNorm) * 100);
+      return { ...entity, score };
     }).sort((a, b) => b.score - a.score);
 
     const bestMatch = fuzzyResults[0];
     signals.fuzzy = bestMatch.score;
 
-    if (bestMatch.score >= 98) {
-      return { storeId: bestMatch.id, suggestedStoreId: null, confidence: bestMatch.score, signals, reason: 'High Confidence Fuzzy Match', resolutionSource: 'Fuzzy' };
-    } else if (bestMatch.score >= 90) {
-      return { storeId: null, suggestedStoreId: bestMatch.id, confidence: bestMatch.score, signals, reason: 'Fuzzy Suggestion', resolutionSource: 'Fuzzy' };
+    let matchIdentityId: string | null = null;
+    if (bestMatch.score >= 90) {
+      matchIdentityId = await this.ensureIdentity(bestMatch.isStore ? bestMatch.id : undefined, bestMatch.isStore ? undefined : bestMatch.id);
     }
 
-    // Below 90% goes to manual review without auto suggestion
-    return { storeId: null, suggestedStoreId: null, confidence: bestMatch.score, signals, reason: 'No Match', resolutionSource: 'Unknown' };
+    if (bestMatch.score >= 98) {
+      return { identityId: matchIdentityId, suggestedIdentityId: null, confidence: bestMatch.score, signals, reason: 'High Confidence Fuzzy Match', resolutionSource: 'Fuzzy' };
+    } else if (bestMatch.score >= 90) {
+      return { identityId: null, suggestedIdentityId: matchIdentityId, confidence: bestMatch.score, signals, reason: 'Fuzzy Suggestion', resolutionSource: 'Fuzzy' };
+    }
+
+    return { identityId: null, suggestedIdentityId: null, confidence: bestMatch.score, signals, reason: 'No Match', resolutionSource: 'Unknown' };
   }
 }

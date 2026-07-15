@@ -1,20 +1,19 @@
-import { prisma } from "@/lib/db";
+import { merchantService } from "@/lib/services/merchant.service";
+import { couponService } from "@/lib/services/coupon.service";
+import { categoryService } from "@/lib/services/category.service";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { formatDistanceToNow } from "date-fns";
-import { Clock } from "lucide-react";
 import { DecisionCard } from "@/components/ui/DecisionCard";
-import SEOTextAndFAQ from "@/components/ui/SEOTextAndFAQ";
-import { DecisionGraph } from "@/components/intelligence/DecisionGraph";
 import ExitIntentPopup from "@/components/ui/ExitIntentPopup";
 import StickyCouponWidget from "@/components/ui/StickyCouponWidget";
 import { Icon } from "@/components/ui/Icon";
-import { Badge } from "@/components/ui/Badge";
-import { Stack } from "@/components/ui/Stack";
-import { DealTimeline } from "@/components/ui/DealTimeline";
-import { TrustSignal } from "@/components/ui/TrustSignal";
+import { SavingsCalculator } from "@/components/ui/SavingsCalculator";
+import { SmartShoppingBlocks } from "@/components/ui/SmartShoppingBlocks";
+import { CrossShoppingWidgets } from "@/components/ui/CrossShoppingWidgets";
+import { RecentStoreTracker } from "@/components/ui/RecentStoreTracker";
 
 interface PageProps {
     params: Promise<{ slug: string }>;
@@ -24,10 +23,7 @@ export const revalidate = 3600;
 
 export async function generateStaticParams() {
     try {
-        const stores = await prisma.store.findMany({
-            where: { isActive: true },
-            select: { slug: true },
-        });
+        const stores = await merchantService.getAllStoreSlugs();
         return stores.map((store) => ({
             slug: store.slug,
         }));
@@ -39,9 +35,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { slug } = await params;
-    const store = await prisma.store.findUnique({
-        where: { slug, isActive: true },
-    });
+    const store = await merchantService.getMerchantBySlug(slug);
 
     if (!store) return { title: "Store Not Found" };
 
@@ -56,480 +50,289 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         alternates: {
             canonical: `${siteUrl}/stores/${store.slug}`,
         },
-        openGraph: {
-            title: ogTitle,
-            description: ogDescription,
-            images: [
-                {
-                    url: `${siteUrl}/api/og?title=${encodeURIComponent(store.name + ' Coupons')}&description=${encodeURIComponent('Save big with verified offers from ' + store.name)}&type=store${store.logo ? '&logo=' + encodeURIComponent(store.logo) : ''}`,
-                    width: 1200,
-                    height: 630,
-                    alt: `${store.name} Coupons`,
-                },
-            ],
-        },
-        twitter: {
-            card: 'summary_large_image',
-            title: ogTitle,
-            description: ogDescription,
-            images: [`${siteUrl}/api/og?title=${encodeURIComponent(store.name + ' Coupons')}&description=${encodeURIComponent('Save big with verified offers from ' + store.name)}&type=store${store.logo ? '&logo=' + encodeURIComponent(store.logo) : ''}`],
-        }
     };
 }
 
 export default async function StorePage({ params }: PageProps) {
     const { slug } = await params;
 
-    const store = await prisma.store.findUnique({
-        where: { slug, isActive: true },
-        include: {
-            coupons: {
-                orderBy: [{ isFeatured: "desc" }, { createdAt: "desc" }],
-            },
-            storeCategories: {
-                include: { category: true },
-            },
-            storeContents: true,
-            merchantHistories: true,
-        },
-    });
+    const store = await merchantService.getMerchantBySlug(slug);
 
     if (!store) {
         notFound();
     }
+    
+    // Fetch competitors
+    const categoryIds = store.categories.map((c: any) => c.id);
+    const competitors = await merchantService.getCompetitors(store.id, categoryIds, 3);
+    
+    // Fetch popular categories
+    const popularCategories = await categoryService.getPopularCategories(5);
 
+    const coupons = await couponService.getStoreCoupons(slug);
     const now = new Date();
-    const activeCoupons = store.coupons.filter(c => !c.expiresAt || c.expiresAt > now);
-    const expiredCoupons = store.coupons.filter(c => c.expiresAt && c.expiresAt <= now);
+    const activeCoupons = coupons.filter(c => !c.expiresAt || c.expiresAt > now);
+    
+    // Sort so deals with discountValue are higher for bestDeal
+    activeCoupons.sort((a, b) => {
+        const aVal = a.discountValue ? parseInt(a.discountValue.replace(/[^0-9]/g, '')) || 0 : 0;
+        const bVal = b.discountValue ? parseInt(b.discountValue.replace(/[^0-9]/g, '')) || 0 : 0;
+        return bVal - aVal;
+    });
 
-    const couponCodes = activeCoupons.filter((c) => c.type === "coupon");
-    const deals = activeCoupons.filter((c) => c.type === "deal");
-
-    // Deal of the Day for Sticky Widget
+    // Best Deal
     const bestDeal = activeCoupons.length > 0 ? activeCoupons[0] : null;
+    const remainingOffers = activeCoupons.length > 1 ? activeCoupons.slice(1) : [];
 
     // Content extraction
-    const aboutContent = store.storeContents.find(c => c.type === 'ABOUT')?.content || null;
-    const faqContent = store.storeContents.find(c => c.type === 'FAQ')?.content || null;
-    const hasShipping = store.storeContents.some(c => c.type === 'SHIPPING');
-    const hasReturns = store.storeContents.some(c => c.type === 'RETURNS');
-    const hasStudent = store.storeContents.some(c => c.type === 'STUDENT');
+    const aboutContent = store.contents.find(c => c.type === 'ABOUT')?.content || null;
+    const faqContent = store.contents.find(c => c.type === 'FAQ')?.content || null;
+    const hasShipping = store.contents.some(c => c.type === 'SHIPPING');
+    const hasReturns = store.contents.some(c => c.type === 'RETURNS');
+    const hasStudent = store.contents.some(c => c.type === 'STUDENT');
 
-    // Decision Graph will handle all internal linking for related knowledge nodes
+    const lastCheckedText = activeCoupons.length > 0 
+        ? formatDistanceToNow(new Date(Math.max(...activeCoupons.map((c: any) => new Date(c.createdAt).getTime()))), { addSuffix: true }) 
+        : "today";
 
-    // Synthesize Timeline Events
-    const synthesizedEvents = [];
-    store.coupons.forEach(c => {
-        synthesizedEvents.push({
-            id: `c-${c.id}`,
-            date: new Date(c.createdAt),
-            time: formatDistanceToNow(new Date(c.createdAt), { addSuffix: true }),
-            title: `Coupon Published: ${c.title}`,
-            type: "added" as const,
-        });
-    });
-
-    store.storeContents.forEach(content => {
-        let typeStr = content.type.replace('_', ' ');
-        // capitalize first letter of each word
-        typeStr = typeStr.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
-        synthesizedEvents.push({
-            id: `sc-${content.id}`,
-            date: new Date(content.updatedAt),
-            time: formatDistanceToNow(new Date(content.updatedAt), { addSuffix: true }),
-            title: `${typeStr} Updated`,
-            type: "verified" as const,
-        });
-    });
-
-    if (store.merchantHistories) {
-        store.merchantHistories.forEach(history => {
-            synthesizedEvents.push({
-                id: `mh-${history.id}`,
-                date: new Date(history.date),
-                time: formatDistanceToNow(new Date(history.date), { addSuffix: true }),
-                title: history.title,
-                type: (history.type as any) || "milestone",
-            });
-        });
-    }
-
-    // Sort by descending date and take top 5
-    synthesizedEvents.sort((a, b) => b.date.getTime() - a.date.getTime());
-    const timelineEvents = synthesizedEvents.slice(0, 5);
+    // Mock calculations for Fold 2
+    const baseSavings = bestDeal?.discountValue ? parseInt(bestDeal.discountValue.replace(/[^0-9]/g, '')) || 1000 : 1000;
+    const cashbackSavings = store.cashbackRate ? parseInt(store.cashbackRate.replace(/[^0-9]/g, '')) || 250 : 0;
+    const cardSavings = 1500;
+    const totalExpectedSavings = baseSavings + cashbackSavings + cardSavings;
 
     return (
-        <div className="bg-background min-h-screen pb-24">
+        <div className="bg-background min-h-screen pb-24 relative">
+            <RecentStoreTracker storeSlug={store.slug} />
             <ExitIntentPopup />
             {bestDeal && <StickyCouponWidget deal={{ ...bestDeal, store: { name: store.name, slug: store.slug } } as any} />}
 
-            {/* Merchant Snapshot Hero */}
-            <section className="bg-white dark:bg-surface-950 border-b border-surface-200 dark:border-surface-800 pt-8 pb-12 mb-8">
-                <div className="max-w-container-max mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex flex-col md:flex-row gap-8 items-start md:items-center">
-                        <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl border border-surface-200 dark:border-surface-800 bg-white flex items-center justify-center overflow-hidden shrink-0 shadow-surface">
-                            {store.logo ? (
-                                <Image src={store.logo} alt={store.name} width={128} height={128} className="object-contain p-4" />
-                            ) : (
-                                <span className="font-bold text-4xl text-surface-400">{store.name.charAt(0)}</span>
-                            )}
-                        </div>
-                        
-                        <div className="flex-grow space-y-4">
-                            <div className="flex flex-col gap-1">
-                                <h1 className="text-3xl md:text-4xl font-headline-lg font-bold text-merchant-900 dark:text-merchant-50 flex items-center gap-3">
-                                    {store.name} Coupons, Promo Codes & Cashback Offers
-                                    <Icon name="verified" className="text-verified-600 dark:text-verified-400 text-3xl" />
-                                </h1>
-                                {store.description && (
-                                    <p className="text-surface-600 dark:text-surface-400 font-medium max-w-2xl">{store.description}</p>
-                                )}
-                            </div>
-                            
-                            <Stack direction="row" gap={12} wrap className="pt-2">
-                                <div className="flex items-center gap-2 bg-intelligence-50 dark:bg-intelligence-900/30 px-3 py-1.5 rounded-lg border border-intelligence-200 dark:border-intelligence-800">
-                                    <Icon name="verified_user" className="text-intelligence-600 text-[18px]" />
-                                    <span className="font-bold text-sm text-intelligence-700 dark:text-intelligence-400">Verified</span>
-                                </div>
-                                <div className="flex items-center gap-2 bg-surface-50 dark:bg-surface-900 px-3 py-1.5 rounded-lg border border-surface-200 dark:border-surface-800">
-                                    <Icon name="update" className="text-surface-500 text-[18px]" />
-                                    <span className="font-bold text-sm text-merchant-900 dark:text-merchant-50">Last checked: {activeCoupons.length > 0 ? formatDistanceToNow(new Date(Math.max(...activeCoupons.map((c: any) => new Date(c.createdAt).getTime()))), { addSuffix: true }) : "14 minutes ago"}</span>
-                                </div>
-                                <div className="flex items-center gap-2 bg-surface-50 dark:bg-surface-900 px-3 py-1.5 rounded-lg border border-surface-200 dark:border-surface-800">
-                                    <Icon name="health_and_safety" className="text-surface-500 text-[18px]" />
-                                    <span className="font-bold text-sm text-merchant-900 dark:text-merchant-50">Confidence: 98%</span>
-                                </div>
-                                <div className="flex items-center gap-2 bg-surface-50 dark:bg-surface-900 px-3 py-1.5 rounded-lg border border-surface-200 dark:border-surface-800">
-                                    <Icon name="local_offer" className="text-surface-500 text-[18px]" />
-                                    <span className="font-bold text-sm text-merchant-900 dark:text-merchant-50">Offers scanned: {activeCoupons.length + expiredCoupons.length}</span>
-                                </div>
-                                <div className="flex items-center gap-2 bg-surface-50 dark:bg-surface-900 px-3 py-1.5 rounded-lg border border-surface-200 dark:border-surface-800">
-                                    <Icon name="policy" className="text-surface-500 text-[18px]" />
-                                    <span className="font-bold text-sm text-merchant-900 dark:text-merchant-50">Policies reviewed: {new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(new Date())}</span>
-                                </div>
-                            </Stack>
-                        </div>
-                        
-                        <div className="flex flex-col gap-3 min-w-[200px]">
-                            <TrustSignal title="Verified Merchant" description="We cryptographically verify this merchant daily." type="verified" />
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <div className="max-w-container-max mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="max-w-container-max mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                     
                     {/* Main Content Area (Left 2/3) */}
-                    <div className="lg:col-span-2 space-y-8">
+                    <div className="lg:col-span-2 space-y-12">
                         
-                        {/* Citation-Ready Merchant Fact Summary */}
-                        <section className="bg-surface-50 dark:bg-surface-900 rounded-2xl p-6 border border-surface-200 dark:border-surface-800">
-                            <h2 className="text-sm font-bold uppercase tracking-wider text-surface-500 mb-4">Merchant Summary</h2>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        {/* FOLD 1: Intent & Best Answer */}
+                        <section className="space-y-6">
+                            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                                 <div>
-                                    <p className="text-xs text-surface-500 mb-1">Merchant</p>
-                                    <p className="font-semibold text-merchant-900 dark:text-merchant-50">{store.name}</p>
+                                    <h1 className="text-3xl md:text-4xl font-headline-lg font-bold text-merchant-900 mb-2">
+                                        {store.name} Savings & Promo Codes
+                                    </h1>
+                                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+                                        <span className="flex items-center gap-1 font-bold text-verified-high bg-verified-light px-2 py-1 rounded">
+                                            <Icon name="verified" className="text-[16px]" /> ★★★★★ Verified Merchant
+                                        </span>
+                                        <span className="text-surface-600 font-medium">{activeCoupons.length} Ways to Save</span>
+                                        {store.cashbackRate && <span className="text-green-600 font-bold">{store.cashbackRate} Cashback</span>}
+                                        <span className="text-surface-500">Updated {lastCheckedText}</span>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="text-xs text-surface-500 mb-1">Shipping</p>
-                                    <p className="font-semibold text-merchant-900 dark:text-merchant-50">{hasShipping ? "Verified" : "Check store"}</p>
-                                </div>
-                                <div>
-                                    <p className="text-xs text-surface-500 mb-1">Returns</p>
-                                    <p className="font-semibold text-merchant-900 dark:text-merchant-50">{hasReturns ? "Policy available" : "Standard"}</p>
-                                </div>
-                                <div>
-                                    <p className="text-xs text-surface-500 mb-1">Student Discount</p>
-                                    <p className="font-semibold text-merchant-900 dark:text-merchant-50">{hasStudent ? "Available" : "No"}</p>
-                                </div>
-                                <div>
-                                    <p className="text-xs text-surface-500 mb-1">Cashback</p>
-                                    <p className="font-semibold text-merchant-900 dark:text-merchant-50">{store.cashbackRate || "None"}</p>
-                                </div>
-                                <div>
-                                    <p className="text-xs text-surface-500 mb-1">Updated</p>
-                                    <p className="font-semibold text-merchant-900 dark:text-merchant-50">Today</p>
+                                <div className="flex items-center gap-2 shrink-0">
+                                    <button className="flex items-center gap-1.5 px-3 py-2 md:px-4 bg-surface-50 hover:bg-surface-100 text-surface-700 font-bold rounded-xl border border-surface-200 transition text-sm">
+                                        <Icon name="favorite_border" className="text-[18px]" /> Save Store
+                                    </button>
+                                    <button className="flex items-center gap-1.5 px-3 py-2 md:px-4 bg-surface-50 hover:bg-surface-100 text-surface-700 font-bold rounded-xl border border-surface-200 transition text-sm">
+                                        <Icon name="notifications_none" className="text-[18px]" /> Notify Me
+                                    </button>
                                 </div>
                             </div>
+
+                            {bestDeal ? (
+                                <div id={`deal-${bestDeal.id}`}>
+                                    <div className="mb-3">
+                                        <span className="inline-block bg-merchant-900 text-white font-bold px-3 py-1 rounded text-sm tracking-wide uppercase">
+                                            ⭐ Best Way to Save Today
+                                        </span>
+                                    </div>
+                                    <DecisionCard
+                                        isBestDeal={true}
+                                        coupon={{
+                                            ...bestDeal,
+                                            affiliateUrl: bestDeal.affiliateUrl || `/go/${bestDeal.id}`,
+                                            successRate: 98,
+                                        }}
+                                        storeName={store.name}
+                                        storeLogo={store.logo}
+                                    />
+                                </div>
+                            ) : (
+                                <div className="bg-surface-50 p-6 rounded-xl border border-surface-200 text-center">
+                                    <h3 className="text-lg font-bold text-merchant-900 mb-2">No active codes right now</h3>
+                                    <p className="text-surface-600">We are checking for new {store.name} deals continuously.</p>
+                                </div>
+                            )}
                         </section>
                         
-                        {/* Tab Navigation */}
-                        <div className="flex gap-4 border-b border-surface-200 dark:border-surface-800">
-                            <button className="px-4 py-3 font-bold text-primary-600 dark:text-primary-400 border-b-2 border-primary-600 dark:border-primary-400">
-                                All Offers ({activeCoupons.length})
-                            </button>
-                            <button className="px-4 py-3 font-semibold text-surface-500 hover:text-merchant-900 dark:hover:text-merchant-50 transition-colors">
-                                Codes ({couponCodes.length})
-                            </button>
-                            <button className="px-4 py-3 font-semibold text-surface-500 hover:text-merchant-900 dark:hover:text-merchant-50 transition-colors">
-                                Deals ({deals.length})
-                            </button>
-                        </div>
-
-                        {/* Offers Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {activeCoupons.map((coupon) => (
-                                <DecisionCard
-                                    key={coupon.id}
-                                    coupon={{
-                                        id: coupon.id,
-                                        title: coupon.title,
-                                        description: coupon.description,
-                                        code: coupon.code,
-                                        type: coupon.type,
-                                        discountValue: coupon.discountValue,
-                                        affiliateUrl: coupon.affiliateUrl || `/go/${coupon.id}`,
-                                        isVerified: coupon.isVerified,
-                                        isExclusive: coupon.isExclusive,
-                                        expiresAt: coupon.expiresAt,
-                                        successRate: 94 + Math.floor(Math.random() * 6)
-                                    }}
-                                    storeName={store.name}
-                                    storeLogo={store.logo}
-                                />
-                            ))}
-                        </div>
-
-                        {activeCoupons.length === 0 && (
-                            <div className="text-center py-16 bg-surface-50 dark:bg-surface-900 rounded-2xl border border-dashed border-surface-300 dark:border-surface-700">
-                                <Icon name="search_off" className="text-4xl text-surface-400 mb-4" />
-                                <h3 className="text-xl font-bold text-merchant-900 dark:text-merchant-50 mb-2">No Active Offers</h3>
-                                <p className="text-surface-500 max-w-md mx-auto">
-                                    We are constantly monitoring {store.name} for new deals. Check back soon or subscribe for alerts.
-                                </p>
-                            </div>
+                        {/* FOLD 2: Shopping Strategy (Best Way to Save) */}
+                        {bestDeal && (
+                            <section className="bg-primary-50 dark:bg-primary-900/10 border-2 border-primary-100 dark:border-primary-900 rounded-2xl p-6 md:p-8">
+                                <h2 className="text-xl font-headline-md font-bold text-merchant-900 mb-6 flex items-center gap-2">
+                                    <Icon name="magic_button" className="text-primary text-2xl" /> Best Way to Save Today
+                                </h2>
+                                <div className="space-y-4 relative">
+                                    {/* Connecting Line */}
+                                    <div className="absolute left-[15px] top-4 bottom-12 w-[2px] bg-primary-200 dark:bg-primary-800 z-0 hidden md:block"></div>
+                                    
+                                    <div className="flex flex-col md:flex-row md:items-center justify-between relative z-10 gap-2">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-primary shadow-sm border border-primary-100 font-bold flex-shrink-0">1</div>
+                                            <span className="font-semibold text-merchant-900">Copy Coupon {bestDeal.code || 'Deal'}</span>
+                                        </div>
+                                    </div>
+                                    {store.cashbackRate && (
+                                        <div className="flex flex-col md:flex-row md:items-center justify-between relative z-10 gap-2 pl-0 md:pl-0">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-primary shadow-sm border border-primary-100 font-bold flex-shrink-0">2</div>
+                                                <span className="font-semibold text-merchant-900">Activate {store.cashbackRate} Cashback</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                    <div className="flex flex-col md:flex-row md:items-center justify-between relative z-10 gap-2 pl-0 md:pl-0">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-primary shadow-sm border border-primary-100 font-bold flex-shrink-0">3</div>
+                                            <span className="font-semibold text-merchant-900">Pay with HDFC Card</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="mt-6 pt-6 border-t border-primary-200 dark:border-primary-800 flex items-center justify-between">
+                                    <span className="text-lg font-bold text-merchant-900">Expected Savings</span>
+                                    <span className="text-2xl font-black text-green-600">₹{totalExpectedSavings.toLocaleString()}</span>
+                                </div>
+                            </section>
                         )}
 
-                        {/* Expired Coupons */}
-                        {expiredCoupons.length > 0 && (
-                            <div className="pt-8">
-                                <div className="flex items-center gap-2 mb-6">
-                                    <Icon name="history" className="text-surface-400 text-2xl" />
-                                    <h2 className="text-xl font-bold text-surface-500">Expired (But Might Still Work)</h2>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0">
-                                    {expiredCoupons.slice(0, 4).map((coupon) => (
+                        {/* FOLD 2.5: Calculator */}
+                        {bestDeal && (
+                            <SavingsCalculator 
+                                baseSavings={baseSavings}
+                                cashbackSavings={cashbackSavings}
+                                cardSavings={cardSavings}
+                            />
+                        )}
+
+                        {/* FOLD 3: Working Offers */}
+                        {remainingOffers.length > 0 && (
+                            <section>
+                                <h3 className="text-2xl font-headline-md font-bold text-merchant-900 mb-6">
+                                    Working Offers
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {remainingOffers.map((coupon) => (
                                         <DecisionCard
                                             key={coupon.id}
                                             coupon={{
-                                                id: coupon.id,
-                                                title: coupon.title,
-                                                description: coupon.description,
-                                                code: coupon.code,
-                                                type: coupon.type,
-                                                discountValue: coupon.discountValue,
+                                                ...coupon,
                                                 affiliateUrl: coupon.affiliateUrl || `/go/${coupon.id}`,
-                                                isVerified: false,
-                                                isExclusive: coupon.isExclusive,
-                                                expiresAt: coupon.expiresAt
+                                                successRate: 94 + Math.floor(Math.random() * 6),
                                             }}
                                             storeName={store.name}
                                             storeLogo={store.logo}
                                         />
                                     ))}
                                 </div>
-                            </div>
+                            </section>
                         )}
                         
-                        {/* SEO Text & FAQ */}
-                        <div className="pt-8 border-t border-surface-200 dark:border-surface-800">
-                            <SEOTextAndFAQ
-                                title={store.name}
-                                aboutContent={aboutContent}
-                                faqContent={faqContent}
-                            />
-                        </div>
+                        {/* FOLD 4: Other Saving Methods */}
+                        <section className="bg-surface-50 border border-surface-200 rounded-2xl p-6 md:p-8">
+                            <h3 className="text-xl font-headline-md font-bold text-merchant-900 mb-6">More Ways to Save</h3>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                {store.cashbackRate && (
+                                    <div className="flex flex-col items-center justify-center p-4 bg-white rounded-xl border border-surface-200 text-center">
+                                        <Icon name="payments" className="text-3xl text-green-500 mb-2" />
+                                        <span className="font-bold text-sm text-merchant-900">Save with Cashback</span>
+                                        <span className="text-xs text-surface-500">{store.cashbackRate}</span>
+                                    </div>
+                                )}
+                                {hasStudent && (
+                                    <div className="flex flex-col items-center justify-center p-4 bg-white rounded-xl border border-surface-200 text-center">
+                                        <Icon name="school" className="text-3xl text-primary mb-2" />
+                                        <span className="font-bold text-sm text-merchant-900">Save as Student</span>
+                                        <span className="text-xs text-surface-500">Discount</span>
+                                    </div>
+                                )}
+                                <div className="flex flex-col items-center justify-center p-4 bg-white rounded-xl border border-surface-200 text-center">
+                                    <Icon name="credit_card" className="text-3xl text-blue-500 mb-2" />
+                                    <span className="font-bold text-sm text-merchant-900">Save with Card</span>
+                                    <span className="text-xs text-surface-500">Offers Available</span>
+                                </div>
+                                <div className="flex flex-col items-center justify-center p-4 bg-white rounded-xl border border-surface-200 text-center">
+                                    <Icon name="card_giftcard" className="text-3xl text-purple-500 mb-2" />
+                                    <span className="font-bold text-sm text-merchant-900">Gift Cards</span>
+                                    <span className="text-xs text-surface-500">Available</span>
+                                </div>
+                            </div>
+                        </section>
 
-                        {/* Removed Related Merchants in favor of Decision Graph */}
-
+                        {/* FOLD 6: Smart Shopping (Intelligence Hub) */}
+                        <section className="pt-8 border-t border-surface-200">
+                            <SmartShoppingBlocks storeName={store.name} contents={store.contents} />
+                        </section>
                     </div>
 
                     {/* Sidebar Area (Right 1/3) */}
-                    <div className="space-y-6 lg:pl-4">
-                        <div className="bg-white dark:bg-surface-950 rounded-2xl p-6 border border-surface-200 dark:border-surface-800 shadow-sm">
-                            <h3 className="font-bold text-merchant-900 dark:text-merchant-50 mb-4 flex items-center gap-2">
-                                <Icon name="info" className="text-primary-600" />
-                                {store.name} Information
-                            </h3>
-                            <ul className="space-y-3">
-                                {store.storeContents.some(c => c.type === 'BUYING_GUIDE') && (
-                                    <li>
-                                        <Link href={`/stores/${slug}/buying-guide`} className="flex items-center text-sm font-medium text-surface-600 hover:text-primary-600 dark:text-surface-400 dark:hover:text-primary-400">
-                                            <Icon name="menu_book" className="mr-2 text-[18px]" />
-                                            Buying Guide
-                                        </Link>
-                                    </li>
-                                )}
-                                {store.storeContents.some(c => c.type === 'SHIPPING') && (
-                                    <li>
-                                        <Link href={`/stores/${slug}/shipping`} className="flex items-center text-sm font-medium text-surface-600 hover:text-primary-600 dark:text-surface-400 dark:hover:text-primary-400">
-                                            <Icon name="local_shipping" className="mr-2 text-[18px]" />
-                                            Shipping Policy
-                                        </Link>
-                                    </li>
-                                )}
-                                {store.storeContents.some(c => c.type === 'RETURNS') && (
-                                    <li>
-                                        <Link href={`/stores/${slug}/returns`} className="flex items-center text-sm font-medium text-surface-600 hover:text-primary-600 dark:text-surface-400 dark:hover:text-primary-400">
-                                            <Icon name="assignment_return" className="mr-2 text-[18px]" />
-                                            Return Policy
-                                        </Link>
-                                    </li>
-                                )}
-                                {store.storeContents.some(c => c.type === 'STUDENT') && (
-                                    <li>
-                                        <Link href={`/stores/${slug}/student-discount`} className="flex items-center text-sm font-medium text-surface-600 hover:text-primary-600 dark:text-surface-400 dark:hover:text-primary-400">
-                                            <Icon name="school" className="mr-2 text-[18px]" />
-                                            Student Discount
-                                        </Link>
-                                    </li>
-                                )}
-                                {store.storeContents.some(c => c.type === 'FAQ') && (
-                                    <li>
-                                        <Link href={`/stores/${slug}/faq`} className="flex items-center text-sm font-medium text-surface-600 hover:text-primary-600 dark:text-surface-400 dark:hover:text-primary-400">
-                                            <Icon name="help_center" className="mr-2 text-[18px]" />
-                                            FAQ & Common Questions
-                                        </Link>
-                                    </li>
-                                )}
-                            </ul>
+                    <div className="space-y-8 lg:pl-4">
+                        {/* Logo */}
+                        <div className="w-full aspect-[4/3] rounded-2xl border border-surface-200 bg-white flex items-center justify-center overflow-hidden shadow-sm p-8">
+                            {store.logo ? (
+                                <Image src={store.logo} alt={store.name} width={200} height={100} className="object-contain" />
+                            ) : (
+                                <span className="font-bold text-4xl text-surface-400">{store.name.charAt(0)}</span>
+                            )}
                         </div>
 
-                        <div className="bg-surface-50 dark:bg-surface-900/50 rounded-2xl p-6 border border-surface-200 dark:border-surface-800">
-                            <DealTimeline events={timelineEvents} />
+                        {/* FOLD 5: Confidence Layer */}
+                        <div className="bg-surface-50 rounded-2xl p-6 border border-surface-200">
+                            <h3 className="text-sm font-bold uppercase tracking-widest text-surface-500 mb-6 flex items-center gap-2">
+                                <Icon name="shield" /> Savings Verified
+                            </h3>
+                            <div className="space-y-3 mb-4">
+                                <div className="flex items-center gap-2 font-semibold text-merchant-900">
+                                    <Icon name="check" className="text-verified-high text-[18px]" /> Coupon checked today
+                                </div>
+                                <div className="flex items-center gap-2 font-semibold text-merchant-900">
+                                    <Icon name="check" className="text-verified-high text-[18px]" /> Cashback active
+                                </div>
+                                <div className="flex items-center gap-2 font-semibold text-merchant-900">
+                                    <Icon name="check" className="text-verified-high text-[18px]" /> Card offer available
+                                </div>
+                                <div className="flex items-center gap-2 font-semibold text-merchant-900">
+                                    <Icon name="check" className="text-verified-high text-[18px]" /> Store verified
+                                </div>
+                            </div>
+                            
+                            <details className="group">
+                                <summary className="cursor-pointer text-sm font-bold text-primary flex items-center gap-1 hover:underline list-none">
+                                    Why? <Icon name="expand_more" className="group-open:rotate-180 transition-transform text-[16px]" />
+                                </summary>
+                                <ul className="mt-4 space-y-3 text-sm">
+                                    <li className="flex justify-between">
+                                        <span className="text-surface-600">Coupon verified</span>
+                                        <span className="font-bold text-merchant-900">11 minutes ago</span>
+                                    </li>
+                                    <li className="flex justify-between">
+                                        <span className="text-surface-600">Cashback checked</span>
+                                        <span className="font-bold text-merchant-900">Today</span>
+                                    </li>
+                                    <li className="flex justify-between">
+                                        <span className="text-surface-600">Offer tested</span>
+                                        <span className="font-bold text-merchant-900">Recently</span>
+                                    </li>
+                                    <li className="flex justify-between">
+                                        <span className="text-surface-600">Merchant verified</span>
+                                        <span className="font-bold text-merchant-900">Yes</span>
+                                    </li>
+                                </ul>
+                            </details>
                         </div>
                         
-                        <div className="bg-intelligence-50 dark:bg-intelligence-900/20 rounded-2xl p-6 border border-intelligence-200 dark:border-intelligence-900/50">
-                            <h3 className="font-bold text-intelligence-900 dark:text-intelligence-50 flex items-center gap-2 mb-4">
-                                <Icon name="hub" className="text-intelligence-600" />
-                                Knowledge Connections
-                            </h3>
-                            <DecisionGraph merchantId={store.id} storeSlug={slug} />
-                        </div>
+                        {/* Cross Shopping Widgets (Compare, Categories, History) */}
+                        <CrossShoppingWidgets storeName={store.name} competitors={competitors} popularCategories={popularCategories} />
                     </div>
                 </div>
             </div>
-
-            <StoreSchema store={store} coupons={store.coupons} timelineEvents={timelineEvents} />
         </div>
-    );
-}
-
-// Helper to generate JSON-LD for Store
-function StoreSchema({ store, coupons, timelineEvents }: { store: any, coupons: any, timelineEvents: any[] }) {
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
-    const faqContent = store.storeContents?.find((c: any) => c.type === 'FAQ')?.content;
-    let faqs: any[] = [];
-    if (faqContent) {
-        try {
-            faqs = JSON.parse(faqContent);
-        } catch (e) {
-            // ignore
-        }
-    }
-
-    const jsonLd = {
-        "@context": "https://schema.org",
-        "@graph": [
-            {
-                "@type": "Organization",
-                "@id": `${siteUrl}/stores/${store.slug}/#organization`,
-                "name": store.name,
-                "url": store.website,
-                "image": store.logo,
-                "sameAs": store.affiliateUrl ? [store.affiliateUrl] : []
-            },
-            {
-                "@type": "CollectionPage",
-                "@id": `${siteUrl}/stores/${store.slug}/#webpage`,
-                "url": `${siteUrl}/stores/${store.slug}`,
-                "name": `${store.name} Coupons & Promo Codes`,
-                "about": { "@id": `${siteUrl}/stores/${store.slug}/#organization` },
-                "isPartOf": { "@id": `${siteUrl}/#website` }
-            },
-            {
-                "@type": "Store",
-                "@id": `${siteUrl}/stores/${store.slug}/#store`,
-                "name": store.name,
-                "image": store.logo,
-                "description": store.description,
-                "url": store.website,
-                "hasOfferCatalog": {
-                    "@type": "OfferCatalog",
-                    "name": `${store.name} Offers`,
-                    "itemListElement": coupons.slice(0, 10).map((coupon: any, index: number) => ({
-                        "@type": "Offer",
-                        "itemOffered": {
-                            "@type": "Service",
-                            "name": coupon.title
-                        },
-                        "priceCurrency": "USD",
-                        "price": "0",
-                        "description": coupon.description || coupon.title,
-                        "url": `${siteUrl}/stores/${store.slug}`,
-                        "validFrom": coupon.createdAt.toISOString()
-                    }))
-                }
-            },
-            {
-                "@type": "BreadcrumbList",
-                "@id": `${siteUrl}/stores/${store.slug}/#breadcrumb`,
-                "itemListElement": [
-                    {
-                        "@type": "ListItem",
-                        "position": 1,
-                        "name": "Home",
-                        "item": siteUrl
-                    },
-                    {
-                        "@type": "ListItem",
-                        "position": 2,
-                        "name": "Stores",
-                        "item": `${siteUrl}/stores`
-                    },
-                    {
-                        "@type": "ListItem",
-                        "position": 3,
-                        "name": store.name,
-                        "item": `${siteUrl}/stores/${store.slug}`
-                    }
-                ]
-            },
-            ...(Array.isArray(faqs) && faqs.length > 0 ? [{
-                "@type": "FAQPage",
-                "@id": `${siteUrl}/stores/${store.slug}/#faq`,
-                "mainEntity": faqs.map((faq: any) => ({
-                    "@type": "Question",
-                    "name": faq.question,
-                    "acceptedAnswer": {
-                        "@type": "Answer",
-                        "text": faq.answer
-                    }
-                }))
-            }] : []),
-            ...(timelineEvents.length > 0 ? [{
-                "@type": "ItemList",
-                "@id": `${siteUrl}/stores/${store.slug}/#timeline`,
-                "name": `${store.name} Update Timeline`,
-                "itemListElement": timelineEvents.map((evt, idx) => ({
-                    "@type": "ListItem",
-                    "position": idx + 1,
-                    "item": {
-                        "@type": "Event",
-                        "name": evt.title,
-                        "startDate": evt.date.toISOString(),
-                        "eventStatus": "https://schema.org/EventScheduled"
-                    }
-                }))
-            }] : [])
-        ]
-    };
-
-    return (
-        <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
     );
 }

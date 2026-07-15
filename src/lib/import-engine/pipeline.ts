@@ -1,36 +1,51 @@
 import { prisma } from "@/lib/db";
 import { AffiliateConnector } from "./types";
-import { Validator } from "./validator";
+import { OfferValidator } from "./validator";
 import { Deduplicator } from "./deduplicator";
 import { QualityEngine } from "./quality-engine";
 import { MerchantResolver } from "./merchant-resolver";
 import { notificationEngine } from "@/lib/notifications";
 import { logger } from "@/lib/logger";
+import { evaluateAutoPublish } from "./publish-policy";
+import { PublishService } from "./publish-service";
+import { EnrichmentHook } from "./types";
+import { DomainNormalizerHook } from "./hooks/domain-normalizer.hook";
 
 export class ImportPipeline {
-  private validator = new Validator();
+  private validator = new OfferValidator();
   private deduplicator = new Deduplicator();
   private qualityEngine = new QualityEngine();
   private resolver = new MerchantResolver();
+  private publishService = new PublishService();
+  private hooks: EnrichmentHook[] = [new DomainNormalizerHook()];
 
   /**
    * Executes an import run using the provided connector.
+   * @param publish - If false, runs in dry-run mode and doesn't auto-publish
    */
-  async run(connector: AffiliateConnector, connectorVersion: string = "v1.0"): Promise<string> {
+  async run(connector: AffiliateConnector, connectorVersion: string = "v1.0", publish: boolean = true): Promise<string> {
     const startTime = Date.now();
     
-    // 1. Create the ImportJob record
+    // 1. Create the ImportJob & ConnectorRun records
     const importJob = await prisma.importJob.create({
       data: {
-        source: connector.sourceId,
+        source: connector.id,
         status: "PROCESSING",
         startedAt: new Date(),
         connectorVersion
       }
     });
 
+    const connectorRun = await prisma.connectorRun.create({
+      data: {
+        connector: connector.id,
+        startedAt: new Date(),
+        status: "RUNNING"
+      }
+    });
+
     const childLogger = logger.child({ 
-      connector: connector.sourceId, 
+      connector: connector.id, 
       jobId: importJob.id 
     });
 
@@ -40,17 +55,33 @@ export class ImportPipeline {
     let validRows = 0;
     let duplicates = 0;
     let totalQuality = 0;
-    
+    let autoPublishedCount = 0;
     let pagesFetched = 0;
     
     try {
-      await connector.connect();
+      if (connector.authenticate) {
+        await connector.authenticate();
+      }
+
+      // 1.5 Determine Incremental Sync
+      let since: Date | undefined = undefined;
+      if (connector.manifest?.supportsIncrementalSync) {
+        const lastRun = await prisma.connectorRun.findFirst({
+            where: { connector: connector.id, status: "COMPLETED" },
+            orderBy: { finishedAt: "desc" }
+        });
+        if (lastRun?.finishedAt) {
+            since = lastRun.finishedAt;
+            childLogger.info({ since }, "Using incremental sync");
+        }
+      }
+
+      const seenOfferIds = new Set<string>();
 
       // 2. Fetch & Stream Raw Data
-      for await (const pageOrRow of connector.fetch()) {
+      for await (const pageOrRow of connector.fetch(undefined, since)) {
         pagesFetched++;
         
-        // Handle case where connector yields arrays (pages) or single rows
         const rows = Array.isArray(pageOrRow) ? pageOrRow : [pageOrRow];
         childLogger.info({ page: pagesFetched, count: rows.length }, "Fetched page");
         
@@ -59,61 +90,68 @@ export class ImportPipeline {
           
           try {
             // 3. Normalize
-            const normalized = connector.normalize(rawData);
+            let normalized = await connector.normalize(rawData);
             
-            // 4. Initial Connector Validation (e.g. malformed rows)
-            let validationErrors = connector.validate(normalized);
-            
-            // 4.5 Merchant Resolution
-            let storeId: string | undefined = undefined;
-            let suggestedStoreId: string | null = null;
-            let resolutionReason: string | null = null;
-            let resolutionSource: string | null = null;
-            let resolutionConfidence: any = null;
+            // 3.5 Enrichment Hooks
+            for (const hook of this.hooks) {
+                normalized = await hook.execute(normalized);
+            }
 
-            const resolution = await this.resolver.resolve(normalized.merchantName, normalized.storeUrl);
-            
-            if (resolution.storeId) {
-              storeId = resolution.storeId;
-              
-              // Auto-create alias for highly confident fuzzy matches
-              if (resolution.confidence >= 98 && resolution.reason === 'High Confidence Fuzzy Match') {
-                try {
-                  await prisma.merchantAlias.upsert({
-                    where: { merchantId_alias: { merchantId: storeId, alias: normalized.merchantName } },
-                    update: { lastSeenAt: new Date() },
-                    create: {
-                      merchantId: storeId,
-                      alias: normalized.merchantName,
-                      normalizedAlias: MerchantResolver.normalize(normalized.merchantName),
-                      source: connector.sourceId,
-                      confidence: 98,
-                    }
-                  });
-                } catch (e) {
-                  // Ignore unique constraint errors
-                }
-              }
-            } else if (resolution.suggestedStoreId) {
-              suggestedStoreId = resolution.suggestedStoreId;
+            if (normalized.provenance.connectorOfferId) {
+                seenOfferIds.add(normalized.provenance.connectorOfferId);
             }
             
-            resolutionReason = resolution.reason;
-            resolutionSource = resolution.resolutionSource || null;
-            resolutionConfidence = resolution.signals;
-
+            // 4. Initial Connector Validation
+            let validationResult = connector.validate(normalized);
+            let validationErrors = validationResult.errors;
+            
+            // 4.5 Merchant Resolution
+            let identityId: string | undefined = undefined;
+            let suggestedIdentityId: string | null = null;
+            
+            const resolution = await this.resolver.resolve(normalized.merchantName, normalized.storeUrl);
+            
+            if (resolution.identityId) {
+              identityId = resolution.identityId;
+              
+              // If it's highly confident fuzzy, we can automatically learn the alias
+              if (resolution.confidence >= 98 && resolution.reason === 'High Confidence Fuzzy Match') {
+                try {
+                  const identity = await prisma.merchantIdentity.findUnique({ where: { id: identityId } });
+                  if (identity?.canonicalStoreId) {
+                    await prisma.merchantAlias.upsert({
+                      where: { merchantId_alias: { merchantId: identity.canonicalStoreId, alias: normalized.merchantName } },
+                      update: { lastSeenAt: new Date() },
+                      create: {
+                        merchantId: identity.canonicalStoreId,
+                        alias: normalized.merchantName,
+                        normalizedAlias: MerchantResolver.normalize(normalized.merchantName),
+                        source: connector.id,
+                        confidence: 98,
+                      }
+                    });
+                  }
+                } catch (e) {
+                  // Ignore unique constraint
+                }
+              }
+            } else if (resolution.suggestedIdentityId) {
+              suggestedIdentityId = resolution.suggestedIdentityId;
+            }
+            
             // Fetch the store for full pipeline validation
-            const store = storeId ? await prisma.store.findUnique({ where: { id: storeId }}) : null;
+            const identity = identityId ? await prisma.merchantIdentity.findUnique({ where: { id: identityId }, include: { store: true }}) : null;
+            const store = identity?.store || null;
 
             // 5. Full Pipeline Validation
-            const engineErrors = await this.validator.validate(normalized, { existingStores: store ? [store] : [] });
-            validationErrors = [...validationErrors, ...engineErrors];
+            const engineResult = await this.validator.validate(normalized); // Simplified since Validator returns ValidationResult
+            validationErrors = [...validationErrors, ...engineResult.errors];
 
             // 6. Deduplication
-            const duplicateResult = await this.deduplicator.check(normalized, storeId);
+            const duplicateResult = await this.deduplicator.check(normalized, store?.id || undefined);
 
             // 7. Quality Engine
-            const qualityMetrics = this.qualityEngine.evaluate(normalized, validationErrors, duplicateResult, storeId);
+            const qualityMetrics = this.qualityEngine.evaluate(normalized);
             totalQuality += qualityMetrics.finalScore;
 
             // 8. Determine Status
@@ -121,8 +159,6 @@ export class ImportPipeline {
             if (duplicateResult.riskScore >= 90) {
               status = "duplicate";
               duplicates++;
-            } else if (qualityMetrics.finalScore >= 90 && validationErrors.filter(e => e.severity === 'error').length === 0) {
-              validRows++;
             } else if (validationErrors.some(e => e.severity === "error")) {
               status = "rejected";
             } else {
@@ -130,13 +166,21 @@ export class ImportPipeline {
             }
 
             // 9. Persistence
-            await prisma.importedOffer.create({
+            const importedOffer = await prisma.importedOffer.create({
               data: {
                 importJobId: importJob.id,
-                source: connector.sourceId,
-                sourceId: normalized.externalId,
+                source: connector.id,
+                sourceId: String(normalized.provenance.connectorOfferId || ""),
                 rawData: rawData as any,
                 normalizedData: normalized as any,
+                
+                rawDescription: normalized.rawDescription,
+                cleanDescription: normalized.cleanDescription,
+                markdownDescription: normalized.markdownDescription,
+                connectorOfferId: normalized.provenance.connectorOfferId,
+                connectorMerchantId: normalized.provenance.connectorMerchantId,
+                connectorFetchedAt: normalized.provenance.connectorFetchedAt,
+                connectorPayload: normalized.provenance.connectorPayload,
                 
                 completenessScore: qualityMetrics.completeness,
                 validationScore: qualityMetrics.validation,
@@ -146,16 +190,33 @@ export class ImportPipeline {
                 duplicateRisk: qualityMetrics.duplicateRisk,
                 finalQualityScore: qualityMetrics.finalScore,
                 
-                resolvedStoreId: storeId,
-                suggestedStoreId,
-                resolutionReason,
-                resolutionSource,
-                resolutionConfidence,
+                resolvedStoreId: identityId, // Mapping to identityId for backward compat with ImportedOffer schema
+                suggestedStoreId: suggestedIdentityId,
+                resolutionReason: resolution.reason,
+                resolutionSource: resolution.resolutionSource,
+                resolutionConfidence: resolution.signals,
                 
                 validationErrors: validationErrors as any,
                 status
               }
             });
+
+            // 10. Auto Publish Policy Check
+            if (publish && status === "pending" && identityId) {
+              const shouldAutoPublish = evaluateAutoPublish(
+                qualityMetrics.finalScore,
+                connector.id,
+                duplicateResult.riskScore
+              );
+
+              if (shouldAutoPublish) {
+                await this.publishService.publish(importedOffer.id, {
+                  actorType: "SYSTEM",
+                  merchantIdentityId: identityId
+                });
+                autoPublishedCount++;
+              }
+            }
 
           } catch (rowError) {
             childLogger.error({ err: rowError, row: totalRows }, "Row failed in pipeline");
@@ -165,8 +226,23 @@ export class ImportPipeline {
 
       const processingTimeMs = Date.now() - startTime;
       const avgQuality = totalRows > 0 ? (totalQuality / totalRows) : 0;
+      
+      let expiredOffers = 0;
+      // 10.5 Dead Offer Detection
+      if (!connector.manifest?.supportsIncrementalSync && publish && seenOfferIds.size > 0) {
+          const expiredResult = await prisma.importedOffer.updateMany({
+              where: {
+                  source: connector.id,
+                  status: { notIn: ["EXPIRED", "REJECTED"] }, // Don't re-expire rejected
+                  sourceId: { notIn: Array.from(seenOfferIds) }
+              },
+              data: { status: "EXPIRED" }
+          });
+          expiredOffers = expiredResult.count;
+          childLogger.info({ expiredOffers }, "Dead Offer Detection completed");
+      }
 
-      // 10. Finalize Job
+      // 11. Finalize Job
       await prisma.importJob.update({
         where: { id: importJob.id },
         data: {
@@ -179,14 +255,26 @@ export class ImportPipeline {
           duplicates,
           avgQuality,
           processingTimeMs,
-          apiLatencyMs: processingTimeMs // We can approximate this for now if the whole run is API bound
+          apiLatencyMs: processingTimeMs
         }
       });
 
-      // 11. Notify
+      await prisma.connectorRun.update({
+        where: { id: connectorRun.id },
+        data: {
+          status: "COMPLETED",
+          finishedAt: new Date(),
+          rows: totalRows,
+          published: autoPublishedCount,
+          duplicates,
+          latency: processingTimeMs
+        }
+      });
+
+      // 12. Notify
       await notificationEngine.notify({
         title: `Import Completed: ${connector.name || connector.sourceId}`,
-        message: `Processed ${totalRows} rows. ${validRows} valid, ${duplicates} duplicates. Avg Quality: ${avgQuality.toFixed(1)}`,
+        message: `Processed ${totalRows} rows. ${autoPublishedCount} auto-published. Avg Quality: ${avgQuality.toFixed(1)}`,
         level: "SUCCESS",
         source: "import-engine",
         link: `/admin/import-jobs/${importJob.id}`
@@ -194,29 +282,42 @@ export class ImportPipeline {
 
     } catch (error) {
       childLogger.error({ err: error }, "Import Pipeline Failed");
+      
+      const updateData = {
+        status: "FAILED",
+        finishedAt: new Date(),
+        error: error instanceof Error ? error.message : "Unknown error",
+        totalRows,
+        recordsFetched: totalRows,
+        pagesFetched,
+        validRows,
+        processingTimeMs: Date.now() - startTime
+      };
+
       await prisma.importJob.update({
         where: { id: importJob.id },
+        data: updateData
+      });
+
+      await prisma.connectorRun.update({
+        where: { id: connectorRun.id },
         data: {
           status: "FAILED",
           finishedAt: new Date(),
-          error: error instanceof Error ? error.message : "Unknown error",
-          totalRows,
-          recordsFetched: totalRows,
-          pagesFetched,
-          validRows,
-          processingTimeMs: Date.now() - startTime
+          rows: totalRows,
+          published: autoPublishedCount,
+          duplicates,
+          latency: Date.now() - startTime
         }
       });
 
       await notificationEngine.notify({
-        title: `Import Failed: ${connector.name || connector.sourceId}`,
+        title: `Import Failed: ${connector.id}`,
         message: error instanceof Error ? error.message : "Unknown error",
         level: "ERROR",
         source: "import-engine",
         link: `/admin/import-jobs/${importJob.id}`
       });
-    } finally {
-      await connector.disconnect();
     }
 
     return importJob.id;

@@ -1,16 +1,23 @@
 import { AffiliateConnector } from './types';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export class ConnectorRegistry {
   private connectors = new Map<string, AffiliateConnector>();
 
+
   register(connector: AffiliateConnector) {
-    this.connectors.set(connector.sourceId.toLowerCase(), connector);
+    const id = connector.id || (connector as any).sourceId;
+    if (!id) {
+      throw new Error(`Connector missing id or sourceId: ${JSON.stringify(connector)}`);
+    }
+    this.connectors.set(id.toLowerCase(), connector);
   }
 
-  get(sourceId: string): AffiliateConnector {
-    const connector = this.connectors.get(sourceId.toLowerCase());
+  get(id: string): AffiliateConnector {
+    const connector = this.connectors.get(id.toLowerCase());
     if (!connector) {
-      throw new Error(`Connector not found for sourceId: ${sourceId}`);
+      throw new Error(`Connector not found for id: ${id}`);
     }
     return connector;
   }
