@@ -74,20 +74,20 @@ const config: Config = {
                 background: "var(--background)",
                 foreground: "var(--foreground)",
                 
-                // --- Commerce Intelligence Tokens ---
+                // --- Commerce Intelligence Tokens (Premium Apple/Stripe Aesthetic) ---
                 primary: {
-                    50: "#eff6ff",
-                    100: "#dbeafe",
-                    200: "#bfdbfe",
-                    300: "#93c5fd",
-                    400: "#60a5fa",
-                    500: "#3b82f6",
-                    600: "#2563EB",
-                    700: "#1d4ed8",
-                    800: "#1e40af",
-                    900: "#1e3a8a",
-                    950: "#172554",
-                    DEFAULT: "#2563EB",
+                    50: "#EEF2FF",
+                    100: "#E0E7FF",
+                    200: "#C7D2FE",
+                    300: "#A5B4FC",
+                    400: "#818CF8",
+                    500: "#6366F1",
+                    600: "#4F46E5", // Deep Indigo
+                    700: "#4338CA",
+                    800: "#3730A3",
+                    900: "#312E81",
+                    950: "#1E1B4B",
+                    DEFAULT: "#4F46E5",
                 },
                 intelligence: {
                     DEFAULT: "#4F46E5",
@@ -123,17 +123,17 @@ const config: Config = {
                     dark: "#7C2D12",
                 },
                 surface: {
-                    50: "#F8FAFC",
-                    100: "#F1F5F9",
-                    200: "#E2E8F0",
-                    300: "#CBD5E1",
-                    400: "#94A3B8",
-                    500: "#64748B",
-                    600: "#475569",
-                    700: "#1E293B",
-                    800: "#111827",
-                    900: "#0B1220",
-                    950: "#0B1220",
+                    50: "#FDFDFD", // Warm white
+                    100: "#F9FAFB", // Very light gray
+                    200: "#F3F4F6",
+                    300: "#E5E7EB",
+                    400: "#D1D5DB",
+                    500: "#9CA3AF",
+                    600: "#6B7280",
+                    700: "#4B5563",
+                    800: "#1F2937",
+                    900: "#111827", // Dark slate
+                    950: "#030712",
                     DEFAULT: "#FFFFFF",
                 },
             },

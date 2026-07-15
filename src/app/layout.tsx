@@ -102,11 +102,12 @@ export default function RootLayout({
         </Script>
       </head>
       <body
-        className={`${outfit.variable} ${plusJakartaSans.variable} font-sans antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300`}
+        className={`${outfit.variable} ${plusJakartaSans.variable} font-sans antialiased bg-surface-50 dark:bg-surface-900 text-slate-900 dark:text-surface-50 transition-colors duration-300 overflow-x-hidden`}
         suppressHydrationWarning
       >
-        <script
-          type="text/javascript"
+        <Script
+          id="cuelinks-script"
+          strategy="lazyOnload"
           dangerouslySetInnerHTML={{
             __html: `
               var cId = '302299';

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { Copy, Check, ExternalLink, ShieldCheck, Clock, Info } from "lucide-react";
 import SaveDealButton from "./SaveDealButton";
+import { trackEvent } from "@/lib/analytics";
 
 interface CouponCardProps {
     coupon: {
@@ -19,6 +20,11 @@ interface CouponCardProps {
         isExclusive: boolean;
         bank?: string | null;
         expiresAt?: Date | string | null;
+        successRate?: number;
+        successCount?: number;
+        failureCount?: number;
+        createdAt?: Date | string | null;
+        lastVerifiedAt?: Date | string | null;
     };
     storeName: string;
     storeLogo?: string | null;
@@ -27,6 +33,15 @@ interface CouponCardProps {
 export default function CouponCard({ coupon, storeName, storeLogo }: CouponCardProps) {
     const [showCode, setShowCode] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [hasRevealedFeedback, setHasRevealedFeedback] = useState(false);
+    const [voteStatus, setVoteStatus] = useState<'up' | 'down' | null>(null);
+
+    const initialTotalVotes = (coupon.successCount || 0) + (coupon.failureCount || 0);
+    const initialRate = initialTotalVotes > 0 
+        ? Math.round(((coupon.successCount || 0) / initialTotalVotes) * 100) 
+        : (coupon.successRate || 98); // Fallback static
+    
+    const [localSuccessRate, setLocalSuccessRate] = useState<number | null | undefined>(initialRate);
 
     const handleRevealCode = () => {
         setShowCode(true);
@@ -35,12 +50,42 @@ export default function CouponCard({ coupon, storeName, storeLogo }: CouponCardP
             setCopied(true);
             setTimeout(() => setCopied(false), 3000);
         }
-        // Open affiliate link instantly
-        window.open(coupon.affiliateUrl, "_blank");
+        setHasRevealedFeedback(true);
+        
+        trackEvent('coupon_copied', { couponId: coupon.id });
+
+        const outUrl = `/out?url=${encodeURIComponent(coupon.affiliateUrl)}&couponId=${coupon.id}&source=coupon-card-copy`;
+        window.open(outUrl, "_blank");
     };
 
     const handleGetDeal = () => {
-        window.open(coupon.affiliateUrl, "_blank");
+        setHasRevealedFeedback(true);
+        trackEvent('deal_clicked', { couponId: coupon.id });
+        const outUrl = `/out?url=${encodeURIComponent(coupon.affiliateUrl)}&couponId=${coupon.id}&source=coupon-card-deal`;
+        window.open(outUrl, "_blank");
+    };
+
+    const handleVote = async (isUpvote: boolean) => {
+        if (voteStatus) return; // Prevent double voting
+        setVoteStatus(isUpvote ? 'up' : 'down');
+        
+        trackEvent('trust_vote', { couponId: coupon.id, vote: isUpvote ? 'up' : 'down' });
+        
+        try {
+            const res = await fetch(`/api/coupons/${coupon.id}/vote`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ isUpvote })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.successRate !== null) {
+                    setLocalSuccessRate(data.successRate);
+                }
+            }
+        } catch (error) {
+            console.error("Failed to vote", error);
+        }
     };
 
     return (
@@ -69,9 +114,9 @@ export default function CouponCard({ coupon, storeName, storeLogo }: CouponCardP
                                     Verified Today
                                 </span>
                             )}
-                            <span className="text-[11px] text-gray-500 flex items-center gap-1">
+                            <span className="text-[11px] text-orange-600 flex items-center gap-1 font-bold">
                                 <Clock className="w-3 h-3" />
-                                98% Success
+                                {localSuccessRate}% Success
                             </span>
                         </div>
                     </div>
@@ -132,6 +177,32 @@ export default function CouponCard({ coupon, storeName, storeLogo }: CouponCardP
                         <ExternalLink className="w-4 h-4" />
                     </button>
                 )}
+
+                {/* Trust Feedback Modal (Revealed on click) */}
+                {hasRevealedFeedback && (
+                    <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center gap-2 animate-in fade-in slide-in-from-top-2">
+                        <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                            Did this work?
+                        </span>
+                        <div className="flex items-center gap-2 w-full">
+                            <button 
+                                onClick={() => handleVote(true)}
+                                disabled={voteStatus !== null}
+                                className={`flex-1 py-1.5 rounded-md text-sm font-bold flex items-center justify-center gap-1 transition-colors ${voteStatus === 'up' ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-white border border-gray-200 hover:bg-green-50 hover:text-green-600 disabled:opacity-50'}`}
+                            >
+                                👍 Yes
+                            </button>
+                            <button 
+                                onClick={() => handleVote(false)}
+                                disabled={voteStatus !== null}
+                                className={`flex-1 py-1.5 rounded-md text-sm font-bold flex items-center justify-center gap-1 transition-colors ${voteStatus === 'down' ? 'bg-red-100 text-red-700 border border-red-200' : 'bg-white border border-gray-200 hover:bg-red-50 hover:text-red-600 disabled:opacity-50'}`}
+                            >
+                                👎 No
+                            </button>
+                        </div>
+                    </div>
+                )}
+
                 <div className="flex items-center justify-center gap-1 mt-2 text-[10px] text-gray-400">
                     <Info className="w-3 h-3" />
                     We may earn a commission from links on this page.

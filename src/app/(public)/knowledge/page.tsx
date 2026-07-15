@@ -1,157 +1,208 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
-import { BookOpen, Store as StoreIcon, Tags, Layers, Zap, Calendar } from "lucide-react";
+import { BookOpen, Calendar, Zap, ArrowRight } from "lucide-react";
+import Image from "next/image";
 
-export const revalidate = 3600; // Revalidate every hour
+export const revalidate = 3600;
+
 export const metadata = {
-  title: "Knowledge Index | CouponHub",
-  description: "Explore our complete Commerce Intelligence Knowledge Graph. Browse merchants, categories, collections, and buying guides.",
+  title: "Shopping Hub | CouponHub",
+  description: "Expert buying guides, sale calendars, and smart shopping tips to help you maximize your savings.",
 };
 
-export default async function KnowledgeIndexPage() {
-  const [stores, categories, collections] = await Promise.all([
-    prisma.store.findMany({
-      where: { isActive: true },
-      select: { name: true, slug: true, offerCount: true },
-      orderBy: { name: 'asc' }
+export default async function KnowledgeHubPage() {
+  // Fetch data in parallel
+  const [articles, storeGuides, saleEvents] = await Promise.all([
+    prisma.blogPost.findMany({
+      where: { isPublished: true },
+      orderBy: { publishedAt: 'desc' },
+      take: 6,
+      include: { author: { select: { name: true } } }
     }),
-    prisma.category.findMany({
-      where: { isActive: true },
-      select: { name: true, slug: true },
-      orderBy: { name: 'asc' }
+    prisma.storeContent.findMany({
+      where: { type: 'BUYING_GUIDE' },
+      orderBy: { updatedAt: 'desc' },
+      take: 4,
+      include: { store: { select: { name: true, slug: true, logo: true } } }
     }),
     prisma.collection.findMany({
-      where: { isIndexable: true },
-      select: { name: true, slug: true, type: true },
-      orderBy: { name: 'asc' }
+      where: { 
+        OR: [
+          { type: 'SALE' },
+          { type: 'EVENT' }
+        ],
+        isIndexable: true 
+      },
+      orderBy: { priority: 'desc' },
+      take: 4
     })
   ]);
 
-  // We can group collections by type to simulate Banks, Events, etc. if they are modeled as collections
-  const collectionsByType = collections.reduce((acc, curr) => {
-    if (!acc[curr.type]) {
-      acc[curr.type] = [];
-    }
-    acc[curr.type].push(curr);
-    return acc;
-  }, {} as Record<string, typeof collections>);
+  const featuredArticle = articles[0];
+  const recentArticles = articles.slice(1);
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-7xl">
-      <div className="mb-12">
-        <h1 className="text-4xl font-bold mb-4 flex items-center gap-3">
-          <Layers className="h-8 w-8 text-primary" />
-          Commerce Knowledge Graph
-        </h1>
-        <p className="text-xl text-muted-foreground max-w-3xl">
-          Welcome to the CouponHub Knowledge Index. This directory contains every verified node in our intelligence graph, mapped and cross-linked for seamless discovery.
-        </p>
+    <div className="bg-surface-50 dark:bg-surface-950 min-h-screen pb-20">
+      {/* Editorial Hero */}
+      <div className="bg-white dark:bg-surface-900 border-b border-surface-200 dark:border-surface-800">
+        <div className="max-w-container-max mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
+          <div className="max-w-3xl">
+            <h1 className="text-4xl lg:text-5xl font-headline-lg font-bold text-slate-900 dark:text-white tracking-tight mb-4">
+              The Shopping Hub
+            </h1>
+            <p className="text-xl text-surface-500 dark:text-surface-400">
+              Expert advice, deep-dive buying guides, and comprehensive sale calendars. Never overpay again.
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {/* Merchants */}
-        <div className="border rounded-xl p-6 bg-card">
-          <div className="flex items-center gap-3 mb-6 border-b pb-4">
-            <StoreIcon className="h-6 w-6 text-primary" />
-            <h2 className="text-2xl font-semibold">Merchants</h2>
-            <span className="ml-auto bg-primary/10 text-primary text-xs px-2 py-1 rounded-full font-medium">
-              {stores.length}
-            </span>
-          </div>
-          <ul className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-            {stores.map(store => (
-              <li key={store.slug}>
-                <Link 
-                  href={`/stores/${store.slug}`} 
-                  className="group flex items-center justify-between p-2 rounded-lg hover:bg-muted transition-colors"
-                >
-                  <span className="font-medium group-hover:text-primary transition-colors">{store.name}</span>
-                  <span className="text-xs text-muted-foreground">{store.offerCount} offers</span>
+      <div className="max-w-container-max mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          
+          {/* Main Content Area (8 columns) */}
+          <div className="lg:col-span-8 space-y-16">
+            
+            {/* Featured Article */}
+            {featuredArticle && (
+              <section>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <Zap className="text-primary w-6 h-6" /> Featured Story
+                  </h2>
+                </div>
+                <Link href={`/knowledge/articles/${featuredArticle.slug}`} className="group block bg-white dark:bg-surface-900 rounded-2xl overflow-hidden border border-surface-200 dark:border-surface-800 shadow-sm hover:shadow-md transition-all">
+                  {featuredArticle.coverImage && (
+                    <div className="aspect-[2/1] relative w-full overflow-hidden bg-surface-100 dark:bg-surface-800">
+                      <Image 
+                        src={featuredArticle.coverImage} 
+                        alt={featuredArticle.title} 
+                        fill 
+                        className="object-cover group-hover:scale-105 transition-transform duration-700"
+                      />
+                    </div>
+                  )}
+                  <div className="p-6 sm:p-8">
+                    <span className="text-xs font-bold uppercase tracking-widest text-primary mb-3 block">Strategy</span>
+                    <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-3 group-hover:text-primary transition-colors">
+                      {featuredArticle.title}
+                    </h3>
+                    {featuredArticle.excerpt && (
+                      <p className="text-surface-600 dark:text-surface-400 text-lg mb-6 line-clamp-2">
+                        {featuredArticle.excerpt}
+                      </p>
+                    )}
+                    <div className="flex items-center text-sm font-medium text-surface-500">
+                      <span>By {featuredArticle.author?.name || 'CouponHub Editors'}</span>
+                      <span className="mx-2">•</span>
+                      <span>{featuredArticle.publishedAt?.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                    </div>
+                  </div>
                 </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+              </section>
+            )}
 
-        {/* Categories */}
-        <div className="border rounded-xl p-6 bg-card">
-          <div className="flex items-center gap-3 mb-6 border-b pb-4">
-            <Tags className="h-6 w-6 text-primary" />
-            <h2 className="text-2xl font-semibold">Categories</h2>
-            <span className="ml-auto bg-primary/10 text-primary text-xs px-2 py-1 rounded-full font-medium">
-              {categories.length}
-            </span>
-          </div>
-          <ul className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-            {categories.map(category => (
-              <li key={category.slug}>
-                <Link 
-                  href={`/categories/${category.slug}`} 
-                  className="group flex items-center justify-between p-2 rounded-lg hover:bg-muted transition-colors"
-                >
-                  <span className="font-medium group-hover:text-primary transition-colors">{category.name}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Dynamic Collection Types (Banks, Events, Guides) */}
-        {Object.entries(collectionsByType).map(([type, items]) => {
-          // Choose an icon based on the type
-          let Icon = Zap;
-          let title = type;
-          if (type.toLowerCase().includes('bank')) { Icon = Zap; title = "Banks & Payments"; }
-          if (type.toLowerCase().includes('event') || type.toLowerCase().includes('festival')) { Icon = Calendar; title = "Shopping Events"; }
-          if (type.toLowerCase().includes('guide')) { Icon = BookOpen; title = "Buying Guides"; }
-
-          return (
-            <div key={type} className="border rounded-xl p-6 bg-card">
-              <div className="flex items-center gap-3 mb-6 border-b pb-4">
-                <Icon className="h-6 w-6 text-primary" />
-                <h2 className="text-2xl font-semibold capitalize">{title}</h2>
-                <span className="ml-auto bg-primary/10 text-primary text-xs px-2 py-1 rounded-full font-medium">
-                  {items.length}
-                </span>
-              </div>
-              <ul className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                {items.map(item => (
-                  <li key={item.slug}>
-                    <Link 
-                      href={`/collections/${item.slug}`} 
-                      className="group flex items-center justify-between p-2 rounded-lg hover:bg-muted transition-colors"
-                    >
-                      <span className="font-medium group-hover:text-primary transition-colors">{item.name}</span>
+            {/* Recent Articles Grid */}
+            {recentArticles.length > 0 && (
+              <section>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Latest Tips & News</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {recentArticles.map(article => (
+                    <Link key={article.id} href={`/knowledge/articles/${article.slug}`} className="group block bg-white dark:bg-surface-900 rounded-xl overflow-hidden border border-surface-200 dark:border-surface-800 shadow-sm hover:shadow-md transition-all">
+                      {article.coverImage && (
+                        <div className="aspect-[16/9] relative w-full overflow-hidden bg-surface-100 dark:bg-surface-800">
+                          <Image 
+                            src={article.coverImage} 
+                            alt={article.title} 
+                            fill 
+                            className="object-cover group-hover:scale-105 transition-transform duration-700"
+                          />
+                        </div>
+                      )}
+                      <div className="p-5">
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                          {article.title}
+                        </h3>
+                        <div className="text-xs font-medium text-surface-500 mt-4">
+                          {article.publishedAt?.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </div>
+                      </div>
                     </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )
-        })}
+                  ))}
+                </div>
+              </section>
+            )}
 
-        {/* Hardcoded Buying Guides cluster for demonstration, since they are usually StoreContent, 
-            but for the Knowledge Graph we want to expose them as a distinct entity cluster */}
-        <div className="border rounded-xl p-6 bg-card">
-          <div className="flex items-center gap-3 mb-6 border-b pb-4">
-            <BookOpen className="h-6 w-6 text-primary" />
-            <h2 className="text-2xl font-semibold">Buying Guides</h2>
           </div>
-          <p className="text-sm text-muted-foreground mb-4">
-            In-depth guides to help you make the best purchasing decisions.
-          </p>
-          <ul className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-            {stores.slice(0, 5).map(store => (
-              <li key={`guide-${store.slug}`}>
-                <Link 
-                  href={`/stores/${store.slug}/buying-guide`} 
-                  className="group flex items-center justify-between p-2 rounded-lg hover:bg-muted transition-colors"
-                >
-                  <span className="font-medium group-hover:text-primary transition-colors">{store.name} Buying Guide</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+
+          {/* Sidebar (4 columns) */}
+          <div className="lg:col-span-4 space-y-8">
+            
+            {/* Buying Guides */}
+            {storeGuides.length > 0 && (
+              <div className="bg-white dark:bg-surface-900 rounded-2xl border border-surface-200 dark:border-surface-800 p-6">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                  <BookOpen className="text-primary w-5 h-5" /> Store Buying Guides
+                </h3>
+                <div className="space-y-4">
+                  {storeGuides.map(guide => (
+                    <Link key={guide.id} href={`/stores/${guide.store.slug}/buying-guide`} className="group flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-surface-100 dark:bg-surface-800 flex items-center justify-center shrink-0 border border-surface-200 dark:border-surface-700 overflow-hidden relative">
+                        {guide.store.logo ? (
+                          <Image src={guide.store.logo} alt={guide.store.name} fill className="object-contain p-1" />
+                        ) : (
+                          <span className="text-sm font-bold">{guide.store.name.charAt(0)}</span>
+                        )}
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-slate-900 dark:text-white text-sm group-hover:text-primary transition-colors line-clamp-2">
+                          How to save at {guide.store.name}
+                        </h4>
+                        <p className="text-xs text-surface-500 mt-1">Definitive Guide</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+                <button className="w-full mt-6 py-2 text-sm font-bold text-primary hover:bg-primary/5 rounded-lg transition-colors flex items-center justify-center gap-1">
+                  View all guides <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+            {/* Sale Calendars */}
+            {saleEvents.length > 0 && (
+              <div className="bg-white dark:bg-surface-900 rounded-2xl border border-surface-200 dark:border-surface-800 p-6">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                  <Calendar className="text-primary w-5 h-5" /> Sale Calendars
+                </h3>
+                <div className="space-y-3">
+                  {saleEvents.map(event => (
+                    <Link key={event.id} href={`/collections/${event.slug}`} className="group block p-3 -mx-3 rounded-xl hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors">
+                      <h4 className="font-semibold text-slate-900 dark:text-white text-sm group-hover:text-primary transition-colors">
+                        {event.name}
+                      </h4>
+                      {event.seoDescription && (
+                        <p className="text-xs text-surface-500 mt-1 line-clamp-1">{event.seoDescription}</p>
+                      )}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Newsletter CTA */}
+            <div className="gradient-primary rounded-2xl p-6 text-white">
+              <h3 className="text-lg font-bold mb-2">Never Miss a Loophole</h3>
+              <p className="text-sm text-white/80 mb-4">Join 50,000+ smart shoppers getting our weekly strategy email.</p>
+              <form className="space-y-2">
+                <input type="email" placeholder="Email address" className="w-full px-4 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 text-sm" />
+                <button type="button" className="w-full px-4 py-2.5 bg-white text-primary font-bold rounded-lg text-sm hover:bg-surface-50 transition-colors shadow-lg">
+                  Subscribe
+                </button>
+              </form>
+            </div>
+
+          </div>
         </div>
       </div>
     </div>

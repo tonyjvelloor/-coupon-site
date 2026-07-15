@@ -43,6 +43,8 @@ model Store {
   storeContents     StoreContent[]
   merchantHistories MerchantHistory[]
   merchantIdentity  MerchantIdentity?
+  saleEvents        SaleEvent[]
+  bankOffers        BankOffer[]
 
   @@index([slug])
   @@index([createdAt])
@@ -139,6 +141,9 @@ model Coupon {
   deletedAt          DateTime?
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
+  lastVerifiedAt     DateTime?
+  successCount       Int                 @default(0)
+  failureCount       Int                 @default(0)
   revenueAttribution Float               @default(0)
   totalClicks        Int                 @default(0)
   totalConversions   Int                 @default(0)
@@ -162,15 +167,15 @@ enum MerchantIdentityType {
 model MerchantIdentity {
   id               String               @id @default(uuid())
   type             MerchantIdentityType
-  canonicalStoreId String?            @unique
-  candidateId      String?            @unique
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  
-  store            Store?             @relation(fields: [canonicalStoreId], references: [id], onDelete: Cascade)
-  candidate        MerchantCandidate? @relation(fields: [candidateId], references: [id], onDelete: Cascade)
-  coupons          Coupon[]
-  events           IdentityEvent[]
+  canonicalStoreId String?              @unique
+  candidateId      String?              @unique
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  store     Store?             @relation(fields: [canonicalStoreId], references: [id], onDelete: Cascade)
+  candidate MerchantCandidate? @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  coupons   Coupon[]
+  events    IdentityEvent[]
 
   @@index([type])
   @@index([canonicalStoreId])
@@ -186,33 +191,33 @@ enum MerchantCandidateStatus {
 }
 
 model MerchantCandidate {
-  id              String                  @id @default(uuid())
-  name            String
-  website         String?
-  logo            String?
-  source          String
-  confidence      Int
-  status          MerchantCandidateStatus @default(DISCOVERED)
+  id               String                  @id @default(uuid())
+  name             String
+  website          String?
+  logo             String?
+  source           String
+  confidence       Int
+  status           MerchantCandidateStatus @default(DISCOVERED)
   confidenceSource ConfidenceSource?
-  metadata        Json?
-  createdAt       DateTime                @default(now())
-  updatedAt       DateTime                @updatedAt
-  
-  identity        MerchantIdentity?
+  metadata         Json?
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+
+  identity MerchantIdentity?
 
   @@index([status])
 }
 
 model IdentityMerge {
-  id              String   @id @default(uuid())
-  candidateId     String
-  canonicalId     String
-  mergedById      String?
-  performedByType String?
-  mergedAt        DateTime @default(now())
-  reason          String?
+  id               String            @id @default(uuid())
+  candidateId      String
+  canonicalId      String
+  mergedById       String?
+  performedByType  String?
+  mergedAt         DateTime          @default(now())
+  reason           String?
   confidenceSource ConfidenceSource?
-  
+
   @@index([candidateId])
   @@index([canonicalId])
 }
@@ -235,8 +240,8 @@ model IdentityEvent {
   actorId            String?
   createdAt          DateTime          @default(now())
 
-  identity           MerchantIdentity  @relation(fields: [merchantIdentityId], references: [id], onDelete: Cascade)
-  
+  identity MerchantIdentity @relation(fields: [merchantIdentityId], references: [id], onDelete: Cascade)
+
   @@index([merchantIdentityId])
 }
 
@@ -531,6 +536,8 @@ model AffiliatePostback {
 
 model ClickEvent {
   id          String             @id @default(uuid())
+  url         String?
+  source      String?
   couponId    String?
   storeId     String?
   campaignId  String?
@@ -588,26 +595,26 @@ model ImportJob {
 }
 
 model ImportedOffer {
-  id                   String    @id @default(uuid())
+  id                   String            @id @default(uuid())
   importJobId          String
-  schemaVersion        String    @default("v1")
+  schemaVersion        String            @default("v1")
   source               String
   sourceId             String?
   rawData              Json
   normalizedData       Json
-  completenessScore    Float     @default(0.0)
-  validationScore      Float     @default(0.0)
-  confidenceScore      Float     @default(0.0)
-  freshnessScore       Float     @default(0.0)
-  merchantMatchScore   Float     @default(0.0)
-  duplicateRisk        Float     @default(0.0)
-  finalQualityScore    Float     @default(0.0)
+  completenessScore    Float             @default(0.0)
+  validationScore      Float             @default(0.0)
+  confidenceScore      Float             @default(0.0)
+  freshnessScore       Float             @default(0.0)
+  merchantMatchScore   Float             @default(0.0)
+  duplicateRisk        Float             @default(0.0)
+  finalQualityScore    Float             @default(0.0)
   validationErrors     Json?
-  status               String    @default("pending")
+  status               String            @default("pending")
   aiEnrichedData       Json?
-  aiStatus             String    @default("none")
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
+  aiStatus             String            @default("none")
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
   rawDescription       String?
   cleanDescription     String?
   markdownDescription  String?
@@ -624,7 +631,7 @@ model ImportedOffer {
   confidenceSource     ConfidenceSource?
   resolverVersion      String?
   publishDecision      PublishDecision?
-  importJob            ImportJob @relation(fields: [importJobId], references: [id], onDelete: Cascade)
+  importJob            ImportJob         @relation(fields: [importJobId], references: [id], onDelete: Cascade)
 
   @@index([importJobId])
   @@index([status])
@@ -924,25 +931,25 @@ enum StrategyStatus {
 model Strategy {
   id String @id @default(uuid())
 
-  action     String // e.g., "Publish FAQ"
+  action String // e.g., "Publish FAQ"
 
   // The expected/observed aggregated impact
   averageImpact Json? // e.g., { "ctr": "+18%" }
 
   // Scoring & Lifecycle
-  status         StrategyStatus @default(EMERGING)
-  version        Int            @default(1)
+  status            StrategyStatus @default(EMERGING)
+  version           Int            @default(1)
   previousVersionId String?
-  confidence     Int // 0-100
-  timesApplied   Int            @default(0)
-  positiveOutcomes Int          @default(0)
-  negativeOutcomes Int          @default(0)
-  neutralOutcomes  Int          @default(0)
-  
-  lastObserved   DateTime       @default(now())
-  validatedAt    DateTime?
-  expiresAt      DateTime? // Knowledge ages
-  explanation    String? // AI-generated reasoning
+  confidence        Int // 0-100
+  timesApplied      Int            @default(0)
+  positiveOutcomes  Int            @default(0)
+  negativeOutcomes  Int            @default(0)
+  neutralOutcomes   Int            @default(0)
+
+  lastObserved DateTime  @default(now())
+  validatedAt  DateTime?
+  expiresAt    DateTime? // Knowledge ages
+  explanation  String? // AI-generated reasoning
 
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
@@ -953,25 +960,94 @@ model Strategy {
 }
 
 model StrategyCondition {
-  id String @id @default(uuid())
+  id         String   @id @default(uuid())
   strategyId String
-  field String
-  operator String
-  value String
-  strategy Strategy @relation(fields: [strategyId], references: [id], onDelete: Cascade)
+  field      String
+  operator   String
+  value      String
+  strategy   Strategy @relation(fields: [strategyId], references: [id], onDelete: Cascade)
 
   @@index([strategyId])
 }
 
 model StrategyEvidence {
-  id String @id @default(uuid())
-  strategyId String
-  decisionId String
-  outcome String // POSITIVE, NEGATIVE, NEUTRAL
+  id            String   @id @default(uuid())
+  strategyId    String
+  decisionId    String
+  outcome       String // POSITIVE, NEGATIVE, NEUTRAL
   impactMetrics Json? // Store actual metrics like { "ctr": "+2%" }
-  createdAt DateTime @default(now())
-  strategy Strategy @relation(fields: [strategyId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  strategy      Strategy @relation(fields: [strategyId], references: [id], onDelete: Cascade)
 
   @@index([strategyId])
   @@index([decisionId])
+}
+
+model SaleEvent {
+  id          String   @id @default(uuid())
+  title       String
+  slug        String   @unique
+  subtitle    String?
+  description String?
+  seoTitle    String?
+  date        DateTime
+  icon        String   @default("event")
+  isActive    Boolean  @default(true)
+  storeId     String?
+  store       Store?   @relation(fields: [storeId], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive, date])
+  @@index([storeId])
+  @@index([slug])
+}
+
+model Bank {
+  id          String      @id @default(uuid())
+  name        String
+  slug        String      @unique
+  description String?
+  seoTitle    String?
+  logo        String?
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  bankOffers  BankOffer[]
+
+  @@index([slug])
+  @@index([isActive])
+}
+
+model BankOffer {
+  id              String   @id @default(uuid())
+  bankId          String
+  discountDetails String
+  terms           String?
+  icon            String?
+  isActive        Boolean  @default(true)
+  storeId         String?
+  store           Store?   @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  bank            Bank     @relation(fields: [bankId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([storeId])
+  @@index([bankId])
+}
+
+model ShoppingTip {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  icon        String   @default("info")
+  category    String
+  href        String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([category])
 }

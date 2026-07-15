@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Heart } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
 
 interface SaveDealButtonProps {
     dealId: string;
@@ -33,6 +34,7 @@ export default function SaveDealButton({ dealId, className = "" }: SaveDealButto
             // Add to saved
             savedDeals.push(dealId);
             localStorage.setItem("savedDeals", JSON.stringify(savedDeals));
+            trackEvent('deal_saved', { dealId });
             setIsSaved(true);
             setIsAnimating(true);
             setTimeout(() => setIsAnimating(false), 300);

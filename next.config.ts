@@ -19,6 +19,25 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  async redirects() {
+    return [
+      {
+        source: '/deals',
+        destination: '/best-offers',
+        permanent: false,
+      },
+      {
+        source: '/guides',
+        destination: '/knowledge',
+        permanent: false,
+      },
+      {
+        source: '/cashback',
+        destination: '/stores',
+        permanent: false,
+      },
+    ];
+  },
   async headers() {
     return [
       {

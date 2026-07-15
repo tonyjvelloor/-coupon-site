@@ -34,6 +34,7 @@ export function MobileNav({ isOpen, onClose, categories }: MobileNavProps) {
                         <div className="relative">
                             <Icon name="search" className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" />
                             <input 
+                                id="mobile-search-input"
                                 type="text" 
                                 placeholder="Search merchants..." 
                                 className="w-full pl-12 pr-4 py-3 bg-surface-100 dark:bg-surface-800 rounded-xl outline-none font-medium focus:ring-2 focus:ring-primary" 
@@ -42,23 +43,24 @@ export function MobileNav({ isOpen, onClose, categories }: MobileNavProps) {
                     </div>
 
                     <nav className="p-4 flex flex-col gap-1 font-semibold text-sm">
-                        <Link href="/stores" onClick={onClose} className="flex items-center gap-3 p-3 rounded-xl hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors">
-                            <Icon name="storefront" className="text-primary" /> All Stores
+                        <Link href="/" onClick={onClose} className="flex items-center gap-3 p-3 rounded-xl hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors">
+                            <Icon name="home" className="text-on-surface-variant" /> Home
                         </Link>
-                        <Link href="/knowledge" onClick={onClose} className="flex items-center gap-3 p-3 rounded-xl hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors">
-                            <Icon name="menu_book" className="text-urgency-orange" /> Buying Guides
+                        <button onClick={() => {
+                            const searchInput = document.getElementById('mobile-search-input');
+                            if (searchInput) searchInput.focus();
+                        }} className="flex items-center gap-3 p-3 rounded-xl hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors text-left w-full">
+                            <Icon name="search" className="text-on-surface-variant" /> Search
+                        </button>
+                        <Link href="/best-offers" onClick={onClose} className="flex items-center gap-3 p-3 rounded-xl hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors">
+                            <Icon name="local_fire_department" className="text-primary" /> Deals
                         </Link>
-                        <Link href="/news" onClick={onClose} className="flex items-center gap-3 p-3 rounded-xl hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors">
-                            <Icon name="local_activity" className="text-emerald-500" /> Platform Intelligence
+                        <Link href="/saved" onClick={onClose} className="flex items-center gap-3 p-3 rounded-xl hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors">
+                            <Icon name="favorite" className="text-pink-500" /> Saved
                         </Link>
-                        
-                        <div className="mt-6 mb-2 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant px-3">Top Categories</div>
-                        {categories.slice(0, 6).map(c => (
-                            <Link key={c.id} href={`/category/${c.slug}`} onClick={onClose} className="p-3 rounded-xl hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors flex items-center justify-between">
-                                {c.name}
-                                <Icon name="chevron_right" className="text-[16px] text-surface-300" />
-                            </Link>
-                        ))}
+                        <Link href="/profile" onClick={onClose} className="flex items-center gap-3 p-3 rounded-xl hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors">
+                            <Icon name="person" className="text-surface-500" /> Profile
+                        </Link>
                     </nav>
                 </div>
             </div>
