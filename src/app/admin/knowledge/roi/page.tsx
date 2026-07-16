@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default async function KnowledgeROIPage() {
     const contents = await prisma.storeContent.findMany({
-        include: { merchantIdentity: true },
+        include: { store: true },
         orderBy: { revenue: "desc" },
         take: 100
     });
@@ -37,7 +37,7 @@ export default async function KnowledgeROIPage() {
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 font-medium text-gray-900">
-                                        {c.merchantIdentity?.name || "Unknown"}
+                                        {c.store.name}
                                     </td>
                                     <td className="px-6 py-4 text-right font-semibold text-green-600">
                                         ₹{c.revenue.toLocaleString()}
