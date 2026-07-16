@@ -3,35 +3,45 @@ import { NormalizedOffer } from "../../types";
 export class CJMapper {
   /**
    * Maps a raw CJ Affiliate link object to the NormalizedOffer canonical model.
-   * Based on CJ Affiliate API v3 Link payload format.
    */
   static toCanonical(raw: any): NormalizedOffer {
+    const meta = raw._metadata || {};
+    
     // Parse discount info
-    const { discountType, discountValue } = this.parseDiscount(raw.description || raw.link_name);
+    const { discountType, discountValue } = this.parseDiscount(raw.description || raw["link-name"]);
     
     let expiry: Date | undefined;
-    if (raw.promotion_end_date) {
-      expiry = new Date(raw.promotion_end_date);
+    if (raw["promotion-end-date"]) {
+      expiry = new Date(raw["promotion-end-date"]);
     }
 
     return {
-      merchantName: raw.advertiser_name || "Unknown CJ Merchant",
-      title: raw.link_name,
+      merchantName: raw["advertiser-name"] || "Unknown CJ Merchant",
+      title: raw["link-name"] || raw.name,
       description: raw.description,
-      code: raw.coupon_code || undefined, // CJ uses coupon_code explicitly if it is a coupon
-      destinationUrl: raw.destination || raw.click_url,
-      affiliateUrl: raw.click_url,
+      code: raw["coupon-code"] || undefined, 
+      destinationUrl: raw["click-url"] || raw.destination,
+      affiliateUrl: raw["click-url"],
       discountType,
       discountValue,
       expiry,
       category: raw.category || undefined,
       source: "cj",
-      externalId: raw.link_id?.toString()
+      externalId: raw["link-id"]?.toString(),
+      provenance: {
+        connector: "cj",
+        connectorVersion: "1.0.0",
+        apiVersion: meta.apiVersion || "REST v2",
+        requestTimestamp: meta.requestTimestamp,
+        responseTimestamp: meta.responseTimestamp,
+        page: meta.page,
+        rawPayload: raw
+      }
     };
   }
 
   private static parseDiscount(text: string): { discountType: "percentage" | "flat" | "freebie", discountValue?: string } {
-    if (!text) return { discountType: "percentage" }; // Default fallback
+    if (!text) return { discountType: "percentage" }; 
 
     const t = text.toLowerCase();
     

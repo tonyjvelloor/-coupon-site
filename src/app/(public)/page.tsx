@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 };
 
 // Dynamic Imports for heavy below-the-fold components
-const DynamicNewsletter = dynamic(() => import('@/components/ui/NewsletterSignup'));
+// (Newsletter moved to Footer)
 
 export default function Home() {
     return (
@@ -59,11 +59,6 @@ export default function Home() {
 
                 {/* 8. Categories (Browsing behavior last) - White background inside module */}
                 <CategoriesModule />
-
-                {/* 9. Newsletter */}
-                <div className="py-16">
-                    <DynamicNewsletter />
-                </div>
 
             </div>
         </div>
