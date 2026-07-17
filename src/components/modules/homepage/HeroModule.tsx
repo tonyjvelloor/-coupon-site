@@ -1,74 +1,69 @@
 "use client";
 
-import { Search, Sparkles, ArrowRight } from "lucide-react";
+import React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Icon } from "@/components/ui/Icon";
+import { SearchBox } from "@/components/ui/SearchBox";
+import { Sparkles, ArrowRight } from "lucide-react";
 
-interface HeroModuleProps {
-    activeUsers?: number;
-    totalSavings?: string;
-}
+export function HeroModule() {
+  return (
+    <section className="relative bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 dark:from-black dark:via-purple-950 dark:to-black text-white overflow-hidden py-20 md:py-28 transition-colors duration-300">
+      {/* Background Decorative Blobs */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-brand-indigo/20 rounded-full blur-3xl -translate-y-1/2 pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl translate-y-1/2 pointer-events-none" />
 
-export function HeroModule({ activeUsers = 12453, totalSavings = "$2.4M" }: HeroModuleProps) {
-    const router = useRouter();
-    const [query, setQuery] = useState("");
+      <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop relative z-10 flex flex-col items-center text-center">
+        
+        {/* Banner Tag */}
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 dark:bg-white/5 backdrop-blur-md rounded-full border border-white/20 mb-8 animate-fade-in">
+          <Sparkles className="w-4 h-4 text-amber-400 fill-amber-400 animate-pulse" />
+          <span className="text-[11px] font-bold tracking-wider uppercase text-slate-100">
+            Over 10,000+ verified offers daily
+          </span>
+        </div>
 
-    const handleSearch = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (query.trim()) {
-            router.push(`/assistant?q=${encodeURIComponent(query)}`);
-        }
-    };
+        {/* Hero Headlines */}
+        <h1 className="text-4xl md:text-6xl font-headline-lg font-extrabold tracking-tight max-w-4xl leading-[1.15] mb-6">
+          Smart shopping starts with{" "}
+          <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+            verified savings.
+          </span>
+        </h1>
 
-    return (
-        <section className="relative pt-24 pb-20 px-4 overflow-hidden border-b border-surface-200 dark:border-surface-800 bg-white dark:bg-black">
-            <div className="max-w-4xl mx-auto text-center space-y-6">
-                <h1 className="text-5xl md:text-7xl font-headline-lg font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
-                    Save more every time <br className="hidden md:block"/> you shop online.
-                </h1>
-                <p className="text-lg md:text-xl text-surface-600 dark:text-surface-300 max-w-2xl mx-auto font-medium">
-                    Find verified coupons, cashback offers, payment discounts, and shopping tips for thousands of stores.
-                </p>
-                
-                {/* COMMAND SEARCH */}
-                <div className="relative group max-w-3xl mx-auto pt-4">
-                    <form onSubmit={handleSearch} className="relative group flex items-center bg-white dark:bg-surface-800 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)] p-2 pr-4 ring-1 ring-surface-200 dark:ring-surface-700 transition-all duration-300 hover:ring-primary-500 focus-within:ring-2 focus-within:ring-primary-500">
-                        <div className="absolute left-6 text-primary-500">
-                            <Sparkles className="w-6 h-6 animate-pulse" />
-                        </div>
-                        <input
-                            type="text"
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                            placeholder="What do you want to buy today?"
-                            className="w-full pl-16 pr-4 py-4 bg-transparent border-none text-lg text-surface-900 dark:text-white placeholder:text-surface-400 focus:outline-none focus:ring-0"
-                        />
-                        <button type="submit" className="hidden sm:flex items-center gap-2 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white px-8 py-4 rounded-full font-semibold transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5">
-                            Ask Copilot
-                            <ArrowRight className="w-5 h-5" />
-                        </button>
-                    </form>
-                    <div className="mt-6 flex flex-wrap justify-center items-center gap-3 text-sm">
-                        <span className="text-surface-500 font-bold uppercase tracking-wider mr-2 text-[11px]">Trending:</span>
-                        <Link href="/stores/amazon" className="text-surface-700 dark:text-surface-300 hover:text-primary hover:-translate-y-0.5 transition-all font-bold bg-surface-100 dark:bg-surface-800 px-3 py-1.5 rounded-full">Amazon</Link>
-                        <Link href="/stores/flipkart" className="text-surface-700 dark:text-surface-300 hover:text-primary hover:-translate-y-0.5 transition-all font-bold bg-surface-100 dark:bg-surface-800 px-3 py-1.5 rounded-full">Flipkart</Link>
-                        <Link href="/stores/myntra" className="text-surface-700 dark:text-surface-300 hover:text-primary hover:-translate-y-0.5 transition-all font-bold bg-surface-100 dark:bg-surface-800 px-3 py-1.5 rounded-full">Myntra</Link>
-                        <Link href="/stores/nykaa" className="text-surface-700 dark:text-surface-300 hover:text-primary hover:-translate-y-0.5 transition-all font-bold bg-surface-100 dark:bg-surface-800 px-3 py-1.5 rounded-full">Nykaa</Link>
-                        <Link href="/stores/ajio" className="text-surface-700 dark:text-surface-300 hover:text-primary hover:-translate-y-0.5 transition-all font-bold bg-surface-100 dark:bg-surface-800 px-3 py-1.5 rounded-full">Ajio</Link>
-                    </div>
-                </div>
+        <p className="font-body-lg text-slate-300 max-w-2xl text-base md:text-lg mb-12 leading-relaxed">
+          Join 2M+ smart shoppers getting exclusive coupons, massive cashbacks, and hidden deals across thousands of stores.
+        </p>
 
-                {/* TRUST SIGNALS */}
-                <div className="pt-10 flex flex-wrap justify-center gap-6 md:gap-8 text-sm font-bold text-surface-600 dark:text-surface-400">
-                    <span className="flex items-center gap-1.5"><Icon name="check_circle" className="text-verified" variant="fill" /> Updated regularly</span>
-                    <span className="flex items-center gap-1.5"><Icon name="check_circle" className="text-verified" variant="fill" /> Working coupons</span>
-                    <span className="flex items-center gap-1.5"><Icon name="check_circle" className="text-verified" variant="fill" /> Trusted merchants</span>
-                    <span className="flex items-center gap-1.5"><Icon name="check_circle" className="text-verified" variant="fill" /> Cashback available</span>
-                </div>
+        {/* Dynamic Search Box */}
+        <div className="w-full max-w-2xl bg-white/5 dark:bg-white/5 p-2 rounded-full border border-white/10 backdrop-blur-md shadow-2xl mb-10">
+          <SearchBox 
+            placeholder="Search Amazon, Flipkart, Myntra, Swiggy..." 
+            className="w-full text-slate-800"
+          />
+        </div>
 
-            </div>
-        </section>
-    );
+        {/* Quick Links / Popular Searches */}
+        <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-slate-400">
+          <span className="font-semibold text-slate-300">Trending Now:</span>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { name: "Amazon", slug: "amazon" },
+              { name: "Myntra", slug: "myntra" },
+              { name: "Swiggy", slug: "swiggy" }
+            ].map((store) => (
+              <Link
+                key={store.slug}
+                href={`/stores/${store.slug}`}
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 dark:bg-white/5 dark:hover:bg-white/10 border border-white/10 hover:border-white/30 rounded-full transition-all text-xs font-bold text-white flex items-center gap-1.5 active:scale-95 shadow-sm"
+              >
+                <span>{store.name}</span>
+                <ArrowRight className="w-3.5 h-3.5 opacity-60" />
+              </Link>
+            ))}
+          </div>
+        </div>
+        
+      </div>
+    </section>
+  );
 }

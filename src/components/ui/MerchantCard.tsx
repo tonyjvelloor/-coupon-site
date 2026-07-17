@@ -1,8 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Card } from './Card';
-import { Icon } from './Icon';
 
 export interface MerchantCardProps {
     store: {
@@ -14,90 +12,61 @@ export interface MerchantCardProps {
         offerCount: number;
         verified?: boolean;
         lastVerified?: string;
-        rating?: number; // Added rating
-        bestSavings?: string; // Added best savings
+        rating?: number;
+        bestSavings?: string;
     };
     className?: string;
     priority?: boolean;
 }
 
 export function MerchantCard({ store, className = "", priority = false }: MerchantCardProps) {
-    const isVerified = store.verified !== false; 
-    const rating = store.rating || 4.8;
-    const bestSavings = store.bestSavings || "₹500";
-    
     return (
-        <Card interactive className={`h-full border-surface-200 dark:border-surface-800 hover:border-primary dark:hover:border-primary transition-all duration-300 hover:-translate-y-1 hover:shadow-md ${className}`}>
-            <Link href={`/stores/${store.slug}`} className="flex flex-col h-full group p-5">
-                
-                {/* Header: Logo and Title */}
-                <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-800 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
-                        {store.logo ? (
-                            <Image
-                                src={store.logo}
-                                alt={store.name}
-                                width={48}
-                                height={48}
-                                className="object-contain p-1"
-                                loading={priority ? undefined : "lazy"}
-                                priority={priority}
-                            />
-                        ) : (
-                            <span className="font-bold text-xl text-surface-400 dark:text-surface-500">{store.name.charAt(0)}</span>
-                        )}
-                    </div>
-                    
-                    <div className="flex flex-col justify-center flex-grow">
-                        <div className="flex items-center gap-1">
-                            <h3 className="font-bold text-lg text-slate-900 dark:text-surface-100 line-clamp-1">{store.name}</h3>
-                            {isVerified && (
-                                <Icon name="verified" className="text-verified shrink-0 text-[14px]" variant="fill" />
-                            )}
-                        </div>
-                        {/* Rating */}
-                        <div className="flex items-center gap-1 text-amber-500 dark:text-amber-400 text-xs mt-0.5">
-                            <Icon name="star" variant="fill" className="text-[12px]" />
-                            <Icon name="star" variant="fill" className="text-[12px]" />
-                            <Icon name="star" variant="fill" className="text-[12px]" />
-                            <Icon name="star" variant="fill" className="text-[12px]" />
-                            <Icon name="star_half" variant="fill" className="text-[12px]" />
-                            <span className="text-surface-500 font-medium ml-1">{rating.toFixed(1)}</span>
-                        </div>
-                    </div>
+        <Link 
+            href={`/stores/${store.slug}`} 
+            className={`premium-card bg-surface-white dark:bg-inverse-surface rounded-2xl border border-surface-variant/20 p-6 flex flex-col group cursor-pointer h-full ${className}`}
+        >
+            <div className="flex justify-between items-start mb-6">
+                <div className="w-16 h-16 rounded-xl border border-surface-variant/20 p-2 bg-white flex items-center justify-center group-hover:scale-105 transition-transform overflow-hidden relative">
+                    {store.logo ? (
+                        <Image
+                            src={store.logo}
+                            alt={store.name}
+                            fill
+                            className="object-contain p-2"
+                            loading={priority ? undefined : "lazy"}
+                            priority={priority}
+                        />
+                    ) : (
+                        <Image
+                            src={`https://icon.horse/icon/${store.slug.replace(/-/g, '')}.com`}
+                            alt={store.name}
+                            fill
+                            className="object-contain p-2"
+                            unoptimized
+                        />
+                    )}
                 </div>
-                
-                {/* Core Metrics */}
-                <div className="space-y-2 mt-auto">
-                    <div className="flex items-center gap-2 text-sm text-surface-600 dark:text-surface-400">
-                        <Icon name="sell" className="text-[14px]" />
-                        <span className="font-bold text-slate-900 dark:text-white">{store.offerCount} Offers</span>
-                        {store.cashbackRate && (
-                            <>
-                                <span className="text-surface-300 mx-1">•</span>
-                                <span className="font-bold text-green-600 dark:text-green-400">{store.cashbackRate}</span>
-                            </>
-                        )}
-                    </div>
-                    
-                    <div className="flex items-center gap-2 text-sm text-surface-600 dark:text-surface-400">
-                        <Icon name="savings" className="text-[14px]" />
-                        <span>Best Savings: <span className="font-bold text-slate-900 dark:text-white font-headline-sm">{bestSavings}</span></span>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-xs text-surface-500 dark:text-surface-500">
-                        <Icon name="update" className="text-[12px]" />
-                        <span>Updated {store.lastVerified || '5 mins ago'}</span>
-                    </div>
+                <div className="bg-primary/10 text-primary px-3 py-1 rounded-full font-label-md text-label-sm font-bold flex items-center gap-1">
+                    <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>local_offer</span>
+                    {store.offerCount} Active
                 </div>
-
-                {/* View Deals CTA */}
-                <div className="mt-5 pt-4 border-t border-surface-100 dark:border-surface-800 flex items-center justify-between text-sm font-bold text-primary dark:text-primary-400 group-hover:text-primary-600 dark:group-hover:text-primary-300 transition-colors">
-                    View Deals
-                    <Icon name="arrow_forward" className="text-[16px] group-hover:translate-x-1 transition-transform" />
+            </div>
+            
+            <h3 className="font-title-md font-bold text-on-surface dark:text-white mb-1 group-hover:text-primary transition-colors">{store.name}</h3>
+            
+            <p className="font-body-md text-label-md text-success-green font-bold mb-4">
+                {store.bestSavings || "Up to 80% Off"}
+            </p>
+            
+            <div className="mt-auto pt-4 border-t border-surface-variant/20 flex items-center justify-between">
+                <div className="flex -space-x-2">
+                    {/* Simulated users for social proof */}
+                    <img alt="User" className="w-6 h-6 rounded-full border-2 border-white dark:border-inverse-surface" src="https://i.pravatar.cc/100?img=1"/>
+                    <img alt="User" className="w-6 h-6 rounded-full border-2 border-white dark:border-inverse-surface" src="https://i.pravatar.cc/100?img=2"/>
+                    <img alt="User" className="w-6 h-6 rounded-full border-2 border-white dark:border-inverse-surface" src="https://i.pravatar.cc/100?img=3"/>
                 </div>
-
-            </Link>
-        </Card>
+                <span className="font-label-md text-label-sm text-on-surface-variant dark:text-surface-variant">4k+ saved this week</span>
+            </div>
+        </Link>
     );
 }

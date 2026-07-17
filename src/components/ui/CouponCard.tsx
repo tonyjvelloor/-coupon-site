@@ -124,7 +124,13 @@ export default function CouponCard({ coupon, storeName, storeLogo }: CouponCardP
 
                 {coupon.discountValue && (
                     <div className="text-xl font-bold text-green-600 dark:text-green-500 mb-2">
-                        {coupon.discountValue}
+                        {/^\d+$/.test(coupon.discountValue) ? (
+                            Number(coupon.discountValue) <= 100 
+                                ? `Up to ${coupon.discountValue}% Off` 
+                                : `Save ${coupon.discountValue}`
+                        ) : (
+                            coupon.discountValue
+                        )}
                     </div>
                 )}
 

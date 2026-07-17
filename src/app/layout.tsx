@@ -58,6 +58,7 @@ export const metadata: Metadata = {
 };
 
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { CouponModalProvider } from "@/components/providers/CouponModalProvider";
 
 // ... imports
 
@@ -102,7 +103,7 @@ export default function RootLayout({
         </Script>
       </head>
       <body
-        className={`${outfit.variable} ${plusJakartaSans.variable} font-sans antialiased bg-surface-50 dark:bg-surface-900 text-slate-900 dark:text-surface-50 transition-colors duration-300 overflow-x-hidden`}
+        className={`${outfit.variable} font-sans antialiased bg-background text-on-surface overflow-x-hidden`}
         suppressHydrationWarning
       >
         <Script
@@ -122,7 +123,9 @@ export default function RootLayout({
           }}
         />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          {children}
+          <CouponModalProvider>
+            {children}
+          </CouponModalProvider>
         </ThemeProvider>
         <script
           type="application/ld+json"

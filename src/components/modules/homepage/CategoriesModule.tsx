@@ -1,7 +1,19 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
-import Image from "next/image";
-import { SectionHeader } from "@/components/ui/SectionHeader";
+
+const getIconForCategory = (slug: string) => {
+    switch (slug) {
+        case 'electronics': return 'devices';
+        case 'fashion': return 'checkroom';
+        case 'travel': return 'flight';
+        case 'food-dining': return 'restaurant';
+        case 'health-beauty': return 'health_and_beauty';
+        case 'home-kitchen': return 'chair';
+        case 'sports': return 'sports_basketball';
+        case 'entertainment': return 'movie';
+        default: return 'category';
+    }
+};
 
 export async function CategoriesModule() {
     const categories = await prisma.category.findMany({
@@ -13,25 +25,28 @@ export async function CategoriesModule() {
     if (!categories.length) return null;
 
     return (
-        <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-container-max mx-auto bg-white dark:bg-black">
-            <SectionHeader 
-                title="Browse by Category" 
-                action={{ label: "View all categories", href: "/categories" }} 
-            />
-            <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-6 -mx-4 px-4 sm:mx-0 sm:px-0 md:grid md:grid-cols-4 lg:grid-cols-8 md:overflow-visible gap-4 md:pb-0">
+        <section className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-12 transition-colors duration-300">
+            <div className="flex justify-between items-end mb-8">
+                <div>
+                    <h2 className="font-display-lg text-title-md font-bold text-on-surface dark:text-white">Shop by Category</h2>
+                    <p className="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant mt-2">Find the best deals across your favorite categories</p>
+                </div>
+                <Link href="/categories" className="hidden sm:flex items-center gap-1 font-label-md text-label-md text-primary hover:text-brand-indigo font-bold transition-colors">
+                    View All <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>arrow_forward</span>
+                </Link>
+            </div>
+
+            <div className="grid grid-cols-4 md:grid-cols-8 gap-4">
                 {categories.map((cat) => (
-                    <Link key={cat.id} href={`/category/${cat.slug}`} className="flex flex-col items-center group shrink-0 snap-start w-[100px] sm:w-[120px] md:w-auto">
-                        <div className="w-20 h-20 sm:w-24 sm:h-24 relative mb-4 rounded-2xl overflow-hidden border border-surface-200 dark:border-surface-700 shadow-sm group-hover:shadow-md group-hover:border-primary-500 group-hover:-translate-y-1 transition-all duration-300 bg-surface-100 dark:bg-surface-800">
-                            <Image 
-                                src={`/images/categories/${cat.slug}.jpg`} 
-                                alt={cat.name} 
-                                fill 
-                                sizes="(max-width: 768px) 80px, 96px"
-                                className="object-cover group-hover:scale-105 transition-transform duration-500" 
-                                loading="lazy"
-                            />
+                    <Link key={cat.id} href={`/category/${cat.slug}`} className="flex flex-col items-center gap-3 group category-icon-wrapper">
+                        <div className="w-16 h-16 rounded-2xl bg-surface-container dark:bg-inverse-surface border border-surface-variant/30 flex items-center justify-center group-hover:bg-primary-container transition-colors">
+                            <span className="material-symbols-outlined text-on-surface-variant dark:text-surface-variant group-hover:text-primary transition-colors category-icon" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
+                                {getIconForCategory(cat.slug)}
+                            </span>
                         </div>
-                        <span className="font-semibold text-slate-900 dark:text-surface-100 text-sm text-center w-full group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">{cat.name}</span>
+                        <span className="font-label-md text-label-sm text-center text-on-surface dark:text-white font-bold group-hover:text-primary transition-colors">
+                            {cat.name}
+                        </span>
                     </Link>
                 ))}
             </div>

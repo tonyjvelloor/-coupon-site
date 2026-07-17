@@ -8,6 +8,8 @@ import { formatDistanceToNow } from 'date-fns';
 import { useShoppingProfile } from "@/components/providers/UserProvider";
 import confetti from 'canvas-confetti';
 
+import { useCouponModal } from '@/components/providers/CouponModalProvider';
+
 export interface StoreHeroProps {
     store: any; // e.g. from getMerchantBySlug
     activeCoupons: any[];
@@ -17,6 +19,7 @@ export interface StoreHeroProps {
 export function StoreHero({ store, activeCoupons, bestDeal }: StoreHeroProps) {
     const [copied, setCopied] = useState(false);
     const [showStickyCTA, setShowStickyCTA] = useState(false);
+    const { openCouponModal } = useCouponModal();
 
     const { isStoreSaved, saveStore, removeStore, addRecentStore } = useShoppingProfile();
     const isSaved = store?.slug ? isStoreSaved(store.slug) : false;
@@ -47,6 +50,25 @@ export function StoreHero({ store, activeCoupons, bestDeal }: StoreHeroProps) {
     const handleCopyCoupon = (e: React.MouseEvent) => {
         // Analytics track stub
         console.log("Analytics: onCopyCoupon", { store: store.name, dealId: bestDeal?.id });
+        
+        const outUrl = bestDeal 
+            ? `/out?url=${encodeURIComponent(bestDeal.affiliateUrl)}&couponId=${bestDeal.id}&source=store-hero`
+            : "";
+
+        if (bestDeal) {
+            window.open(outUrl, "_blank");
+
+            openCouponModal({
+                id: bestDeal.id,
+                title: bestDeal.title,
+                code: bestDeal.code || undefined,
+                description: bestDeal.description || undefined,
+                affiliateUrl: outUrl,
+                storeName: store.name,
+                storeLogo: store.logo || undefined,
+            });
+        }
+
         if (bestDeal?.code) {
             navigator.clipboard.writeText(bestDeal.code);
             setCopied(true);
@@ -70,10 +92,6 @@ export function StoreHero({ store, activeCoupons, bestDeal }: StoreHeroProps) {
 
             setTimeout(() => setCopied(false), 2000);
         }
-        if (bestDeal) {
-            const outUrl = `/out?url=${encodeURIComponent(bestDeal.affiliateUrl)}&couponId=${bestDeal.id}&source=store-hero`;
-            window.open(outUrl, "_blank");
-        }
     };
 
     return (
@@ -84,11 +102,11 @@ export function StoreHero({ store, activeCoupons, bestDeal }: StoreHeroProps) {
                     {/* Left: Merchant Context */}
                     <div className="flex-1 space-y-4">
                         <div className="flex items-center gap-4">
-                            <div className="w-16 h-16 rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-800 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                            <div className="w-16 h-16 rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-inverse-surface flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
                                 {store.logo ? (
                                     <Image src={store.logo} alt={store.name} width={64} height={64} className="object-contain p-1" />
                                 ) : (
-                                    <span className="font-bold text-2xl text-surface-400 dark:text-surface-500">{store.name.charAt(0)}</span>
+                                    <Image src={`https://icon.horse/icon/${store.slug.replace(/-/g, '')}.com`} alt={store.name} width={64} height={64} className="object-contain p-1" unoptimized />
                                 )}
                             </div>
                             <div>

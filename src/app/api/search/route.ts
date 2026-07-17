@@ -1,74 +1,49 @@
-
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
-export async function GET(request: NextRequest) {
-    const searchParams = request.nextUrl.searchParams;
-    const query = searchParams.get("q");
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const query = searchParams.get("q") || "";
 
-    if (!query || query.length < 2) {
-        return NextResponse.json({ stores: [], coupons: [] });
-    }
+  if (!query || query.length < 2) {
+    return NextResponse.json({ stores: [], categories: [] });
+  }
 
-    try {
-        const stores = await prisma.store.findMany({
-            where: {
-                OR: [
-                    { name: { contains: query } }, // Case insensitive by default in SQLite setup? No, usually generic `contains`.
-                    // For "startswith" specifically as requested:
-                    { name: { startsWith: query } },
-                ],
-                isActive: true,
-            },
-            take: 5,
-            select: {
-                id: true,
-                name: true,
-                logo: true,
-                slug: true,
-            },
-            orderBy: {
-                name: 'asc'
-            }
-        });
+  try {
+    const stores = await prisma.store.findMany({
+      where: {
+        name: {
+          contains: query,
+          mode: 'insensitive',
+        },
+        isActive: true,
+      },
+      select: {
+        name: true,
+        slug: true,
+        logo: true,
+      },
+      take: 8,
+    });
 
-        const coupons = await prisma.coupon.findMany({
-            where: {
-                OR: [
-                    { title: { contains: query } },
-                    { code: { contains: query } },
-                ],
-                // Filter out coupons from inactive stores? Ideally yes, but prisma relational filter might be heavy.
-                // Keeping it simple.
-            },
-            take: 5,
-            select: {
-                id: true,
-                title: true,
-                code: true,
-                discountValue: true,
-                store: {
-                    select: {
-                        name: true,
-                        logo: true
-                    }
-                }
-            },
-            orderBy: {
-                createdAt: 'desc'
-            }
-        });
+    const categories = await prisma.category.findMany({
+      where: {
+        name: {
+          contains: query,
+          mode: 'insensitive',
+        },
+        isActive: true,
+      },
+      select: {
+        name: true,
+        slug: true,
+      },
+      take: 5,
+    });
 
-        // Filter valid matches on client side or refine query? 
-        // Note: SQLite `contains` is usually case-insensitive.
-
-        return NextResponse.json({ stores, coupons });
-
-    } catch (error) {
-        console.error("Search error:", error);
-        return NextResponse.json(
-            { error: "Internal Server Error" },
-            { status: 500 }
-        );
-    }
+    return NextResponse.json({ stores, categories });
+  } catch (error) {
+    console.error("Search API Error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
 }

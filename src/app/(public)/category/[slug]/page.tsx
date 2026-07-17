@@ -72,6 +72,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
 }
 
+import { EmptyStateFallback } from "@/components/ui/EmptyStateFallback";
+
+// ... other imports
+
 export default async function CategoryPage({ params }: PageProps) {
     const { slug } = await params;
 
@@ -81,13 +85,12 @@ export default async function CategoryPage({ params }: PageProps) {
             children: { where: { isActive: true } },
             storeCategories: {
                 include: {
-                    store: true,
+                    store: {
+                        include: {
+                            merchantIdentity: true
+                        }
+                    },
                 },
-            },
-            coupons: {
-                include: { merchantIdentity: { include: { store: true } } },
-                orderBy: { createdAt: "desc" },
-                take: 12,
             },
         },
     });
@@ -100,6 +103,25 @@ export default async function CategoryPage({ params }: PageProps) {
         ...sc.store,
         offerCount: sc.store.activeOfferCount || sc.store.offerCount,
     }));
+
+    const storeIdentityIds = category.storeCategories
+        .map((sc) => sc.store.merchantIdentity?.id)
+        .filter(Boolean) as string[];
+
+    const categoryCoupons = await prisma.coupon.findMany({
+        where: {
+            merchantIdentityId: { in: storeIdentityIds },
+            deletedAt: null,
+            OR: [
+                { expiresAt: null },
+                { expiresAt: { gt: new Date() } }
+            ]
+        },
+        include: { merchantIdentity: { include: { store: true } } },
+        orderBy: { createdAt: "desc" },
+        take: 12,
+    });
+
 
     return (
         <div className="bg-background min-h-screen pb-24">
@@ -179,7 +201,7 @@ export default async function CategoryPage({ params }: PageProps) {
                                         lastVerified: "20 mins ago",
                                         cashbackRate: store.cashbackRate
                                     }} 
-                                />
+                                  />
                             ))}
                         </div>
                     </section>
@@ -194,9 +216,9 @@ export default async function CategoryPage({ params }: PageProps) {
                         </h2>
                     </div>
                     
-                    {category.coupons.length > 0 ? (
+                    {categoryCoupons.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {category.coupons.map((coupon) => (
+                            {categoryCoupons.map((coupon) => (
                                 <DecisionCard
                                     key={coupon.id}
                                     coupon={{
@@ -218,16 +240,10 @@ export default async function CategoryPage({ params }: PageProps) {
                             ))}
                         </div>
                     ) : (
-                        <div className="text-center py-16 bg-surface-50 dark:bg-surface-900 rounded-2xl border border-dashed border-surface-300 dark:border-surface-700">
-                            <Icon name="tag" className="text-4xl text-surface-400 mb-4" />
-                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">No active deals found</h3>
-                            <p className="text-surface-500 max-w-md mx-auto mb-6">
-                                There are currently no active offers in this category. Browse merchants directly to find deals.
-                            </p>
-                            <Link href="/stores" className="inline-flex items-center gap-2 bg-primary-600 text-white px-6 py-2.5 rounded-lg font-bold hover:bg-primary-700 transition-colors">
-                                Browse all stores <Icon name="arrow_forward" className="text-[16px]" />
-                            </Link>
-                        </div>
+                        <EmptyStateFallback 
+                            title={`No active offers found for ${category.name}`}
+                            description={`There are currently no active verified deals or coupons for ${category.name.toLowerCase()} right now. Please explore one of our trending partners below.`}
+                        />
                     )}
                 </section>
 
@@ -254,7 +270,7 @@ export default async function CategoryPage({ params }: PageProps) {
 
             </div>
             
-            <CategorySchema category={category} coupons={category.coupons} />
+            <CategorySchema category={category} coupons={categoryCoupons} />
         </div>
     );
 }

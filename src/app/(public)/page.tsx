@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic';
 
 // Modular Homepage Composition Layer
 import { HeroModule } from "@/components/modules/homepage/HeroModule";
+import { TrustMarkersModule } from "@/components/modules/homepage/TrustMarkersModule";
 import { PopularStoresModule } from "@/components/modules/homepage/PopularStoresModule";
 import { PersonalizedFeedModule } from "@/components/modules/homepage/PersonalizedFeedModule";
 import { BestOffersModule } from "@/components/modules/homepage/BestOffersModule";
@@ -28,6 +29,7 @@ export default function Home() {
             
             {/* 1. HERO SECTION */}
             <HeroModule />
+            <TrustMarkersModule />
 
             {/* MAIN CONTENT - MODULAR ORCHESTRATION */}
             <div className="space-y-4 py-8">

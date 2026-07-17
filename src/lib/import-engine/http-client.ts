@@ -97,4 +97,43 @@ export class HttpClient {
     
     throw new Error('Unreachable');
   }
+
+  /**
+   * Posts data with exponential backoff on 429 and 5xx errors.
+   */
+  public async post<T = any>(apiPath: string, body: any): Promise<T> {
+    const url = new URL(this.baseURL + apiPath);
+
+    let attempt = 0;
+    while (attempt <= this.maxRetries) {
+      try {
+        const response = await fetch(url.toString(), {
+          method: 'POST',
+          headers: this.headers,
+          body: JSON.stringify(body)
+        });
+
+        if (response.ok) {
+          const data = await response.json().catch(() => null);
+          return data as T;
+        }
+
+        if (response.status === 429 || response.status >= 500) {
+          throw new Error(`HTTP Error ${response.status}: ${response.statusText}`);
+        }
+
+        const text = await response.text().catch(() => '');
+        throw new Error(`HTTP Error ${response.status}: ${response.statusText}. Body: ${text}`);
+      } catch (err) {
+        attempt++;
+        if (attempt > this.maxRetries) {
+          throw err;
+        }
+        const delay = this.retryDelayMs * Math.pow(2, attempt - 1);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+    
+    throw new Error('Unreachable');
+  }
 }

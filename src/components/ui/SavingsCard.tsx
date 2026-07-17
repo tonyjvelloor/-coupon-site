@@ -1,8 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Card } from './Card';
-import { Icon } from './Icon';
 
 export interface SavingsCardProps {
     savings: {
@@ -22,60 +20,60 @@ export function SavingsCard({ savings, className = "" }: SavingsCardProps) {
     const getTypeConfig = () => {
         switch(savings.type) {
             case 'cashback':
-                return { icon: 'payments', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-900/30' };
+                return { icon: 'payments', color: 'text-success-green' };
             case 'bank':
-                return { icon: 'credit_card', color: 'text-indigo-600 dark:text-indigo-400', bg: 'bg-indigo-50 dark:bg-indigo-900/30' };
+                return { icon: 'credit_card', color: 'text-primary' };
             case 'student':
-                return { icon: 'school', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-900/30' };
+                return { icon: 'school', color: 'text-brand-indigo' };
             case 'reward':
-                return { icon: 'stars', color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-900/30' };
+                return { icon: 'stars', color: 'text-brand-coral' };
             default:
-                return { icon: 'savings', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-900/30' };
+                return { icon: 'savings', color: 'text-success-green' };
         }
     };
     
     const config = getTypeConfig();
 
     return (
-        <Card interactive className={`h-full border-surface-200 dark:border-surface-800 hover:border-primary dark:hover:border-primary transition-colors duration-300 ${className}`}>
-            <Link href={`/stores/${savings.storeSlug}`} className="flex flex-col h-full group p-4 sm:p-5">
-                
-                <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-800 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
-                        {savings.logo ? (
-                            <Image
-                                src={savings.logo}
-                                alt={savings.storeName}
-                                width={48}
-                                height={48}
-                                className="object-contain p-1"
-                                loading="lazy"
-                            />
-                        ) : (
-                            <span className="font-bold text-xl text-surface-400 dark:text-surface-500">{savings.storeName.charAt(0)}</span>
-                        )}
-                    </div>
-                    
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${config.bg} ${config.color}`}>
-                        <Icon name={config.icon} className="text-[18px]" />
-                    </div>
+        <Link 
+            href={`/stores/${savings.storeSlug}`} 
+            className={`premium-card bg-surface-white dark:bg-inverse-surface rounded-2xl border border-surface-variant/20 p-6 flex flex-col group cursor-pointer h-full ${className}`}
+        >
+            <div className="flex items-center justify-between mb-6">
+                <div className="w-16 h-16 rounded-xl border border-surface-variant/20 p-2 bg-white flex items-center justify-center group-hover:scale-105 transition-transform overflow-hidden relative">
+                    {savings.logo ? (
+                        <Image
+                            src={savings.logo}
+                            alt={savings.storeName}
+                            fill
+                            className="object-contain p-2"
+                            loading="lazy"
+                        />
+                    ) : (
+                        <span className="font-bold text-xl text-surface-400">{savings.storeName.charAt(0)}</span>
+                    )}
                 </div>
                 
-                <div className="mt-auto">
-                    <h3 className="font-bold text-slate-900 dark:text-surface-100 text-sm mb-1">{savings.storeName}</h3>
-                    <div className="flex items-baseline gap-1.5">
-                        <span className={`font-headline-md font-bold text-2xl ${config.color}`}>
-                            {savings.value}
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center bg-surface-variant/10 ${config.color}`}>
+                    <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
+                        {config.icon}
+                    </span>
+                </div>
+            </div>
+            
+            <div className="mt-auto">
+                <h3 className="font-title-md font-bold text-on-surface dark:text-white mb-1 group-hover:text-primary transition-colors">{savings.storeName}</h3>
+                <div className="flex items-baseline gap-1.5">
+                    <span className={`font-display-sm font-bold text-2xl ${config.color}`}>
+                        {savings.value}
+                    </span>
+                    {savings.label && (
+                        <span className="font-label-md text-label-sm text-on-surface-variant dark:text-surface-variant uppercase tracking-wider">
+                            {savings.label}
                         </span>
-                        {savings.label && (
-                            <span className="text-xs font-medium text-surface-500 dark:text-surface-400 uppercase tracking-wider">
-                                {savings.label}
-                            </span>
-                        )}
-                    </div>
+                    )}
                 </div>
-
-            </Link>
-        </Card>
+            </div>
+        </Link>
     );
 }

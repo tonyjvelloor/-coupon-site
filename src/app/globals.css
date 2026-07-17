@@ -731,3 +731,20 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* ========================================
+   STITCH UI ENHANCEMENTS
+   ======================================== */
+.glass-effect { backdrop-filter: blur(12px); background: rgba(255, 255, 255, 0.8); }
+.coupon-dash-border { border-right: 2px dashed #c8c4d6; }
+.hero-gradient { background: radial-gradient(circle at top right, #e3dfff 0%, #f7f9fb 60%); }
+
+.reveal-modal-backdrop {
+    backdrop-filter: blur(12px);
+}
+.coupon-dashed {
+    background-image: linear-gradient(to right, #cbd5e1 50%, rgba(255,255,255,0) 0%);
+    background-position: bottom;
+    background-size: 10px 1px;
+    background-repeat: repeat-x;
+}

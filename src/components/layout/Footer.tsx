@@ -1,10 +1,7 @@
 import Link from "next/link";
-import { Ticket, Mail, MapPin } from "lucide-react";
 import NewsletterSignup from "@/components/ui/NewsletterSignup";
 
 const footerLinks = {
-    // ...
-
     stores: [
         { name: "Amazon", href: "/stores/amazon" },
         { name: "Flipkart", href: "/stores/flipkart" },
@@ -35,101 +32,63 @@ export default function Footer() {
     return (
         <>
             <NewsletterSignup />
-            <footer className="bg-gray-900 text-gray-300">
-                {/* Main Footer */}
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
-                        {/* Brand */}
-                        <div className="lg:col-span-2">
-                            <Link href="/" className="flex items-center gap-2 mb-4">
-                                <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
-                                    <Ticket className="w-6 h-6 text-white" />
-                                </div>
-                                <span className="text-xl font-bold text-white">CouponHub</span>
-                            </Link>
-                            <p className="text-gray-400 mb-6 max-w-sm">
-                                Your trusted destination for the best coupons, promo codes, and
-                                deals. Save money on every purchase with verified offers from top
-                                stores.
-                            </p>
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-3 text-sm">
-                                    <Mail className="w-4 h-4 text-violet-400" />
-                                    <span>contact@couponhub.store</span>
-                                </div>
-
-                                <div className="flex items-center gap-3 text-sm">
-                                    <MapPin className="w-4 h-4 text-violet-400" />
-                                    <span>Global Operations</span>
-                                </div>
-                            </div>
+            <footer className="bg-inverse-surface text-inverse-on-surface py-16 mt-20 transition-colors duration-300">
+                <div className="px-margin-mobile md:px-margin-desktop grid grid-cols-1 md:grid-cols-4 gap-12 max-w-container-max mx-auto">
+                    <div className="col-span-1 md:col-span-1">
+                        <div className="font-headline-lg font-bold text-white mb-6 tracking-tight">couponhub</div>
+                        <p className="text-surface-variant font-body-md text-body-md mb-8 opacity-80">Your ultimate destination for verified coupons, exclusive deals, and maximum cashback.</p>
+                        <div className="flex gap-4">
+                            <a className="w-10 h-10 rounded-full bg-surface-variant/10 flex items-center justify-center hover:bg-brand-indigo transition-all text-white" href="#">
+                                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>facebook</span>
+                            </a>
+                            <a className="w-10 h-10 rounded-full bg-surface-variant/10 flex items-center justify-center hover:bg-brand-indigo transition-all text-white" href="#">
+                                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>public</span>
+                            </a>
+                            <a className="w-10 h-10 rounded-full bg-surface-variant/10 flex items-center justify-center hover:bg-brand-indigo transition-all text-white" href="#">
+                                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>mail</span>
+                            </a>
                         </div>
-
-                        {/* Popular Stores */}
-                        <div>
-                            <h3 className="text-white font-semibold mb-4">Popular Stores</h3>
-                            <ul className="space-y-2">
-                                {footerLinks.stores.map((link) => (
-                                    <li key={link.href}>
-                                        <Link
-                                            href={link.href}
-                                            className="text-gray-400 hover:text-white transition-colors"
-                                        >
-                                            {link.name}
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-
-                        {/* Categories */}
-                        <div>
-                            <h3 className="text-white font-semibold mb-4">Categories</h3>
-                            <ul className="space-y-2">
-                                {footerLinks.categories.map((link) => (
-                                    <li key={link.href}>
-                                        <Link
-                                            href={link.href}
-                                            className="text-gray-400 hover:text-white transition-colors"
-                                        >
-                                            {link.name}
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-
-                        {/* Company */}
-                        <div>
-                            <h3 className="text-white font-semibold mb-4">Company</h3>
-                            <ul className="space-y-2">
-                                {footerLinks.company.map((link) => (
-                                    <li key={link.href}>
-                                        <Link
-                                            href={link.href}
-                                            className="text-gray-400 hover:text-white transition-colors"
-                                        >
-                                            {link.name}
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
+                    </div>
+                    <div>
+                        <h4 className="font-title-md font-bold text-white mb-6">Top Stores</h4>
+                        <ul className="space-y-4 text-surface-variant font-body-md text-body-md opacity-80">
+                            {footerLinks.stores.map((link) => (
+                                <li key={link.href}>
+                                    <Link href={link.href} className="hover:text-secondary-fixed transition-colors">
+                                        {link.name} Coupons
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 className="font-title-md font-bold text-white mb-6">Top Categories</h4>
+                        <ul className="space-y-4 text-surface-variant font-body-md text-body-md opacity-80">
+                            {footerLinks.categories.map((link) => (
+                                <li key={link.href}>
+                                    <Link href={link.href} className="hover:text-secondary-fixed transition-colors">
+                                        {link.name}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 className="font-title-md font-bold text-white mb-6">Company</h4>
+                        <ul className="space-y-4 text-surface-variant font-body-md text-body-md opacity-80">
+                            {footerLinks.company.map((link) => (
+                                <li key={link.href}>
+                                    <Link href={link.href} className="hover:text-secondary-fixed transition-colors">
+                                        {link.name}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
                     </div>
                 </div>
-
-                {/* Bottom Footer */}
-                <div className="border-t border-gray-800">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                            <p className="text-sm text-gray-500">
-                                © {currentYear} CouponHub. All rights reserved.
-                            </p>
-                            <p className="text-sm text-gray-500">
-                                Made with ❤️ for smart shoppers worldwide
-                            </p>
-                        </div>
-                    </div>
+                <div className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto mt-16 pt-8 border-t border-surface-variant/20 flex flex-col md:flex-row justify-between items-center gap-4 text-surface-variant font-body-md text-body-md opacity-60">
+                    <p>© {currentYear} couponhub. All rights reserved.</p>
+                    <p>Verified savings updated daily.</p>
                 </div>
             </footer>
         </>

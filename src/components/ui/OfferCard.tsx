@@ -9,6 +9,8 @@ import Image from 'next/image';
 import confetti from 'canvas-confetti';
 import { trackEvent } from '@/lib/analytics';
 
+import { useCouponModal } from '@/components/providers/CouponModalProvider';
+
 export interface OfferCardProps {
     coupon: {
         id: string;
@@ -33,12 +35,27 @@ export interface OfferCardProps {
 
 export function OfferCard({ coupon, storeName, storeLogo, isBestDeal = false, className = "" }: OfferCardProps) {
     const [copied, setCopied] = useState(false);
+    const { openCouponModal } = useCouponModal();
     
     const isExpiringSoon = coupon.expiresAt 
         ? new Date(coupon.expiresAt).getTime() - Date.now() < 3 * 24 * 60 * 60 * 1000 
         : false;
 
     const handleAction = (e: React.MouseEvent) => {
+        // Route through redirection engine
+        const outUrl = `/out?url=${encodeURIComponent(coupon.affiliateUrl)}&couponId=${coupon.id}&source=offer-card`;
+        window.open(outUrl, "_blank");
+
+        openCouponModal({
+            id: coupon.id,
+            title: coupon.title,
+            code: coupon.code || undefined,
+            description: coupon.description || undefined,
+            affiliateUrl: outUrl,
+            storeName: storeName || "Store",
+            storeLogo: storeLogo || undefined,
+        });
+
         if (coupon.type === "coupon" && coupon.code) {
             navigator.clipboard.writeText(coupon.code);
             setCopied(true);
@@ -65,9 +82,6 @@ export function OfferCard({ coupon, storeName, storeLogo, isBestDeal = false, cl
         } else {
             trackEvent('deal_clicked', { couponId: coupon.id });
         }
-        // Route through redirection engine
-        const outUrl = `/out?url=${encodeURIComponent(coupon.affiliateUrl)}&couponId=${coupon.id}&source=offer-card`;
-        window.open(outUrl, "_blank");
     };
 
     return (

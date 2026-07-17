@@ -18,10 +18,10 @@ export default function StoreCard({ store }: StoreCardProps) {
     return (
         <Link
             href={`/stores/${store.slug}`}
-            className="bg-white dark:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-700 p-4 hover:border-surface-300 dark:hover:border-surface-600 transition-colors flex flex-col h-full"
+            className="bg-white dark:bg-inverse-surface rounded-lg border border-surface-variant/30 p-4 hover:border-outline/50 transition-colors flex flex-col h-full"
         >
             <div className="flex items-center gap-3 mb-3">
-                <div className="w-14 h-14 relative bg-surface-50 dark:bg-white rounded border border-surface-100 flex items-center justify-center shrink-0">
+                <div className="w-14 h-14 relative bg-surface-container-low dark:bg-white rounded border border-surface-variant/30 flex items-center justify-center shrink-0">
                     {store.logo ? (
                         <Image
                             src={store.logo}
@@ -30,13 +30,19 @@ export default function StoreCard({ store }: StoreCardProps) {
                             className="object-contain p-2"
                         />
                     ) : (
-                        <StoreIcon className="w-6 h-6 text-gray-400" />
+                        <Image
+                            src={`https://icon.horse/icon/${store.slug.replace(/-/g, '')}.com`}
+                            alt={store.name}
+                            fill
+                            className="object-contain p-2"
+                            unoptimized
+                        />
                     )}
                 </div>
                 <div className="flex-1">
                     <h3 className="font-semibold text-slate-900 dark:text-white line-clamp-1">{store.name}</h3>
                     <div className="flex items-center gap-2 mt-1">
-                        <span className="flex items-center gap-1 text-[11px] font-medium text-surface-600 dark:text-surface-300 bg-surface-100 dark:bg-surface-700 px-1.5 py-0.5 rounded">
+                        <span className="flex items-center gap-1 text-[11px] font-medium text-on-surface-variant dark:text-surface-variant bg-surface-container-low dark:bg-on-background/20 px-1.5 py-0.5 rounded">
                             <Tag className="w-3 h-3" />
                             {store.offerCount} Offers
                         </span>
@@ -51,7 +57,7 @@ export default function StoreCard({ store }: StoreCardProps) {
             </div>
             
             {store.description && (
-                <p className="text-xs text-surface-500 dark:text-surface-400 line-clamp-2 mt-2">
+                <p className="text-xs text-on-surface-variant dark:text-surface-variant opacity-80 line-clamp-2 mt-2">
                     {store.description}
                 </p>
             )}
