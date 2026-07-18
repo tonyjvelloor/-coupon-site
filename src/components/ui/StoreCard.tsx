@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Store as StoreIcon, ChevronRight, Tag, Wallet } from "lucide-react";
+import { Tag, Wallet } from "lucide-react";
 
 interface StoreCardProps {
     store: {
@@ -18,36 +18,36 @@ export default function StoreCard({ store }: StoreCardProps) {
     return (
         <Link
             href={`/stores/${store.slug}`}
-            className="bg-white dark:bg-inverse-surface rounded-lg border border-surface-variant/30 p-4 hover:border-outline/50 transition-colors flex flex-col h-full"
+            className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 hover:border-indigo-300 dark:hover:border-indigo-500/40 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-200 flex flex-col h-full group"
         >
-            <div className="flex items-center gap-3 mb-3">
-                <div className="w-14 h-14 relative bg-surface-container-low dark:bg-white rounded border border-surface-variant/30 flex items-center justify-center shrink-0">
+            <div className="flex items-center gap-3 mb-2">
+                <div className="w-12 h-12 relative bg-white rounded-lg border border-gray-100 dark:border-gray-700 flex items-center justify-center shrink-0 overflow-hidden">
                     {store.logo ? (
                         <Image
                             src={store.logo}
                             alt={store.name}
                             fill
-                            className="object-contain p-2"
+                            className="object-contain p-1.5"
                         />
                     ) : (
                         <Image
                             src={`https://icon.horse/icon/${store.slug.replace(/-/g, '')}.com`}
                             alt={store.name}
                             fill
-                            className="object-contain p-2"
+                            className="object-contain p-1.5"
                             unoptimized
                         />
                     )}
                 </div>
-                <div className="flex-1">
-                    <h3 className="font-semibold text-slate-900 dark:text-white line-clamp-1">{store.name}</h3>
+                <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-gray-900 dark:text-white text-sm line-clamp-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{store.name}</h3>
                     <div className="flex items-center gap-2 mt-1">
-                        <span className="flex items-center gap-1 text-[11px] font-medium text-on-surface-variant dark:text-surface-variant bg-surface-container-low dark:bg-on-background/20 px-1.5 py-0.5 rounded">
+                        <span className="flex items-center gap-1 text-[11px] font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">
                             <Tag className="w-3 h-3" />
                             {store.offerCount} Offers
                         </span>
                         {store.cashbackRate && (
-                            <span className="flex items-center gap-1 text-[11px] font-bold text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/30 px-1.5 py-0.5 rounded">
+                            <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-1.5 py-0.5 rounded">
                                 <Wallet className="w-3 h-3" />
                                 {store.cashbackRate}
                             </span>
@@ -55,9 +55,9 @@ export default function StoreCard({ store }: StoreCardProps) {
                     </div>
                 </div>
             </div>
-            
+
             {store.description && (
-                <p className="text-xs text-on-surface-variant dark:text-surface-variant opacity-80 line-clamp-2 mt-2">
+                <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mt-1 leading-relaxed">
                     {store.description}
                 </p>
             )}
