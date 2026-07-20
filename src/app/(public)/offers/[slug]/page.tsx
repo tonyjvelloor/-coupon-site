@@ -87,7 +87,7 @@ export default async function CollectionPage({ params }: PageProps) {
                     ]
                 },
                 orderBy: [{ isFeatured: "desc" }, { createdAt: "desc" }],
-                include: { merchantIdentity: { include: { merchantIdentity: { include: { store: true } } } } },
+                include: { merchantIdentity: { include: { store: true } } },
             },
         },
     });
@@ -163,8 +163,8 @@ export default async function CollectionPage({ params }: PageProps) {
                                 <CouponCard
                                     key={coupon.id}
                                     coupon={coupon}
-                                    storeName={coupon.store?.name}
-                                    storeLogo={coupon.store?.logo}
+                                    storeName={coupon.merchantIdentity?.store?.name}
+                                    storeLogo={coupon.merchantIdentity?.store?.logo}
                                 />
                             ))}
                         </div>

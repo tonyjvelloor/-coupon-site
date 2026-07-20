@@ -15,6 +15,7 @@ export interface DecisionCardProps {
         description: string | null;
         code: string | null;
         type: string;
+        discountType: string;
         discountValue: string | null;
         affiliateUrl: string;
         isVerified: boolean;

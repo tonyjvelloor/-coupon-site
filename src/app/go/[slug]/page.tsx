@@ -14,7 +14,7 @@ export default async function CampaignRedirectPage({ params }: Props) {
     // Find the campaign link
     const campaignLink = await prisma.campaignLink.findUnique({
         where: { slug },
-        include: { merchantIdentity: { include: { merchantIdentity: { include: { store: true } } } } },
+        include: { merchantIdentity: { include: { store: true } } },
     });
 
     // If not found or inactive, show 404
@@ -153,7 +153,7 @@ export async function generateMetadata({ params }: Props) {
     const { slug } = await params;
     const campaignLink = await prisma.campaignLink.findUnique({
         where: { slug },
-        include: { merchantIdentity: { include: { merchantIdentity: { include: { store: true } } } } },
+        include: { merchantIdentity: { include: { store: true } } },
     });
 
     if (!campaignLink) {

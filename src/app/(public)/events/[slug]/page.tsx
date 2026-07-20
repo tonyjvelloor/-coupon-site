@@ -46,7 +46,7 @@ export default async function EventPage({ params }: PageProps) {
     const event = await prisma.saleEvent.findUnique({
         where: { slug, isActive: true },
         include: {
-            merchantIdentity: { include: { store: true } },
+            store: true,
         },
     });
 
@@ -65,14 +65,14 @@ export default async function EventPage({ params }: PageProps) {
             where: { merchantIdentity: { canonicalStoreId: event.storeId }, isVerified: true },
             orderBy: { createdAt: "desc" },
             take: 12,
-            include: { merchantIdentity: { include: { merchantIdentity: { include: { merchantIdentity: { include: { store: true } } } } } } }
+            include: { merchantIdentity: { include: { store: true } } }
         });
     } else {
         deals = await prisma.coupon.findMany({
             where: { isFeatured: true, isVerified: true },
             orderBy: { createdAt: "desc" },
             take: 12,
-            include: { merchantIdentity: { include: { merchantIdentity: { include: { merchantIdentity: { include: { store: true } } } } } } }
+            include: { merchantIdentity: { include: { store: true } } }
         });
     }
 

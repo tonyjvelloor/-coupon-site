@@ -64,11 +64,7 @@ export class CouponRepository {
         ]
       },
       include: {
-        merchantIdentity: {
-          include: {
-            store: true
-          }
-        }
+        merchantIdentity: { include: { store: true } }
       },
       orderBy: { createdAt: 'desc' },
       take: limit
@@ -122,11 +118,7 @@ export class CouponRepository {
         ]
       },
       include: {
-        merchantIdentity: {
-          include: {
-            store: true
-          }
-        }
+        merchantIdentity: { include: { store: true } }
       },
       orderBy: [
         { isFeatured: 'desc' },

@@ -117,7 +117,7 @@ export default async function CategoryPage({ params }: PageProps) {
                 { expiresAt: { gt: new Date() } }
             ]
         },
-        include: { merchantIdentity: { include: { merchantIdentity: { include: { merchantIdentity: { include: { store: true } } } } } } },
+        include: { merchantIdentity: { include: { store: true } } },
         orderBy: { createdAt: "desc" },
         take: 12,
     });

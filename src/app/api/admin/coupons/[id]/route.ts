@@ -13,7 +13,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
         const { id } = await params;
         const coupon = await prisma.coupon.findUnique({
             where: { id },
-            include: { merchantIdentity: { include: { merchantIdentity: { include: { merchantIdentity: { include: { store: true } } } } } } },
+            include: { merchantIdentity: { include: { store: true } } },
         });
 
         if (!coupon) {

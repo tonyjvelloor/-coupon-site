@@ -68,9 +68,7 @@ export default async function SearchPage({
                 ]
             },
             include: {
-                merchantIdentity: {
-                    include: { merchantIdentity: { include: { merchantIdentity: { include: { store: true } } } } }
-                }
+                merchantIdentity: { include: { store: true } }
             },
             take: 12
         }),

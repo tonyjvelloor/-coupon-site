@@ -8,7 +8,7 @@ export async function GET() {
     try {
         const coupons = await prisma.coupon.findMany({
             orderBy: { createdAt: "desc" },
-            include: { merchantIdentity: { include: { merchantIdentity: { include: { merchantIdentity: { include: { store: true } } } } } } },
+            include: { merchantIdentity: { include: { store: true } } },
         });
         return NextResponse.json(coupons);
     } catch (error) {
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
         if (data.storeId) {
             const identity = await prisma.merchantIdentity.findUnique({
                 where: { id: data.storeId },
-                include: { merchantIdentity: { include: { merchantIdentity: { include: { store: true } } } } }
+                include: { store: true }
             });
             if (identity?.store) {
                 await prisma.store.update({

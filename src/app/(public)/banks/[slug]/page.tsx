@@ -49,7 +49,7 @@ export default async function BankPage({ params }: PageProps) {
         include: {
             bankOffers: {
                 where: { isActive: true },
-                include: { merchantIdentity: { include: { merchantIdentity: { include: { store: true } } } } },
+                include: { store: true },
                 orderBy: { createdAt: "desc" },
             },
         },
