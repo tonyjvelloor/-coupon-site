@@ -11,6 +11,7 @@ export default async function EditCouponPage({ params }: PageProps) {
 
     const coupon = await prisma.coupon.findUnique({
         where: { id },
+        include: { merchantIdentity: true }
     });
 
     if (!coupon) {
@@ -23,5 +24,10 @@ export default async function EditCouponPage({ params }: PageProps) {
         select: { id: true, name: true },
     });
 
-    return <CouponForm stores={stores} initialData={coupon} />;
+    const initialData = {
+        ...coupon,
+        storeId: coupon.merchantIdentity?.canonicalStoreId || "",
+    };
+
+    return <CouponForm stores={stores} initialData={initialData} />;
 }

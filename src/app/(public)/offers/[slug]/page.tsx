@@ -163,8 +163,8 @@ export default async function CollectionPage({ params }: PageProps) {
                                 <CouponCard
                                     key={coupon.id}
                                     coupon={coupon}
-                                    storeName={coupon.merchantIdentity?.store?.name}
-                                    storeLogo={coupon.merchantIdentity?.store?.logo}
+                                    storeName={coupon.merchantIdentity?.store?.name || ""}
+                                    storeLogo={coupon.merchantIdentity?.store?.logo || null}
                                 />
                             ))}
                         </div>

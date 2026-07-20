@@ -21,6 +21,8 @@ export interface PublicMerchant {
   name: string;
   slug: string;
   description: string | null;
+  seoTitle: string | null;
+  seoDescription: string | null;
   logo: string | null;
   website: string;
   cashbackRate: string | null;

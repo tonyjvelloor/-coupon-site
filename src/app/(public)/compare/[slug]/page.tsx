@@ -38,14 +38,14 @@ export default async function ComparePage({ params }: { params: { slug: string }
       where: { slug: slug1 },
       include: {
         storeContents: true,
-        coupons: { where: { expiresAt: { gt: new Date() } }, take: 3 }
+        merchantIdentity: { include: { coupons: { where: { expiresAt: { gt: new Date() } }, take: 3 } } }
       }
     }),
     prisma.store.findUnique({
       where: { slug: slug2 },
       include: {
         storeContents: true,
-        coupons: { where: { expiresAt: { gt: new Date() } }, take: 3 }
+        merchantIdentity: { include: { coupons: { where: { expiresAt: { gt: new Date() } }, take: 3 } } }
       }
     })
   ]);
@@ -79,10 +79,10 @@ export default async function ComparePage({ params }: { params: { slug: string }
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <Breadcrumbs 
         items={[
-          { label: "Home", href: "/" },
-          { label: "Knowledge", href: "/knowledge" },
-          { label: "Compare", href: "/compare" },
-          { label: `${store1.name} vs ${store2.name}`, href: `/compare/${slug}` },
+          { name: "Home", href: "/" },
+          { name: "Knowledge", href: "/knowledge" },
+          { name: "Compare", href: "/compare" },
+          { name: `${store1.name} vs ${store2.name}`, href: `/compare/${slug}` },
         ]} 
       />
 
@@ -178,24 +178,24 @@ export default async function ComparePage({ params }: { params: { slug: string }
           <div className="p-4 font-medium flex items-center gap-2"><TrendingUp className="h-4 w-4 text-primary" /> Active Offers</div>
           <div className="p-4 md:border-l md:border-r">
             <ul className="space-y-3">
-              {store1.coupons.map(coupon => (
+              {(store1.merchantIdentity?.coupons || []).map((coupon: any) => (
                 <li key={coupon.id} className="text-sm border rounded p-2 bg-background">
                   <div className="font-semibold">{coupon.title}</div>
                   {coupon.code && <div className="text-xs text-muted-foreground mt-1 bg-muted inline-block px-1 rounded">Code: {coupon.code}</div>}
                 </li>
               ))}
-              {store1.coupons.length === 0 && <span className="text-sm text-muted-foreground">No active offers currently.</span>}
+              {(store1.merchantIdentity?.coupons || []).length === 0 && <span className="text-sm text-muted-foreground">No active offers currently.</span>}
             </ul>
           </div>
           <div className="p-4 md:border-l">
             <ul className="space-y-3">
-              {store2.coupons.map(coupon => (
+              {(store2.merchantIdentity?.coupons || []).map((coupon: any) => (
                 <li key={coupon.id} className="text-sm border rounded p-2 bg-background">
                   <div className="font-semibold">{coupon.title}</div>
                   {coupon.code && <div className="text-xs text-muted-foreground mt-1 bg-muted inline-block px-1 rounded">Code: {coupon.code}</div>}
                 </li>
               ))}
-              {store2.coupons.length === 0 && <span className="text-sm text-muted-foreground">No active offers currently.</span>}
+              {(store2.merchantIdentity?.coupons || []).length === 0 && <span className="text-sm text-muted-foreground">No active offers currently.</span>}
             </ul>
           </div>
         </div>

@@ -68,7 +68,7 @@ export default async function CouponsPage() {
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className="text-gray-700">{coupon.merchantIdentity?.name || "Unknown"}</span>
+                                        <span className="text-gray-700">{coupon.merchantIdentity?.store?.name || "Unknown"}</span>
                                     </td>
                                     <td className="px-6 py-4">
                                         {coupon.code ? (

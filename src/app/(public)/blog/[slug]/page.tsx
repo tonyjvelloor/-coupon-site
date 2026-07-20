@@ -36,6 +36,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
     const post = await prisma.blogPost.findUnique({
         where: { slug: params.slug },
+        include: { author: { select: { name: true } } }
     });
 
     if (!post || !post.isPublished) {
@@ -144,7 +145,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     const post = await prisma.blogPost.findUnique({
         where: { slug: params.slug },
         include: {
-            author: { select: { name: true } },
+            author: { select: { name: true, profileImage: true, bio: true } },
         },
     });
 

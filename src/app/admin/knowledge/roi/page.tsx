@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default async function KnowledgeROIPage() {
     const contents = await prisma.storeContent.findMany({
-        include: { merchantIdentity: { include: { store: true } } },
+        include: { store: true },
         orderBy: { revenue: "desc" },
         take: 100
     });

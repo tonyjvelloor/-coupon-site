@@ -227,6 +227,7 @@ export default async function CategoryPage({ params }: PageProps) {
                                         description: coupon.description,
                                         code: coupon.code,
                                         type: coupon.type,
+                                        discountType: coupon.discountType,
                                         discountValue: coupon.discountValue,
                                         affiliateUrl: coupon.affiliateUrl || `/go/${coupon.id}`,
                                         isVerified: true,

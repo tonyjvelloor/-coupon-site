@@ -14,7 +14,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
         where: { slug: params.slug },
         include: {
             merchantIdentity: {
-                include: { coupons: { where: { isActive: true }, orderBy: { discountValue: 'desc' }, take: 1 } }
+                include: { coupons: { where: { deletedAt: null }, orderBy: { discountValue: 'desc' }, take: 1 } }
             }
         }
     });
