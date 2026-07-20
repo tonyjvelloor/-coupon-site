@@ -28,8 +28,8 @@ export async function CategoriesModule() {
         <section className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-12 transition-colors duration-300">
             <div className="flex justify-between items-end mb-8">
                 <div>
-                    <h2 className="font-display-lg text-title-md font-bold text-on-surface dark:text-white">Shop by Category</h2>
-                    <p className="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant mt-2">Find the best deals across your favorite categories</p>
+                    <h2 className="font-display-lg text-title-md font-bold text-gray-900 dark:text-white">Shop by Category</h2>
+                    <p className="font-body-md text-body-md text-gray-600 dark:text-gray-400 mt-2">Find the best deals across your favorite categories</p>
                 </div>
                 <Link href="/categories" className="hidden sm:flex items-center gap-1 font-label-md text-label-md text-primary hover:text-brand-indigo font-bold transition-colors">
                     View All <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>arrow_forward</span>
@@ -39,12 +39,12 @@ export async function CategoriesModule() {
             <div className="grid grid-cols-4 md:grid-cols-8 gap-4">
                 {categories.map((cat) => (
                     <Link key={cat.id} href={`/category/${cat.slug}`} className="flex flex-col items-center gap-3 group category-icon-wrapper">
-                        <div className="w-16 h-16 rounded-2xl bg-surface-container dark:bg-inverse-surface border border-surface-variant/30 flex items-center justify-center group-hover:bg-primary-container transition-colors">
-                            <span className="material-symbols-outlined text-on-surface-variant dark:text-surface-variant group-hover:text-primary transition-colors category-icon" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
+                        <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/30 transition-colors">
+                            <span className="material-symbols-outlined text-gray-500 dark:text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors category-icon" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
                                 {getIconForCategory(cat.slug)}
                             </span>
                         </div>
-                        <span className="font-label-md text-label-sm text-center text-on-surface dark:text-white font-bold group-hover:text-primary transition-colors">
+                        <span className="font-label-md text-label-sm text-center text-gray-900 dark:text-white font-bold group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                             {cat.name}
                         </span>
                     </Link>

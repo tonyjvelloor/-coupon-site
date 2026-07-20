@@ -24,7 +24,7 @@ export async function RecentlyUpdatedModule() {
     ];
 
     return (
-        <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-container-max mx-auto bg-surface-50 dark:bg-surface-900/50 rounded-[2.5rem]">
+        <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-container-max mx-auto bg-gray-50 dark:bg-gray-900/50 rounded-[2.5rem]">
             <SectionHeader title="Verified in the last 15 minutes" subtitle="We verify thousands of coupons every hour." />
             <div className="max-w-md">
                 <TimelineWidget events={recentUpdates} />

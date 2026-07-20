@@ -20,7 +20,7 @@ export function SectionHeader({ title, subtitle, action, className = "" }: Secti
                     {title}
                 </h2>
                 {subtitle && (
-                    <p className="text-surface-500 dark:text-surface-400 font-medium">
+                    <p className="text-gray-500 dark:text-gray-400 font-medium">
                         {subtitle}
                     </p>
                 )}

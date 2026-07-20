@@ -103,7 +103,7 @@ export default function RootLayout({
         </Script>
       </head>
       <body
-        className={`${outfit.variable} font-sans antialiased bg-background text-on-surface overflow-x-hidden`}
+        className={`${outfit.variable} font-sans antialiased bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white overflow-x-hidden transition-colors duration-300`}
         suppressHydrationWarning
       >
         <Script

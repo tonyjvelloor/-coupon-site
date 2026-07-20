@@ -27,14 +27,14 @@ export async function SavingsModule() {
     if (!savingsData.length) return null;
 
     return (
-        <section className="bg-surface-container-low dark:bg-black py-16 transition-colors duration-300">
+        <section className="bg-gray-50 dark:bg-gray-950 py-16 transition-colors duration-300">
             <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
                 <div className="flex justify-between items-end mb-10">
                     <div>
-                        <h2 className="font-display-lg text-title-md font-bold text-on-surface dark:text-white">Extra Savings</h2>
-                        <p className="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant mt-2">Stack these with coupons for maximum value.</p>
+                        <h2 className="font-display-lg text-title-md font-bold text-gray-900 dark:text-white">Extra Savings</h2>
+                        <p className="font-body-md text-body-md text-gray-600 dark:text-gray-400 mt-2">Stack these with coupons for maximum value.</p>
                     </div>
-                    <Link href="/cashback" className="hidden sm:flex items-center gap-1 font-label-md text-label-md text-primary hover:text-brand-indigo font-bold transition-colors">
+                    <Link href="/savings" className="hidden sm:flex items-center gap-1 font-label-md text-label-md text-primary hover:text-brand-indigo font-bold transition-colors">
                         View All <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>arrow_forward</span>
                     </Link>
                 </div>

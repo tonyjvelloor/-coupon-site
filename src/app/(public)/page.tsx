@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 
 export default function Home() {
     return (
-        <div className="bg-background min-h-screen pb-24">
+        <div className="min-h-screen pb-24">
             
             {/* 1. HERO SECTION */}
             <HeroModule />
@@ -46,7 +46,7 @@ export default function Home() {
                 <SavingsModule />
 
                 {/* Grid for Sales & Tips - White background */}
-                <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-container-max mx-auto bg-white dark:bg-black">
+                <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-container-max mx-auto">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                         {/* 5. Upcoming Shopping Events */}
                         <UpcomingSalesModule />

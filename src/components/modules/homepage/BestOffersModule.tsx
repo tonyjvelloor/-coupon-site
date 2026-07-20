@@ -17,7 +17,7 @@ export async function BestOffersModule() {
     if (!bestCoupons.length) return null;
 
     return (
-        <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-container-max mx-auto bg-surface-50 dark:bg-surface-900/50 rounded-[2.5rem]">
+        <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-container-max mx-auto bg-gray-50 dark:bg-gray-900/50 rounded-[2.5rem]">
             <SectionHeader 
                 title="Most claimed today" 
                 subtitle="These are the exact offers people are using to save big right now."
