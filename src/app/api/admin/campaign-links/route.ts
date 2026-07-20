@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
                 slug: data.slug.toLowerCase().replace(/[^a-z0-9-]/g, "-"),
                 destinationUrl: data.destinationUrl,
                 description: data.description || null,
-                storeId: data.storeId || null,
+                merchantIdentityId: data.storeId || null,
                 utmSource: data.utmSource || null,
                 utmMedium: data.utmMedium || null,
                 utmCampaign: data.utmCampaign || null,

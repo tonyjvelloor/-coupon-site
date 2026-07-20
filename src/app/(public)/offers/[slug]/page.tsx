@@ -87,7 +87,7 @@ export default async function CollectionPage({ params }: PageProps) {
                     ]
                 },
                 orderBy: [{ isFeatured: "desc" }, { createdAt: "desc" }],
-                include: { store: true },
+                include: { merchantIdentity: { include: { merchantIdentity: { include: { store: true } } } } },
             },
         },
     });

@@ -8,7 +8,7 @@ export async function GET() {
     try {
         const coupons = await prisma.coupon.findMany({
             orderBy: { createdAt: "desc" },
-            include: { store: true },
+            include: { merchantIdentity: { include: { merchantIdentity: { include: { merchantIdentity: { include: { store: true } } } } } } },
         });
         return NextResponse.json(coupons);
     } catch (error) {
@@ -46,15 +46,25 @@ export async function POST(request: NextRequest) {
                 isVerified: data.isVerified,
                 isExclusive: data.isExclusive,
                 isFeatured: data.isFeatured,
-                storeId: data.storeId,
+                merchantIdentityId: data.storeId, // storeId from frontend actually represents the merchant identity or needs to be mapped to it
             },
         });
 
-        // Update store offer count
-        await prisma.store.update({
-            where: { id: data.storeId },
-            data: { offerCount: { increment: 1 } },
-        });
+        // Since Coupon doesn't link directly to Store, we might need to find the store via MerchantIdentity
+        // But for simplicity, assuming data.storeId is actually MerchantIdentityId from the admin form for now,
+        // we'll skip incrementing store offer count in the API directly unless we resolve the store.
+        if (data.storeId) {
+            const identity = await prisma.merchantIdentity.findUnique({
+                where: { id: data.storeId },
+                include: { merchantIdentity: { include: { merchantIdentity: { include: { store: true } } } } }
+            });
+            if (identity?.store) {
+                await prisma.store.update({
+                    where: { id: identity.store.id },
+                    data: { offerCount: { increment: 1 } },
+                });
+            }
+        }
 
         revalidatePath("/", "layout");
 

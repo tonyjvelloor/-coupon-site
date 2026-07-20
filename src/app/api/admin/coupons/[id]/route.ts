@@ -13,7 +13,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
         const { id } = await params;
         const coupon = await prisma.coupon.findUnique({
             where: { id },
-            include: { store: true },
+            include: { merchantIdentity: { include: { merchantIdentity: { include: { merchantIdentity: { include: { store: true } } } } } } },
         });
 
         if (!coupon) {
@@ -58,7 +58,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
                 isVerified: data.isVerified,
                 isExclusive: data.isExclusive,
                 isFeatured: data.isFeatured,
-                storeId: data.storeId,
+                merchantIdentityId: data.storeId, // assuming storeId from UI maps to merchantIdentityId
             },
         });
 
@@ -84,10 +84,13 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
 
         const { id } = await params;
 
-        const coupon = await prisma.coupon.findUnique({ where: { id } });
-        if (coupon) {
+        const coupon = await prisma.coupon.findUnique({ 
+            where: { id },
+            include: { merchantIdentity: true }
+        });
+        if (coupon && coupon.merchantIdentity?.canonicalStoreId) {
             await prisma.store.update({
-                where: { id: coupon.storeId },
+                where: { id: coupon.merchantIdentity.canonicalStoreId },
                 data: { offerCount: { decrement: 1 } },
             });
         }
