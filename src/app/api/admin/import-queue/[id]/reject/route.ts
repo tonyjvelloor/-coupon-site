@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getSession();
   if (!session) {
@@ -12,15 +12,16 @@ export async function POST(
   }
 
   try {
+    const { id } = await params;
     const importedOffer = await prisma.importedOffer.findUnique({
-      where: { id: params.id }
+      where: { id: id }
     });
     
     if (!importedOffer) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
     await prisma.$transaction(async (tx) => {
       await tx.importedOffer.update({
-        where: { id: params.id },
+        where: { id: id },
         data: { status: "rejected" }
       });
       

@@ -60,20 +60,22 @@ export default async function OpportunitiesDashboard() {
 
                             {/* Details */}
                             <div className="flex-1 space-y-4">
-                                <div className="flex items-start justify-between gap-4">
-                                    <h2 className="text-xl font-bold text-on-surface">{opp.title}</h2>
+                                <div className="flex justify-between items-start">
+                                    <h2 className="text-xl font-headline-md font-bold text-on-surface line-clamp-2">
+                                        {opp.title}
+                                    </h2>
                                     <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-surface-100 dark:bg-surface-800 text-on-surface-variant border border-surface-200 dark:border-surface-700">
                                         {opp.status}
                                     </span>
                                 </div>
                                 <p className="text-on-surface-variant leading-relaxed">
-                                    <strong className="text-on-surface font-semibold">Hypothesis:</strong> {opp.description}
+                                    <strong className="text-on-surface font-semibold">Hypothesis:</strong> {opp.reasoning || "No reasoning provided"}
                                 </p>
                                 <div className="bg-primary-50 dark:bg-primary-900/10 p-4 rounded-xl border border-primary-100 dark:border-primary-900/30">
                                     <strong className="text-primary-900 dark:text-primary-100 text-sm block mb-1 flex items-center gap-1">
                                         <Icon name="arrow_forward" className="text-[16px]" /> Recommended Action:
                                     </strong>
-                                    <span className="text-primary-800 dark:text-primary-200 text-sm font-medium">{opp.recommendedAction}</span>
+                                    <span className="text-primary-800 dark:text-primary-200 text-sm font-medium">{opp.recommendation || "No action provided"}</span>
                                 </div>
                             </div>
 
@@ -82,15 +84,15 @@ export default async function OpportunitiesDashboard() {
                                 <div className="grid grid-cols-2 gap-2 text-xs">
                                     <div className="p-2.5 rounded-xl bg-surface-50 dark:bg-surface-800 border border-surface-100 dark:border-surface-700">
                                         <span className="block text-on-surface-variant font-semibold mb-1">Traffic Gain</span>
-                                        <span className={`font-bold ${getImpactColor(opp.trafficGain)} px-2 py-0.5 rounded`}>+{opp.estimatedTrafficGain}%</span>
+                                        <span className={`font-bold ${getImpactColor((opp.inputSnapshot as any)?.trafficGain || "Medium")} px-2 py-0.5 rounded`}>+{(opp.inputSnapshot as any)?.estimatedTrafficGain || 0}%</span>
                                     </div>
                                     <div className="p-2.5 rounded-xl bg-surface-50 dark:bg-surface-800 border border-surface-100 dark:border-surface-700">
                                         <span className="block text-on-surface-variant font-semibold mb-1">Revenue</span>
-                                        <span className={`font-bold ${getImpactColor(opp.revenueImpact)} px-2 py-0.5 rounded`}>{opp.revenueImpact}</span>
+                                        <span className={`font-bold ${getImpactColor((opp.inputSnapshot as any)?.revenueImpact || "Low")} px-2 py-0.5 rounded`}>{(opp.inputSnapshot as any)?.revenueImpact || "Low"}</span>
                                     </div>
                                     <div className="p-2.5 rounded-xl bg-surface-50 dark:bg-surface-800 border border-surface-100 dark:border-surface-700">
                                         <span className="block text-on-surface-variant font-semibold mb-1">Effort</span>
-                                        <span className={`font-bold ${getImpactColor(opp.estimatedEffort)} px-2 py-0.5 rounded`}>{opp.estimatedEffort}</span>
+                                        <span className={`font-bold ${getImpactColor((opp.inputSnapshot as any)?.estimatedEffort || "Medium")} px-2 py-0.5 rounded`}>{(opp.inputSnapshot as any)?.estimatedEffort || "Medium"}</span>
                                     </div>
                                     <div className="p-2.5 rounded-xl bg-surface-50 dark:bg-surface-800 border border-surface-100 dark:border-surface-700">
                                         <span className="block text-on-surface-variant font-semibold mb-1">AI Confidence</span>

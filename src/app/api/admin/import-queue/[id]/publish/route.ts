@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { PublishService } from "@/lib/import-engine/publish-service";
+import { prisma } from "@/lib/db";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getSession();
   if (!session) {
@@ -12,12 +13,22 @@ export async function POST(
   }
 
   try {
+    const { id } = await params;
     const body = await request.json().catch(() => ({}));
     const confirmedStoreId = body.storeId || undefined;
 
-    const publisher = new PublishService();
-    // In a real app we'd map session.user.id to adminId
-    const result: any = await publisher.publish(params.id, "admin", confirmedStoreId); 
+    const result: any = await prisma.$transaction(async (tx) => {
+      const publisher = new PublishService(tx);
+      // In a real app we'd map session.user.id to adminId
+      const publishResult = await publisher.publish(id, "admin", confirmedStoreId); 
+      
+      await tx.importedOffer.update({
+        where: { id: id },
+        data: { status: "PUBLISHED" }
+      });
+
+      return publishResult;
+    });
 
     // Spawn async intelligence tasks (non-blocking)
     try {

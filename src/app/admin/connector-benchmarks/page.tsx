@@ -6,9 +6,9 @@ import { CuelinksConnector } from "@/lib/import-engine/connectors/cuelinks/cueli
 
 // Ensure connectors are loaded in API context
 const isDev = process.env.NODE_ENV !== "production";
-connectorRegistry.register(new ImpactConnector(isDev));
-connectorRegistry.register(new CJConnector(isDev));
-connectorRegistry.register(new CuelinksConnector());
+connectorRegistry.register(new ImpactConnector(isDev) as any);
+connectorRegistry.register(new CJConnector(isDev) as any);
+connectorRegistry.register(new CuelinksConnector() as any);
 
 interface BenchmarkStats {
   sourceId: string;
@@ -17,6 +17,7 @@ interface BenchmarkStats {
   totalRows: number;
   validRows: number;
   duplicates: number;
+  published: number;
   avgQuality: number;
   avgLatencyMs: number;
   lastRunDate: Date | null;
