@@ -28,10 +28,6 @@ export default function Header() {
             ) : (
                 <>
                     <div className="flex items-center gap-4 md:gap-8">
-                        <span className="hidden material-symbols-outlined text-brand-indigo cursor-pointer" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
-                            menu
-                        </span>
-                        
                         <Link href="/" className="flex items-center gap-2 group">
                             <div className="w-10 h-10 bg-brand-indigo rounded-xl flex items-center justify-center transform group-hover:scale-105 transition-transform shadow-lg shadow-brand-indigo/30">
                                 <span className="material-symbols-outlined text-white" style={{ fontVariationSettings: "'FILL' 1" }}>sell</span>
@@ -42,11 +38,10 @@ export default function Header() {
                             </span>
                         </Link>
                         
-                        <nav className="hidden lg:flex items-center gap-8">
+                        <nav className="hidden lg:flex items-center gap-12">
                             {[
                                 { name: "Deals", href: "/deals" },
                                 { name: "Stores", href: "/stores" },
-                                { name: "Cashback", href: "/cashback" },
                                 { name: "Best Offers", href: "/best-offers" }
                             ].map((item) => (
                                 <Link
@@ -62,8 +57,8 @@ export default function Header() {
                     </div>
                     
                     <div className="flex items-center gap-4 md:gap-6">
-                        <div className="hidden md:block w-64">
-                            <SearchBox placeholder="Search stores..." />
+                        <div className="hidden md:block w-72 lg:w-96">
+                            <SearchBox placeholder="Search stores or categories..." />
                         </div>
                         
                         <button 

@@ -165,7 +165,7 @@ export default function CouponCard({ coupon, storeName, storeLogo }: CouponCardP
                     /* ── Coupon Code: Modern Split Button ── */
                     <button
                         onClick={handleRevealAndCopy}
-                        className="w-full flex items-stretch h-12 rounded-xl overflow-hidden bg-brand-indigo text-white shadow-premium-sm hover:shadow-premium-md transition-all active:scale-[0.98] group/btn"
+                        className="w-full flex items-stretch h-[52px] shrink-0 rounded-xl overflow-hidden bg-brand-indigo text-white shadow-premium-sm hover:shadow-premium-md transition-all active:scale-[0.98] group/btn"
                     >
                         {/* Code display (half-masked or full) */}
                         <div className="flex-1 flex items-center justify-center bg-white/10 px-4">
@@ -201,10 +201,10 @@ export default function CouponCard({ coupon, storeName, storeLogo }: CouponCardP
                     /* ── Get Deal Button ── */
                     <button
                         onClick={handleGetDeal}
-                        className="w-full h-12 flex items-center justify-center gap-2 bg-brand-indigo hover:bg-brand-indigo/90 active:scale-[0.98] text-white rounded-xl font-bold text-sm transition-all shadow-premium-sm"
+                        className="w-full h-[52px] shrink-0 flex items-center justify-center gap-2 bg-brand-indigo hover:bg-brand-indigo/90 active:scale-[0.98] text-white rounded-xl font-bold text-base transition-all shadow-premium-sm"
                     >
                         <span>Get Deal</span>
-                        <ExternalLink className="w-4 h-4" />
+                        <ExternalLink className="w-5 h-5" />
                     </button>
                 )}
 
