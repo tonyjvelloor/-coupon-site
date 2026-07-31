@@ -68,6 +68,15 @@ const config: Config = {
                 "xl": "0.75rem",
                 "full": "9999px"
             },
+            keyframes: {
+                gradient: {
+                    '0%, 100%': { backgroundPosition: '0% 50%' },
+                    '50%': { backgroundPosition: '100% 50%' },
+                }
+            },
+            animation: {
+                gradient: 'gradient 8s ease infinite',
+            },
             spacing: {
                 "stack-sm": "12px",
                 "stack-md": "24px",

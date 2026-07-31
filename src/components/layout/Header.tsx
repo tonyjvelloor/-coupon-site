@@ -10,7 +10,7 @@ export default function Header() {
     const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
     return (
-        <header className="bg-surface dark:bg-on-background w-full sticky top-0 z-50 shadow-sm flex justify-between items-center px-margin-mobile md:px-margin-desktop h-20 transition-colors duration-300">
+        <header className="bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-800/50 w-full sticky top-0 z-50 flex justify-between items-center px-margin-mobile md:px-margin-desktop h-20 transition-colors duration-300 shadow-sm">
             {isMobileSearchOpen ? (
                 <div className="flex items-center gap-3 w-full animate-fade-in">
                     <SearchBox 
@@ -36,8 +36,9 @@ export default function Header() {
                             <div className="w-10 h-10 bg-brand-indigo rounded-xl flex items-center justify-center transform group-hover:scale-105 transition-transform shadow-lg shadow-brand-indigo/30">
                                 <span className="material-symbols-outlined text-white" style={{ fontVariationSettings: "'FILL' 1" }}>sell</span>
                             </div>
-                            <span className="font-headline-lg-mobile md:font-headline-lg text-brand-indigo font-bold tracking-tight">
-                                couponhub
+                            <span className="font-headline-lg-mobile md:font-headline-lg font-bold tracking-tight">
+                                <span className="text-brand-indigo">coupon</span>
+                                <span className="text-slate-900 dark:text-white">hub</span>
                             </span>
                         </Link>
                         

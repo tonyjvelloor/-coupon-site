@@ -7,7 +7,7 @@ import { Sparkles, ArrowRight } from "lucide-react";
 
 export function HeroModule() {
   return (
-    <section className="relative bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 dark:from-black dark:via-purple-950 dark:to-black text-white overflow-hidden py-20 md:py-28 transition-colors duration-300">
+    <section className="relative bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 dark:from-black dark:via-purple-950 dark:to-black text-white overflow-hidden pt-20 pb-28 md:pt-28 md:pb-36 transition-colors duration-300">
       {/* Background Decorative Blobs */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-brand-indigo/20 rounded-full blur-3xl -translate-y-1/2 pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl translate-y-1/2 pointer-events-none" />
@@ -25,7 +25,7 @@ export function HeroModule() {
         {/* Hero Headlines */}
         <h1 className="text-4xl md:text-6xl font-headline-lg font-extrabold tracking-tight max-w-4xl leading-[1.15] mb-6">
           Smart shopping starts with{" "}
-          <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+          <span className="animate-gradient bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent bg-[length:200%_auto]">
             verified savings.
           </span>
         </h1>
