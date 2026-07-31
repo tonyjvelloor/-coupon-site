@@ -32,9 +32,15 @@ export interface DecisionCardProps {
     storeLogo?: string | null;
     isBestDeal?: boolean;
 }
+/** Masks the second half of a code: "FIRST10" → "FIRS•••" */
+function maskCode(code: string): string {
+    const visibleLen = Math.ceil(code.length / 2);
+    return code.slice(0, visibleLen) + "•".repeat(code.length - visibleLen);
+}
 
 export function DecisionCard({ coupon, storeName, isBestDeal = false }: DecisionCardProps) {
     const [copied, setCopied] = useState(false);
+    const [activated, setActivated] = useState(false);
     const [hasRevealedFeedback, setHasRevealedFeedback] = useState(false);
     const [voteStatus, setVoteStatus] = useState<'up' | 'down' | null>(null);
 
@@ -149,8 +155,11 @@ export function DecisionCard({ coupon, storeName, isBestDeal = false }: Decision
                 <div className="mt-2 relative">
                     {coupon.type === "coupon" && coupon.code ? (
                         <div className="flex items-stretch h-12 border border-surface-200 dark:border-surface-700 rounded-xl overflow-hidden shadow-sm group-hover:shadow-md transition-shadow">
-                            <div className="flex-1 bg-surface-50 dark:bg-surface-900 flex items-center justify-center font-mono font-bold text-slate-900 dark:text-white text-lg tracking-widest border-r border-surface-200 dark:border-surface-700">
-                                {coupon.code}
+                            <div className="flex-1 bg-surface-50 dark:bg-surface-900 flex items-center justify-center font-mono font-bold text-slate-900 dark:text-white text-lg tracking-widest border-r border-surface-200 dark:border-surface-700 relative">
+                                {copied ? coupon.code : maskCode(coupon.code!)}
+                                {!copied && (
+                                    <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-surface-100/80 dark:from-surface-900/60 to-transparent" />
+                                )}
                             </div>
                             <button 
                                 onClick={handleAction}
@@ -159,9 +168,14 @@ export function DecisionCard({ coupon, storeName, isBestDeal = false }: Decision
                                 {copied ? "Copied!" : "Copy & Go"}
                             </button>
                         </div>
+                    ) : activated ? (
+                        <div className="w-full flex items-center justify-center gap-2 h-12 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800/50 rounded-xl">
+                            <Icon name="check_circle" className="text-[18px] text-green-600 dark:text-green-400" />
+                            <span className="font-bold text-green-700 dark:text-green-400 text-sm">Coupon Activated!</span>
+                        </div>
                     ) : (
                         <button 
-                            onClick={handleAction}
+                            onClick={() => { setActivated(true); handleAction(); }}
                             className="w-full h-12 bg-slate-900 dark:bg-primary hover:bg-slate-800 dark:hover:bg-primary-600 text-white font-bold text-sm rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm group-hover:shadow-md"
                         >
                             Get Deal <Icon name="arrow_forward" className="text-[16px]" />

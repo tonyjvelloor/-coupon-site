@@ -28,7 +28,7 @@ export default function Header() {
             ) : (
                 <>
                     <div className="flex items-center gap-4 md:gap-8">
-                        <span className="material-symbols-outlined text-primary cursor-pointer lg:hidden" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
+                        <span className="hidden material-symbols-outlined text-primary cursor-pointer" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
                             menu
                         </span>
                         

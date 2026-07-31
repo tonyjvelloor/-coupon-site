@@ -105,7 +105,7 @@ export function OfferCard({ coupon, storeName, storeLogo, isBestDeal = false, cl
     const hasCouponCode = coupon.type === "coupon" && coupon.code;
 
     return (
-        <Card className={`relative group transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg ${isBestDeal ? 'border-indigo-400 dark:border-indigo-500 shadow-md shadow-indigo-500/10' : 'border-gray-200 dark:border-gray-700/60 hover:border-indigo-300 dark:hover:border-indigo-500/40'} bg-white dark:bg-gray-900 ${className}`}>
+        <Card className={`relative group transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg ${isBestDeal ? 'border-indigo-400 dark:border-indigo-500 shadow-md shadow-indigo-500/10' : 'border-gray-200 dark:border-gray-700/60 hover:border-indigo-300 dark:hover:border-indigo-500/40'} bg-white dark:bg-gray-900 reveal-on-scroll ${className}`}>
 
             {/* Header */}
             <div className="flex justify-between items-center px-5 pt-4 pb-2 border-b border-gray-100 dark:border-gray-800">

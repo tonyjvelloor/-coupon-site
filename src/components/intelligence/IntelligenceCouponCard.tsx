@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TrustSignal } from './TrustSignal';
 import { IntelligenceMetric } from '../ui/IntelligenceMetric';
 import { Icon } from '../ui/Icon';
@@ -14,6 +14,15 @@ export interface IntelligenceCouponCardProps {
     confidenceScore: number;
     cashbackInfo?: string;
     hasTerms?: boolean;
+    id?: string;
+    affiliateUrl?: string;
+    storeName?: string;
+}
+
+/** Masks the second half of a code: "FIRST10" → "FIRS•••" */
+function maskCode(code: string): string {
+    const visibleLen = Math.ceil(code.length / 2);
+    return code.slice(0, visibleLen) + "•".repeat(code.length - visibleLen);
 }
 
 /**
@@ -30,8 +39,25 @@ export function IntelligenceCouponCard({
     expiresAt,
     confidenceScore,
     cashbackInfo,
-    hasTerms
+    hasTerms,
+    id = "unknown",
+    affiliateUrl = "#",
+    storeName = "Store"
 }: IntelligenceCouponCardProps) {
+    const [copied, setCopied] = useState(false);
+    const [activated, setActivated] = useState(false);
+
+    const handleAction = () => {
+        if (code) {
+            navigator.clipboard.writeText(code);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } else {
+            setActivated(true);
+        }
+        const outUrl = `/out?url=${encodeURIComponent(affiliateUrl)}&couponId=${id}&source=intelligence-card`;
+        window.open(outUrl, "_blank");
+    };
     return (
         <div className="glass-card premium-card rounded-2xl p-card-padding flex flex-col md:flex-row gap-4 md:items-center">
             {/* Left: Primary Offer Details */}
@@ -70,15 +96,31 @@ export function IntelligenceCouponCard({
             {/* Right: Call to Action & Code */}
             <div className="flex flex-col items-center justify-center gap-3 min-w-[200px] border-t md:border-t-0 md:border-l border-surface-200 dark:border-surface-300 pt-4 md:pt-0 md:pl-4">
                 {code ? (
-                    <button className="w-full relative group overflow-hidden border-2 border-primary-200 border-dashed rounded-lg p-3 text-center bg-primary-50 dark:bg-primary-900/20 hover:border-primary-500 transition-colors">
-                        <span className="font-metric-xl text-lg tracking-widest text-primary font-bold">{code}</span>
-                        <div className="absolute inset-0 bg-white/95 dark:bg-surface-900/95 flex items-center justify-center font-label-bold text-sm text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                            Click to Copy
+                    <button 
+                        onClick={handleAction}
+                        className="w-full relative group overflow-hidden border-2 border-primary-200 border-dashed rounded-lg p-3 text-center bg-primary-50 dark:bg-primary-900/20 hover:border-primary-500 transition-colors"
+                    >
+                        <span className="font-metric-xl text-lg tracking-widest text-primary font-bold">
+                            {copied ? code : maskCode(code)}
+                        </span>
+                        {!copied && (
+                            <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-primary-50 dark:from-primary-900/40 to-transparent" />
+                        )}
+                        <div className={`absolute inset-0 flex items-center justify-center font-label-bold text-sm text-white transition-opacity ${copied ? 'bg-verified opacity-100' : 'bg-primary opacity-0 group-hover:opacity-100'}`}>
+                            {copied ? "Copied!" : "Click to Copy"}
                         </div>
                     </button>
+                ) : activated ? (
+                    <div className="w-full flex items-center justify-center gap-2 py-3 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800/50 rounded-lg text-center shadow-sm">
+                        <Icon name="check_circle" className="text-[18px] text-green-600 dark:text-green-400" />
+                        <span className="font-bold text-green-700 dark:text-green-400 text-sm">Coupon Activated!</span>
+                    </div>
                 ) : (
-                    <button className="w-full btn-primary text-sm py-3 shadow-md hover:shadow-lg transition-all">
-                        Get Deal
+                    <button 
+                        onClick={handleAction}
+                        className="w-full btn-primary text-sm py-3 shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                    >
+                        Get Deal <Icon name="arrow_forward" className="text-[16px]" />
                     </button>
                 )}
                 {hasTerms && (

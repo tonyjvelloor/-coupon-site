@@ -45,7 +45,7 @@ export function SearchBox({ placeholder = "Search stores or categories...", clas
   }, []);
 
   useEffect(() => {
-    if (query.trim().length < 2) {
+    if (query.trim().length < 1) {
       setSuggestions({ stores: [], categories: [] });
       setIsLoading(false);
       return;

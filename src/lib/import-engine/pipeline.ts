@@ -264,10 +264,11 @@ export class ImportPipeline {
         data: {
           status: "COMPLETED",
           finishedAt: new Date(),
-          rows: totalRows,
-          published: autoPublishedCount,
-          duplicates,
-          latency: processingTimeMs
+          rowsFetched: totalRows,
+          rowsPublished: autoPublishedCount,
+          rowsDuplicated: duplicates,
+          durationMs: processingTimeMs,
+          avgQuality: avgQuality
         }
       });
 
@@ -304,10 +305,11 @@ export class ImportPipeline {
         data: {
           status: "FAILED",
           finishedAt: new Date(),
-          rows: totalRows,
-          published: autoPublishedCount,
-          duplicates,
-          latency: Date.now() - startTime
+          rowsFetched: totalRows,
+          rowsPublished: autoPublishedCount,
+          rowsDuplicated: duplicates,
+          durationMs: Date.now() - startTime,
+          avgQuality: 0
         }
       });
 

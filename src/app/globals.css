@@ -43,6 +43,9 @@
   --gradient-primary: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-500) 50%, var(--accent-500) 100%);
   --gradient-hero: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%);
   --gradient-card: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+
+  color-scheme: light dark;
+  scrollbar-color: var(--surface-300) var(--surface-100);
 }
 
 .dark {
@@ -77,6 +80,8 @@
   --gradient-primary: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-500) 50%, var(--accent-500) 100%);
   --gradient-hero: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
   --gradient-card: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+
+  scrollbar-color: var(--surface-300) var(--surface-50);
 }
 
 * {
@@ -94,35 +99,46 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+/* Legacy WebKit Custom scrollbar fallback */
+@supports not (scrollbar-color: auto) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--surface-100);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--surface-300);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--surface-400);
+  }
+
+  .dark ::-webkit-scrollbar-track {
+    background: var(--surface-50);
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background: var(--surface-300);
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: var(--surface-400);
+  }
 }
 
-::-webkit-scrollbar-track {
-  background: var(--surface-100);
+/* View Transitions API */
+@view-transition {
+  navigation: auto;
 }
 
-::-webkit-scrollbar-thumb {
-  background: var(--surface-300);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--surface-400);
-}
-
-.dark ::-webkit-scrollbar-track {
-  background: var(--surface-50);
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: var(--surface-300);
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: var(--surface-400);
+header {
+  view-transition-name: site-header;
 }
 
 /* Utility classes */
@@ -568,7 +584,7 @@ html {
     radial-gradient(circle at 40% 40%, rgba(99, 102, 241, 0.1) 0%, transparent 30%);
 }
 
-/* Scroll reveal animation class */
+/* Scroll reveal animation class (JS Fallback) */
 .reveal-on-scroll {
   opacity: 0;
   transform: translateY(30px);
@@ -578,6 +594,32 @@ html {
 .reveal-on-scroll.revealed {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Native Scroll-driven animations API */
+@supports (animation-timeline: view()) {
+  .reveal-on-scroll {
+    /* Reset JS fallback */
+    opacity: 1;
+    transform: none;
+    transition: none;
+    
+    /* Native API */
+    animation: scroll-reveal linear both;
+    animation-timeline: view();
+    animation-range: entry 10% cover 25%;
+  }
+  
+  @keyframes scroll-reveal {
+    from {
+      opacity: 0;
+      transform: translateY(30px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
 }
 
 /* Stagger children animations */

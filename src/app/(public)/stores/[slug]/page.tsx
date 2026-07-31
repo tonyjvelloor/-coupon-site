@@ -128,6 +128,112 @@ export default async function StorePage({ params }: PageProps) {
                     </div>
                 </div>
             </div>
+            
+            <StoreSchema store={store} coupons={activeCoupons} />
         </div>
+    );
+}
+
+// Helper to generate JSON-LD for Store
+function StoreSchema({ store, coupons }: { store: any, coupons: any[] }) {
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
+    
+    const collectionSchema = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: `${store.name} Coupons & Promo Codes`,
+        description: store.seoDescription || store.description || `Best coupons and offers for ${store.name}`,
+        url: `${siteUrl}/stores/${store.slug}`,
+        hasPart: coupons.slice(0, 10).map((coupon: any) => ({
+            "@type": "Offer",
+            itemOffered: {
+                "@type": "Service",
+                name: coupon.title
+            },
+            priceCurrency: "USD",
+            price: "0",
+            description: coupon.description || coupon.title,
+            url: `${siteUrl}/stores/${store.slug}`
+        }))
+    };
+
+    const organizationSchema = {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        name: store.name,
+        url: store.website,
+        logo: store.logo || `${siteUrl}/logo.png`,
+    };
+
+    let faqSchema = null;
+    const faqContent = store.contents?.find((c: any) => c.type === 'FAQ')?.content;
+    if (faqContent) {
+        try {
+            const faqs = JSON.parse(faqContent);
+            if (Array.isArray(faqs) && faqs.length > 0) {
+                faqSchema = {
+                    "@context": "https://schema.org",
+                    "@type": "FAQPage",
+                    mainEntity: faqs.map((faq: any) => ({
+                        "@type": "Question",
+                        name: faq.question,
+                        acceptedAnswer: {
+                            "@type": "Answer",
+                            text: faq.answer
+                        }
+                    }))
+                };
+            }
+        } catch (e) {
+            // ignore JSON parse errors
+        }
+    }
+
+    const breadcrumbSchema = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+            {
+                "@type": "ListItem",
+                position: 1,
+                name: "Home",
+                item: siteUrl
+            },
+            {
+                "@type": "ListItem",
+                position: 2,
+                name: "Stores",
+                item: `${siteUrl}/stores`
+            },
+            {
+                "@type": "ListItem",
+                position: 3,
+                name: store.name,
+                item: `${siteUrl}/stores/${store.slug}`
+            }
+        ]
+    };
+
+    return (
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+            />
+            {faqSchema && (
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+                />
+            )}
+        </>
     );
 }

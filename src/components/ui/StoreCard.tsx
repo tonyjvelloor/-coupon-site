@@ -18,7 +18,7 @@ export default function StoreCard({ store }: StoreCardProps) {
     return (
         <Link
             href={`/stores/${store.slug}`}
-            className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 hover:border-indigo-300 dark:hover:border-indigo-500/40 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-200 flex flex-col h-full group"
+            className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 hover:border-indigo-300 dark:hover:border-indigo-500/40 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-200 flex flex-col h-full group reveal-on-scroll"
         >
             <div className="flex items-center gap-3 mb-2">
                 <div className="w-12 h-12 relative bg-white rounded-lg border border-gray-100 dark:border-gray-700 flex items-center justify-center shrink-0 overflow-hidden">
