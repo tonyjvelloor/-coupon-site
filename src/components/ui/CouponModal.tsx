@@ -158,40 +158,11 @@ export function CouponModal({ coupon, onClose }: CouponModalProps) {
             href={coupon.affiliateUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full flex items-center justify-center gap-2 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm transition-all shadow-md shadow-indigo-500/20 active:scale-[0.98] mb-5"
+            className="w-full flex items-center justify-center gap-2 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm transition-all shadow-md shadow-indigo-500/20 active:scale-[0.98]"
           >
             <span>Go to {coupon.storeName}</span>
             <ExternalLink className="w-4 h-4" />
           </a>
-
-          {/* Feedback */}
-          <div className="border-t border-gray-100 dark:border-gray-800 w-full pt-4 flex flex-col items-center">
-            {voted ? (
-              <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                ❤️ Thanks for keeping CouponHub verified!
-              </p>
-            ) : (
-              <div className="flex items-center gap-3">
-                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                  Did this work?
-                </span>
-                <div className="flex gap-1.5">
-                  <button
-                    onClick={() => setVoted("up")}
-                    className="flex items-center justify-center w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700 text-gray-400 hover:text-emerald-500 hover:border-emerald-300 transition-all"
-                  >
-                    <ThumbsUp className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setVoted("down")}
-                    className="flex items-center justify-center w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700 text-gray-400 hover:text-red-500 hover:border-red-300 transition-all"
-                  >
-                    <ThumbsDown className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
         </div>
       </div>
     </div>

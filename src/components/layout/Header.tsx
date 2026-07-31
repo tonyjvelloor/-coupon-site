@@ -70,9 +70,7 @@ export default function Header() {
                         
                         <ThemeToggle />
                         
-                        <button className="hidden sm:block bg-brand-indigo text-white px-6 py-2.5 rounded-full font-bold text-sm hover:bg-brand-indigo/90 transition-all active:scale-95 shadow-premium-sm">
-                            Log In
-                        </button>
+
                     </div>
                 </>
             )}

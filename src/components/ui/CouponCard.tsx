@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Copy, Check, ExternalLink, ShieldCheck, Clock, Info, Sparkles } from "lucide-react";
 import SaveDealButton from "./SaveDealButton";
 import { trackEvent } from "@/lib/analytics";
+import { useCouponModal } from "../providers/CouponModalProvider";
 
 interface CouponCardProps {
     coupon: {
@@ -25,6 +26,7 @@ interface CouponCardProps {
         failureCount?: number;
         createdAt?: Date | string | null;
         lastVerifiedAt?: Date | string | null;
+        storeId?: string | null;
     };
     storeName: string;
     storeLogo?: string | null;
@@ -41,6 +43,7 @@ export default function CouponCard({ coupon, storeName, storeLogo }: CouponCardP
     const [copied, setCopied] = useState(false);
     const [activated, setActivated] = useState(false);
     const [voteStatus, setVoteStatus] = useState<'up' | 'down' | null>(null);
+    const { openCouponModal } = useCouponModal();
 
     const initialTotalVotes = (coupon.successCount || 0) + (coupon.failureCount || 0);
     const initialRate = initialTotalVotes > 0
@@ -59,14 +62,32 @@ export default function CouponCard({ coupon, storeName, storeLogo }: CouponCardP
             setTimeout(() => setCopied(false), 3000);
         }
         trackEvent('coupon_copied', { couponId: coupon.id });
-        const outUrl = `/out?url=${encodeURIComponent(coupon.affiliateUrl)}&couponId=${coupon.id}&source=coupon-card-copy`;
+        
+        // 1. Show modal in current tab
+        openCouponModal({
+            ...coupon,
+            storeName,
+            storeLogo: storeLogo || undefined
+        });
+
+        // 2. Open interstitial in a new tab
+        const outUrl = `/out?url=${encodeURIComponent(coupon.affiliateUrl)}&storeId=${coupon.storeId || 'none'}&couponId=${coupon.id}&source=coupon-card-copy&type=code`;
         window.open(outUrl, "_blank");
     };
 
     const handleGetDeal = () => {
         setActivated(true);
         trackEvent('deal_clicked', { couponId: coupon.id });
-        const outUrl = `/out?url=${encodeURIComponent(coupon.affiliateUrl)}&couponId=${coupon.id}&source=coupon-card-deal`;
+
+        // 1. Show modal in current tab
+        openCouponModal({
+            ...coupon,
+            storeName,
+            storeLogo: storeLogo || undefined
+        });
+
+        // 2. Open interstitial in a new tab
+        const outUrl = `/out?url=${encodeURIComponent(coupon.affiliateUrl)}&storeId=${coupon.storeId || 'none'}&couponId=${coupon.id}&source=coupon-card-deal&type=deal`;
         window.open(outUrl, "_blank");
     };
 

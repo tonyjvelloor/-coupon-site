@@ -45,6 +45,8 @@ model Store {
   merchantIdentity  MerchantIdentity?
   saleEvents        SaleEvent[]
   bankOffers        BankOffer[]
+  merchantPolicy    MerchantPolicy?
+  outboundEvents    OutboundEvent[]
 
   @@index([slug])
   @@index([createdAt])
@@ -152,6 +154,7 @@ model Coupon {
   merchantIdentity   MerchantIdentity    @relation(fields: [merchantIdentityId], references: [id], onDelete: Cascade)
   campaigns          AffiliateCampaign[] @relation("AffiliateCampaignToCoupon")
   collections        Collection[]        @relation("CollectionToCoupon")
+  outboundEvents     OutboundEvent[]
 
   @@index([merchantIdentityId])
   @@index([categoryId])
@@ -798,6 +801,57 @@ enum ResolutionMethod {
   ALIAS
   FUZZY
   MANUAL
+}
+
+model MerchantPolicy {
+  id                   String   @id @default(uuid())
+  merchantId           String   @unique
+  redirectMode         String   @default("INSTANT") // INSTANT, INTERSTITIAL, MODAL_ONLY
+  brandBidding         String   @default("RESTRICTED") // ALLOWED, RESTRICTED, PROHIBITED
+  requiresInterstitial Boolean  @default(false)
+  requiresCouponReveal Boolean  @default(false)
+  affiliateNetwork     String?
+  trackingLevel        String   @default("STANDARD")
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  merchant             Store    @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+}
+
+model ClickSession {
+  id            String   @id @default(uuid())
+  sessionId     String   @unique
+  gclid         String?
+  utmSource     String?
+  utmCampaign   String?
+  utmMedium     String?
+  landingPage   String?
+  device        String?
+  consentStatus String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  outboundEvents OutboundEvent[]
+
+  @@index([sessionId])
+}
+
+model OutboundEvent {
+  id             String        @id @default(uuid())
+  clickSessionId String?
+  merchantId     String?
+  couponId       String?
+  redirectMode   String
+  affiliateUrl   String?
+  subid          String?       @unique
+  redirectTimeMs Int?
+  status         String        @default("SUCCESS") // SUCCESS, FAILED, BLOCKED
+  createdAt      DateTime      @default(now())
+  clickSession   ClickSession? @relation(fields: [clickSessionId], references: [sessionId])
+  merchant       Store?        @relation(fields: [merchantId], references: [id])
+  coupon         Coupon?       @relation(fields: [couponId], references: [id])
+
+  @@index([merchantId, createdAt])
+  @@index([couponId, createdAt])
+  @@index([subid])
 }
 
 enum ConfidenceSource {
