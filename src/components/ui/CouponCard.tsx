@@ -92,7 +92,7 @@ export default function CouponCard({ coupon, storeName, storeLogo }: CouponCardP
     const showFeedback = revealed || activated;
 
     return (
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700/60 hover:border-indigo-300 dark:hover:border-indigo-500/40 transition-all duration-200 hover:shadow-lg hover:shadow-indigo-500/5 flex flex-col h-full relative group">
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 hover:border-indigo-200 dark:hover:border-indigo-500/40 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1 flex flex-col h-full relative group">
             {/* Save button */}
             <div className="absolute top-3 right-3 z-10">
                 <SaveDealButton dealId={coupon.id} />
@@ -102,7 +102,7 @@ export default function CouponCard({ coupon, storeName, storeLogo }: CouponCardP
             <div className="p-5 flex-1 flex flex-col">
                 {/* Store info row */}
                 <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 relative bg-white rounded-lg border border-gray-100 dark:border-gray-700 flex items-center justify-center overflow-hidden shrink-0">
+                    <div className="w-12 h-12 relative bg-white rounded-lg border border-gray-100 shadow-sm dark:border-gray-700 flex items-center justify-center overflow-hidden shrink-0 group-hover:ring-2 ring-indigo-50 transition-all">
                         {storeLogo ? (
                             <Image src={storeLogo} alt={storeName} fill className="object-contain p-1.5" />
                         ) : (
@@ -128,7 +128,7 @@ export default function CouponCard({ coupon, storeName, storeLogo }: CouponCardP
 
                 {/* Discount value */}
                 {coupon.discountValue && (
-                    <div className="text-2xl font-extrabold text-gray-900 dark:text-white mb-1 leading-tight">
+                    <div className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-gray-300 mb-1 leading-tight tracking-tight">
                         {/^\d+$/.test(coupon.discountValue) ? (
                             Number(coupon.discountValue) <= 100
                                 ? `${coupon.discountValue}% Off`
@@ -140,13 +140,13 @@ export default function CouponCard({ coupon, storeName, storeLogo }: CouponCardP
                 )}
 
                 {/* Title */}
-                <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300 line-clamp-2 mb-3 leading-relaxed">
+                <h3 className="text-[15px] font-semibold text-gray-700 dark:text-gray-300 line-clamp-2 mb-3 leading-relaxed">
                     {coupon.title}
                 </h3>
 
                 {/* Success rate badge */}
                 <div className="flex items-center gap-1.5 mb-4">
-                    <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                    <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full uppercase tracking-wider">
                         📈 {localSuccessRate}% SUCCESS
                     </span>
                 </div>
@@ -161,22 +161,22 @@ export default function CouponCard({ coupon, storeName, storeLogo }: CouponCardP
                     /* ── Coupon Code: Half-reveal + Copy ── */
                     <button
                         onClick={handleRevealAndCopy}
-                        className="w-full flex items-stretch rounded-xl overflow-hidden border-2 border-dashed border-indigo-200 dark:border-indigo-500/30 hover:border-indigo-400 dark:hover:border-indigo-400 transition-all group/btn"
+                        className="w-full flex items-stretch h-12 rounded-xl overflow-hidden border-2 border-dashed border-indigo-200 dark:border-indigo-500/30 hover:border-indigo-300 dark:hover:border-indigo-400 transition-all group/btn bg-indigo-50/30 dark:bg-indigo-950/20"
                     >
                         {/* Code display (half-masked or full) */}
-                        <div className="flex-1 flex items-center justify-center py-3 px-4 bg-indigo-50/50 dark:bg-indigo-950/30 relative">
-                            <span className="font-mono font-bold text-base text-gray-800 dark:text-white tracking-widest">
+                        <div className="flex-1 flex items-center justify-center relative px-4">
+                            <span className="font-mono font-bold text-base text-indigo-900 dark:text-white tracking-widest">
                                 {revealed ? coupon.code : maskCode(coupon.code!)}
                             </span>
                             {!revealed && (
-                                <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-indigo-100/80 dark:from-indigo-900/60 to-transparent" />
+                                <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-indigo-50 dark:from-indigo-900/60 to-transparent" />
                             )}
                         </div>
                         {/* Copy button side */}
-                        <div className={`flex items-center gap-1.5 px-5 py-3 font-bold text-sm text-white transition-all shrink-0 ${
+                        <div className={`flex items-center gap-1.5 px-6 font-bold text-sm text-white transition-all shrink-0 ${
                             copied
-                                ? 'bg-emerald-500'
-                                : 'bg-indigo-600 group-hover/btn:bg-indigo-700'
+                                ? 'bg-gradient-to-r from-emerald-500 to-emerald-600'
+                                : 'bg-gradient-to-r from-indigo-500 to-indigo-600 group-hover/btn:from-indigo-600 group-hover/btn:to-indigo-700'
                         }`}>
                             {copied ? (
                                 <><Check className="w-4 h-4" /> Copied!</>
@@ -202,7 +202,7 @@ export default function CouponCard({ coupon, storeName, storeLogo }: CouponCardP
                     /* ── Get Deal Button ── */
                     <button
                         onClick={handleGetDeal}
-                        className="w-full flex items-center justify-center gap-2 py-3.5 px-6 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white rounded-xl font-bold text-sm transition-all shadow-sm hover:shadow-md hover:shadow-emerald-500/10"
+                        className="w-full h-12 flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 active:scale-[0.98] text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:-translate-y-0.5"
                     >
                         <span>Get Deal</span>
                         <ExternalLink className="w-4 h-4" />

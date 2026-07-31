@@ -21,8 +21,8 @@ export default function StoreCard({ store }: StoreCardProps) {
             className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 hover:border-indigo-300 dark:hover:border-indigo-500/40 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-200 flex flex-col h-full group reveal-on-scroll"
         >
             <div className="flex items-center gap-3 mb-2">
-                <div className="w-12 h-12 relative bg-white rounded-lg border border-gray-100 dark:border-gray-700 flex items-center justify-center shrink-0 overflow-hidden">
-                    {store.logo ? (
+                <div className="w-12 h-12 relative bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 flex items-center justify-center shrink-0 overflow-hidden shadow-sm group-hover:ring-2 ring-indigo-50 dark:ring-indigo-900/30 transition-all">
+                    {store.logo && store.logo.trim() !== '' ? (
                         <Image
                             src={store.logo}
                             alt={store.name}
@@ -30,13 +30,9 @@ export default function StoreCard({ store }: StoreCardProps) {
                             className="object-contain p-1.5"
                         />
                     ) : (
-                        <Image
-                            src={`https://icon.horse/icon/${store.slug.replace(/-/g, '')}.com`}
-                            alt={store.name}
-                            fill
-                            className="object-contain p-1.5"
-                            unoptimized
-                        />
+                        <span className="text-xl font-bold text-gray-400 dark:text-gray-500 uppercase">
+                            {store.name.charAt(0)}
+                        </span>
                     )}
                 </div>
                 <div className="flex-1 min-w-0">

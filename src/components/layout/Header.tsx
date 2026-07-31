@@ -52,8 +52,8 @@ export default function Header() {
                             <Link href="/cashback" className="text-on-surface dark:text-white font-bold font-title-md text-title-md transition-all hover:text-brand-indigo dark:hover:text-primary">
                                 Cashback
                             </Link>
-                            <Link href="/coupons" className="text-on-surface dark:text-white font-bold font-title-md text-title-md transition-all hover:text-brand-indigo dark:hover:text-primary">
-                                Coupons
+                            <Link href="/best-offers" className="text-on-surface dark:text-white font-bold font-title-md text-title-md transition-all hover:text-brand-indigo dark:hover:text-primary">
+                                Best Offers
                             </Link>
                         </nav>
                     </div>

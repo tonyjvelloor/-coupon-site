@@ -55,7 +55,7 @@ export default async function StoresPage() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="flex flex-col lg:flex-row gap-8">
                     {/* Sidebar */}
-                    <aside className="lg:w-64 shrink-0">
+                    <aside className="w-full lg:w-64 lg:min-w-[16rem] shrink-0">
                         {/* Search */}
                         <div className="mb-6">
                             <div className="relative">
@@ -103,7 +103,7 @@ export default async function StoresPage() {
                     </aside>
 
                     {/* Stores Grid */}
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                         {letters.map((letter) => (
                             <div key={letter} id={`letter-${letter}`} className="mb-8">
                                 <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
