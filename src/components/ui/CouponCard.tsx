@@ -92,34 +92,38 @@ export default function CouponCard({ coupon, storeName, storeLogo }: CouponCardP
     const showFeedback = revealed || activated;
 
     return (
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 hover:border-indigo-200 dark:hover:border-indigo-500/40 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1 flex flex-col h-full relative group">
+        <div className="bg-white dark:bg-[#0F172A] rounded-[20px] border border-slate-200 dark:border-slate-800 hover:border-brand-indigo/30 transition-all duration-300 shadow-premium-sm hover:shadow-premium-md flex flex-col h-full relative group">
+            
+            {/* Subtle Hover Glow */}
+            <div className="absolute inset-0 bg-gradient-to-br from-brand-indigo/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-[20px] pointer-events-none" />
+
             {/* Save button */}
-            <div className="absolute top-3 right-3 z-10">
+            <div className="absolute top-4 right-4 z-10">
                 <SaveDealButton dealId={coupon.id} />
             </div>
 
             {/* Card Body */}
-            <div className="p-5 flex-1 flex flex-col">
+            <div className="p-6 flex-1 flex flex-col relative z-10">
                 {/* Store info row */}
-                <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 relative bg-white rounded-lg border border-gray-100 shadow-sm dark:border-gray-700 flex items-center justify-center overflow-hidden shrink-0 group-hover:ring-2 ring-indigo-50 transition-all">
+                <div className="flex items-center gap-3 mb-5">
+                    <div className="w-12 h-12 relative bg-slate-50 rounded-xl border border-slate-100 dark:bg-slate-900 dark:border-slate-800 flex items-center justify-center overflow-hidden shrink-0">
                         {storeLogo ? (
-                            <Image src={storeLogo} alt={storeName} fill className="object-contain p-1.5" />
+                            <Image src={storeLogo} alt={storeName} fill className="object-contain p-2" />
                         ) : (
-                            <span className="text-sm font-bold text-gray-400">{storeName.charAt(0)}</span>
+                            <span className="text-xl font-display-sm font-bold text-slate-400">{storeName.charAt(0)}</span>
                         )}
                     </div>
-                    <div className="flex-1 min-w-0">
-                        <span className="text-sm font-semibold text-gray-700 dark:text-gray-200 truncate block">{storeName}</span>
-                        <div className="flex items-center gap-2 mt-0.5">
+                    <div className="flex-1 min-w-0 pr-8">
+                        <span className="text-sm font-bold text-slate-900 dark:text-white truncate block">{storeName}</span>
+                        <div className="flex items-center gap-2 mt-1">
                             {coupon.isVerified && (
-                                <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-400">
-                                    <ShieldCheck className="w-3 h-3" /> VERIFIED
+                                <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide bg-emerald-50 dark:bg-emerald-950 px-1.5 py-0.5 rounded">
+                                    <ShieldCheck className="w-3 h-3" /> Verified
                                 </span>
                             )}
                             {coupon.expiresAt && (
-                                <span className="flex items-center gap-1 text-[10px] font-medium text-gray-500 dark:text-gray-400">
-                                    <Clock className="w-3 h-3" /> ENDS {new Date(coupon.expiresAt).toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                                <span className="flex items-center gap-1 text-[10px] font-medium text-slate-500">
+                                    <Clock className="w-3 h-3" /> Ends {new Date(coupon.expiresAt).toLocaleDateString('en-US', { day: '2-digit', month: '2-digit' })}
                                 </span>
                             )}
                         </div>
@@ -128,7 +132,7 @@ export default function CouponCard({ coupon, storeName, storeLogo }: CouponCardP
 
                 {/* Discount value */}
                 {coupon.discountValue && (
-                    <div className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-gray-300 mb-1 leading-tight tracking-tight">
+                    <div className="text-3xl font-display-sm font-bold text-slate-900 dark:text-white mb-2 leading-tight tracking-tight">
                         {/^\d+$/.test(coupon.discountValue) ? (
                             Number(coupon.discountValue) <= 100
                                 ? `${coupon.discountValue}% Off`
@@ -140,14 +144,14 @@ export default function CouponCard({ coupon, storeName, storeLogo }: CouponCardP
                 )}
 
                 {/* Title */}
-                <h3 className="text-[15px] font-semibold text-gray-700 dark:text-gray-300 line-clamp-2 mb-3 leading-relaxed">
+                <h3 className="text-base font-semibold text-slate-600 dark:text-slate-300 line-clamp-2 mb-4 leading-relaxed">
                     {coupon.title}
                 </h3>
 
                 {/* Success rate badge */}
                 <div className="flex items-center gap-1.5 mb-4">
-                    <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                        📈 {localSuccessRate}% SUCCESS
+                    <span className="text-[11px] font-bold text-brand-indigo dark:text-indigo-400 bg-brand-indigo/10 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                        {localSuccessRate}% Success
                     </span>
                 </div>
 
@@ -156,53 +160,48 @@ export default function CouponCard({ coupon, storeName, storeLogo }: CouponCardP
             </div>
 
             {/* Action Area */}
-            <div className="px-5 pb-5">
+            <div className="px-6 pb-6 relative z-10">
                 {hasCouponCode ? (
-                    /* ── Coupon Code: Half-reveal + Copy ── */
+                    /* ── Coupon Code: Modern Split Button ── */
                     <button
                         onClick={handleRevealAndCopy}
-                        className="w-full flex items-stretch h-12 rounded-xl overflow-hidden border-2 border-dashed border-indigo-200 dark:border-indigo-500/30 hover:border-indigo-300 dark:hover:border-indigo-400 transition-all group/btn bg-indigo-50/30 dark:bg-indigo-950/20"
+                        className="w-full flex items-stretch h-12 rounded-xl overflow-hidden bg-brand-indigo text-white shadow-premium-sm hover:shadow-premium-md transition-all active:scale-[0.98] group/btn"
                     >
                         {/* Code display (half-masked or full) */}
-                        <div className="flex-1 flex items-center justify-center relative px-4">
-                            <span className="font-mono font-bold text-base text-indigo-900 dark:text-white tracking-widest">
+                        <div className="flex-1 flex items-center justify-center bg-white/10 px-4">
+                            <span className="font-mono font-bold text-base tracking-widest">
                                 {revealed ? coupon.code : maskCode(coupon.code!)}
                             </span>
-                            {!revealed && (
-                                <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-indigo-50 dark:from-indigo-900/60 to-transparent" />
-                            )}
                         </div>
                         {/* Copy button side */}
-                        <div className={`flex items-center gap-1.5 px-6 font-bold text-sm text-white transition-all shrink-0 ${
-                            copied
-                                ? 'bg-gradient-to-r from-emerald-500 to-emerald-600'
-                                : 'bg-gradient-to-r from-indigo-500 to-indigo-600 group-hover/btn:from-indigo-600 group-hover/btn:to-indigo-700'
+                        <div className={`flex items-center gap-2 px-5 font-bold text-sm transition-all shrink-0 ${
+                            copied ? 'bg-emerald-500' : 'bg-transparent'
                         }`}>
                             {copied ? (
                                 <><Check className="w-4 h-4" /> Copied!</>
                             ) : revealed ? (
                                 <><Copy className="w-4 h-4" /> Copy</>
                             ) : (
-                                <><Copy className="w-4 h-4" /> Copy Code</>
+                                <><Copy className="w-4 h-4" /> Reveal</>
                             )}
                         </div>
                     </button>
                 ) : activated ? (
                     /* ── Deal Activated State ── */
-                    <div className="w-full flex flex-col items-center py-4 px-5 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-700/50 rounded-xl text-center">
+                    <div className="w-full flex flex-col items-center py-3.5 px-4 bg-emerald-50 dark:bg-emerald-950 border border-emerald-100 dark:border-emerald-900 rounded-xl text-center">
                         <div className="flex items-center gap-2 mb-1">
-                            <Sparkles className="w-5 h-5 text-emerald-500" />
-                            <span className="font-bold text-emerald-700 dark:text-emerald-400 text-base">Coupon Activated!</span>
+                            <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                            <span className="font-bold text-emerald-700 dark:text-emerald-400 text-sm">Activated!</span>
                         </div>
-                        <p className="text-xs text-emerald-600 dark:text-emerald-400/80">
-                            Discount applied automatically. Shop on {storeName} to save!
+                        <p className="text-[11px] text-emerald-600/80 dark:text-emerald-400/80">
+                            Discount applies automatically.
                         </p>
                     </div>
                 ) : (
                     /* ── Get Deal Button ── */
                     <button
                         onClick={handleGetDeal}
-                        className="w-full h-12 flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 active:scale-[0.98] text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:-translate-y-0.5"
+                        className="w-full h-12 flex items-center justify-center gap-2 bg-brand-indigo hover:bg-brand-indigo/90 active:scale-[0.98] text-white rounded-xl font-bold text-sm transition-all shadow-premium-sm"
                     >
                         <span>Get Deal</span>
                         <ExternalLink className="w-4 h-4" />
@@ -211,35 +210,34 @@ export default function CouponCard({ coupon, storeName, storeLogo }: CouponCardP
 
                 {/* Trust Feedback (after interaction) */}
                 {showFeedback && (
-                    <div className="mt-3 flex items-center justify-between py-2.5 px-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
-                        <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                            Did this work?
-                        </span>
-                        {voteStatus ? (
-                            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Thanks! ❤️</span>
-                        ) : (
-                            <div className="flex items-center gap-1.5">
-                                <button
-                                    onClick={() => handleVote(true)}
-                                    className="px-3 py-1 rounded-md text-xs font-bold bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200 dark:hover:bg-emerald-950 dark:hover:text-emerald-400 transition-colors"
-                                >
-                                    👍 Yes
-                                </button>
-                                <button
-                                    onClick={() => handleVote(false)}
-                                    className="px-3 py-1 rounded-md text-xs font-bold bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-950 dark:hover:text-red-400 transition-colors"
-                                >
-                                    👎 No
-                                </button>
-                            </div>
-                        )}
+                    <div className="mt-4 flex flex-col gap-2">
+                        <div className="flex items-center justify-between py-3 px-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800">
+                            <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                                Did this work?
+                            </span>
+                            {voteStatus ? (
+                                <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Thanks! ❤️</span>
+                            ) : (
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => handleVote(true)}
+                                        className="w-8 h-8 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200 transition-colors shadow-sm"
+                                        title="Yes, it worked"
+                                    >
+                                        👍
+                                    </button>
+                                    <button
+                                        onClick={() => handleVote(false)}
+                                        className="w-8 h-8 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors shadow-sm"
+                                        title="No, it didn't work"
+                                    >
+                                        👎
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 )}
-
-                <div className="flex items-center justify-center gap-1 mt-2.5 text-[10px] text-gray-400 dark:text-gray-500">
-                    <Info className="w-3 h-3" />
-                    Verified recently
-                </div>
             </div>
         </div>
     );

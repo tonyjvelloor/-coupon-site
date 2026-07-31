@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Icon } from "@/components/ui/Icon";
 import { OfferCard } from "@/components/ui/OfferCard";
 import { formatDistanceToNow } from 'date-fns';
 import { useShoppingProfile } from "@/components/providers/UserProvider";
 import confetti from 'canvas-confetti';
+import { Heart, Tag, TrendingUp, ShieldCheck, Clock } from 'lucide-react';
 
 import { useCouponModal } from '@/components/providers/CouponModalProvider';
 
@@ -82,7 +82,7 @@ export function StoreHero({ store, activeCoupons, bestDeal }: StoreHeroProps) {
                     particleCount: 40,
                     spread: 50,
                     origin: { x, y },
-                    colors: ['#3b82f6', '#10b981', '#f59e0b'],
+                    colors: ['#6366f1', '#10b981', '#f59e0b'],
                     disableForReducedMotion: true,
                     zIndex: 100
                 });
@@ -95,62 +95,57 @@ export function StoreHero({ store, activeCoupons, bestDeal }: StoreHeroProps) {
     };
 
     return (
-        <section className="relative bg-white dark:bg-black border-b border-surface-200 dark:border-surface-800">
-            <div className="max-w-container-max mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+        <section className="relative bg-white dark:bg-black border-b border-slate-200 dark:border-slate-800/80">
+            <div className="max-w-container-max mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 relative z-10">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10">
                     
                     {/* Left: Merchant Context */}
-                    <div className="flex-1 space-y-4">
-                        <div className="flex items-center gap-4">
-                            <div className="w-16 h-16 rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-inverse-surface flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                    <div className="flex-1 space-y-5">
+                        <div className="flex items-center gap-5">
+                            <div className="w-20 h-20 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex items-center justify-center overflow-hidden shrink-0 shadow-premium-sm">
                                 {store.logo ? (
-                                    <Image src={store.logo} alt={store.name} width={64} height={64} className="object-contain p-1" />
+                                    <Image src={store.logo} alt={store.name} width={80} height={80} className="object-contain p-2" />
                                 ) : (
-                                    <Image src={`https://icon.horse/icon/${store.slug.replace(/-/g, '')}.com`} alt={store.name} width={64} height={64} className="object-contain p-1" unoptimized />
+                                    <span className="text-3xl font-display-sm font-bold text-slate-400">{store.name.charAt(0)}</span>
                                 )}
                             </div>
                             <div>
-                                <h1 className="text-3xl md:text-4xl font-headline-lg font-bold text-slate-900 dark:text-white">
+                                <h1 className="text-3xl md:text-5xl font-display-lg font-bold text-slate-900 dark:text-white tracking-tight">
                                     {store.name} Coupons
                                 </h1>
-                                <div className="flex items-center gap-1 text-amber-500 dark:text-amber-400 text-sm mt-1">
-                                    <Icon name="star" variant="fill" className="text-[14px]" />
-                                    <Icon name="star" variant="fill" className="text-[14px]" />
-                                    <Icon name="star" variant="fill" className="text-[14px]" />
-                                    <Icon name="star" variant="fill" className="text-[14px]" />
-                                    <Icon name="star_half" variant="fill" className="text-[14px]" />
-                                    <span className="text-surface-600 dark:text-surface-400 font-medium ml-1">4.8 (Verified)</span>
+                                <div className="flex items-center gap-1 text-amber-500 text-sm mt-2">
+                                    {"★★★★★".split('').map((star, i) => (
+                                        <span key={i} className="text-base">{star}</span>
+                                    ))}
+                                    <span className="text-slate-500 font-medium ml-2 text-xs">4.8 (Verified)</span>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Save Store Button & Evidence & Metrics */}
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-3 text-sm pt-2">
+                        {/* Metrics and Save Button */}
+                        <div className="flex flex-wrap items-center gap-x-5 gap-y-3 pt-4">
                             <button 
                                 onClick={() => isSaved ? removeStore(store.slug) : saveStore(store.slug)}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold transition-all border ${
+                                className={`flex items-center gap-2 px-5 py-2 rounded-full font-bold transition-all border text-sm shadow-sm ${
                                     isSaved 
-                                    ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 border-primary-200 dark:border-primary-800' 
-                                    : 'bg-white dark:bg-surface-900 text-slate-700 dark:text-white border-surface-200 dark:border-surface-700 hover:border-primary hover:text-primary'
+                                    ? 'bg-brand-indigo/10 text-brand-indigo border-brand-indigo/20' 
+                                    : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:border-brand-indigo hover:text-brand-indigo dark:hover:text-brand-indigo'
                                 }`}
                             >
-                                <Icon name={isSaved ? "favorite" : "favorite_border"} className={`text-[18px] ${isSaved ? 'text-primary' : ''}`} variant={isSaved ? 'fill' : 'outline'} />
+                                <Heart className={`w-4 h-4 ${isSaved ? 'fill-brand-indigo' : ''}`} />
                                 {isSaved ? "Saved" : "Save Store"}
                             </button>
-                            <div className="w-px h-6 bg-surface-200 dark:bg-surface-800 mx-1 hidden sm:block"></div>
-                            <span className="flex items-center gap-1 font-bold text-slate-900 dark:text-white">
-                                <Icon name="local_offer" className="text-[16px] text-surface-400" /> {activeCoupons.length} Working Offers
+                            <div className="w-px h-6 bg-slate-200 dark:bg-slate-800 mx-1 hidden sm:block"></div>
+                            <span className="flex items-center gap-1.5 font-bold text-slate-900 dark:text-white text-sm">
+                                <Tag className="w-4 h-4 text-slate-400" /> {activeCoupons.length} Working Offers
                             </span>
                             {store.cashbackRate && (
-                                <span className="flex items-center gap-1 font-bold text-green-600 dark:text-green-400">
-                                    <Icon name="payments" className="text-[16px]" /> {store.cashbackRate} Cashback
+                                <span className="flex items-center gap-1.5 font-bold text-brand-emerald text-sm">
+                                    <TrendingUp className="w-4 h-4" /> {store.cashbackRate} Cashback
                                 </span>
                             )}
-                            <span className="flex items-center gap-1 font-bold text-slate-900 dark:text-white">
-                                <Icon name="savings" className="text-[16px] text-surface-400" /> Save {bestSavings}
-                            </span>
-                            <span className="text-surface-500 dark:text-surface-500 flex items-center gap-1">
-                                <Icon name="update" className="text-[16px]" /> Updated {lastCheckedText}
+                            <span className="text-slate-500 flex items-center gap-1.5 text-sm font-medium">
+                                <Clock className="w-4 h-4" /> Updated {lastCheckedText}
                             </span>
                         </div>
                     </div>
@@ -159,8 +154,8 @@ export function StoreHero({ store, activeCoupons, bestDeal }: StoreHeroProps) {
                     <div className="flex-1 w-full max-w-md lg:max-w-lg shrink-0">
                         {bestDeal ? (
                             <div className="relative">
-                                <div className="absolute -top-3 left-4 z-10">
-                                    <span className="bg-primary text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider shadow-sm">
+                                <div className="absolute -top-3 left-6 z-10">
+                                    <span className="bg-brand-indigo text-white text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-premium-sm flex items-center gap-1">
                                         ⭐ Best Offer Today
                                     </span>
                                 </div>
@@ -171,13 +166,13 @@ export function StoreHero({ store, activeCoupons, bestDeal }: StoreHeroProps) {
                                         affiliateUrl: bestDeal.affiliateUrl || `/go/${bestDeal.id}`,
                                         successRate: 98,
                                     }}
-                                    className="border-primary-200 dark:border-primary-900/50 shadow-lg shadow-primary-500/5"
+                                    className="border-brand-indigo/20 shadow-premium-md"
                                 />
                             </div>
                         ) : (
-                            <div className="bg-surface-50 dark:bg-surface-900 p-6 rounded-xl border border-surface-200 dark:border-surface-800 text-center">
-                                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">No active codes right now</h3>
-                                <p className="text-surface-600 dark:text-surface-400">We check for new {store.name} deals continuously.</p>
+                            <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 text-center shadow-premium-sm">
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">No active codes right now</h3>
+                                <p className="text-slate-500">We check for new {store.name} deals continuously.</p>
                             </div>
                         )}
                     </div>
@@ -186,15 +181,15 @@ export function StoreHero({ store, activeCoupons, bestDeal }: StoreHeroProps) {
 
             {/* Mobile Sticky CTA */}
             {bestDeal && (
-                <div className={`lg:hidden fixed bottom-0 left-0 right-0 p-4 bg-white dark:bg-surface-900 border-t border-surface-200 dark:border-surface-800 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50 transition-transform duration-300 ${showStickyCTA ? 'translate-y-0' : 'translate-y-full'}`}>
+                <div className={`lg:hidden fixed bottom-0 left-0 right-0 p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.1)] z-50 transition-transform duration-300 ${showStickyCTA ? 'translate-y-0' : 'translate-y-full'}`}>
                     <div className="flex items-center justify-between gap-4">
                         <div className="flex flex-col">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Best Deal</span>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-brand-indigo">Best Deal</span>
                             <span className="font-bold text-slate-900 dark:text-white text-lg leading-tight">{bestDeal.discountValue || "Save Big"}</span>
                         </div>
                         <button 
                             onClick={handleCopyCoupon}
-                            className={`flex-1 h-12 rounded-xl font-bold text-sm transition-all duration-300 ${copied ? 'bg-verified text-white scale-105' : 'bg-primary text-white hover:bg-primary-600'}`}
+                            className={`flex-1 h-12 rounded-xl font-bold text-sm transition-all duration-300 ${copied ? 'bg-brand-emerald text-white scale-105' : 'bg-brand-indigo text-white hover:bg-brand-indigo/90 shadow-premium-sm'}`}
                         >
                             {copied ? "Copied!" : "Get Deal"}
                         </button>

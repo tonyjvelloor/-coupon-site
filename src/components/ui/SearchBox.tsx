@@ -90,7 +90,6 @@ export function SearchBox({ placeholder = "Search stores or categories...", clas
           handleSelectCategory(suggestions.categories[selectedIndex - suggestions.stores.length]);
         }
       } else if (query.trim()) {
-        // Fallback: search redirect to stores search page or just go to first suggestion
         if (suggestions.stores.length > 0) {
           handleSelectStore(suggestions.stores[0]);
         } else if (suggestions.categories.length > 0) {
@@ -119,7 +118,7 @@ export function SearchBox({ placeholder = "Search stores or categories...", clas
   return (
     <div className={`relative w-full ${className}`} ref={dropdownRef}>
       <div className="relative">
-        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant dark:text-surface-variant opacity-70">
+        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
           {isLoading ? (
             <Loader2 className="w-5 h-5 animate-spin text-brand-indigo" />
           ) : (
@@ -137,40 +136,43 @@ export function SearchBox({ placeholder = "Search stores or categories...", clas
           onFocus={() => setIsOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="w-full pl-11 pr-4 py-3 bg-surface-container-low dark:bg-inverse-surface dark:text-white border-none rounded-full focus:ring-2 focus:ring-brand-indigo transition-all font-body-md text-slate-800 outline-none"
+          className="w-full pl-11 pr-4 py-3 bg-slate-100/50 dark:bg-slate-900/50 border border-transparent dark:border-slate-800 text-slate-900 dark:text-white rounded-full focus:ring-2 focus:ring-brand-indigo transition-all text-sm outline-none placeholder:text-slate-500"
         />
       </div>
 
       {isOpen && (suggestions.stores.length > 0 || suggestions.categories.length > 0) && (
-        <div className="absolute left-0 right-0 mt-2 bg-white dark:bg-inverse-surface border border-surface-variant/30 rounded-2xl shadow-xl z-50 overflow-hidden py-2 max-h-96 overflow-y-auto">
+        <div className="absolute left-0 right-0 mt-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl z-50 overflow-hidden py-2 max-h-96 overflow-y-auto">
           {suggestions.stores.length > 0 && (
             <div>
-              <div className="px-4 py-1.5 text-[11px] font-bold tracking-wider text-on-surface-variant dark:text-surface-variant opacity-60 uppercase">
+              <div className="px-4 py-1.5 text-[10px] font-bold tracking-wider text-slate-400 uppercase">
                 Stores
               </div>
               {suggestions.stores.map((store, index) => {
                 const globalIndex = index;
                 const isSelected = selectedIndex === globalIndex;
-                const storeLogo = store.logo || `https://icon.horse/icon/${store.slug.replace(/-/g, '')}.com`;
                 return (
                   <button
                     key={store.slug}
                     onClick={() => handleSelectStore(store)}
                     onMouseEnter={() => setSelectedIndex(globalIndex)}
-                    className={`w-full flex items-center gap-3 px-4 py-2 text-left font-body-md text-sm transition-colors ${
+                    className={`w-full flex items-center gap-3 px-4 py-2 text-left text-sm transition-colors ${
                       isSelected
-                        ? "bg-brand-indigo/10 dark:bg-brand-indigo/25 text-brand-indigo dark:text-white"
-                        : "text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-on-background/10"
+                        ? "bg-brand-indigo/10 dark:bg-brand-indigo/20 text-brand-indigo dark:text-white"
+                        : "text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800"
                     }`}
                   >
-                    <div className="w-7 h-7 rounded border border-surface-variant/20 bg-white relative flex items-center justify-center overflow-hidden shrink-0">
-                      <Image
-                        src={storeLogo}
-                        alt={store.name}
-                        fill
-                        className="object-contain p-0.5"
-                        unoptimized
-                      />
+                    <div className="w-8 h-8 rounded-lg border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 relative flex items-center justify-center overflow-hidden shrink-0">
+                      {store.logo ? (
+                        <Image
+                          src={store.logo}
+                          alt={store.name}
+                          fill
+                          className="object-contain p-1"
+                          unoptimized
+                        />
+                      ) : (
+                        <span className="font-bold text-xs text-slate-400">{store.name.charAt(0)}</span>
+                      )}
                     </div>
                     <span className="font-medium flex-1">{store.name}</span>
                     <Store className="w-4 h-4 opacity-40 shrink-0" />
@@ -181,8 +183,8 @@ export function SearchBox({ placeholder = "Search stores or categories...", clas
           )}
 
           {suggestions.categories.length > 0 && (
-            <div className={suggestions.stores.length > 0 ? "mt-2 pt-2 border-t border-surface-variant/10" : ""}>
-              <div className="px-4 py-1.5 text-[11px] font-bold tracking-wider text-on-surface-variant dark:text-surface-variant opacity-60 uppercase">
+            <div className={suggestions.stores.length > 0 ? "mt-2 pt-2 border-t border-slate-100 dark:border-slate-800" : ""}>
+              <div className="px-4 py-1.5 text-[10px] font-bold tracking-wider text-slate-400 uppercase">
                 Categories
               </div>
               {suggestions.categories.map((category, index) => {
@@ -193,13 +195,13 @@ export function SearchBox({ placeholder = "Search stores or categories...", clas
                     key={category.slug}
                     onClick={() => handleSelectCategory(category)}
                     onMouseEnter={() => setSelectedIndex(globalIndex)}
-                    className={`w-full flex items-center gap-3 px-4 py-2.5 text-left font-body-md text-sm transition-colors ${
+                    className={`w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors ${
                       isSelected
-                        ? "bg-brand-indigo/10 dark:bg-brand-indigo/25 text-brand-indigo dark:text-white"
-                        : "text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-on-background/10"
+                        ? "bg-brand-indigo/10 dark:bg-brand-indigo/20 text-brand-indigo dark:text-white"
+                        : "text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800"
                     }`}
                   >
-                    <div className="w-7 h-7 rounded bg-brand-indigo/5 dark:bg-brand-indigo/20 flex items-center justify-center shrink-0">
+                    <div className="w-8 h-8 rounded-lg bg-brand-indigo/5 dark:bg-brand-indigo/10 flex items-center justify-center shrink-0">
                       <Tag className="w-4 h-4 text-brand-indigo" />
                     </div>
                     <span className="font-medium flex-1">{category.name}</span>

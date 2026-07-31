@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Icon } from "@/components/ui/Icon";
+import { Sparkles, Tag, TrendingUp, CreditCard, GraduationCap, Gift, Wallet } from 'lucide-react';
 
 export interface SavingStep {
     type: "coupon" | "cashback" | "bank" | "student" | "giftcard" | "reward" | "emi";
@@ -60,35 +60,35 @@ export function SavingsStrategy({ store, bestDeal }: SavingsStrategyProps) {
 
     const getIconForType = (type: string) => {
         switch(type) {
-            case "coupon": return "local_offer";
-            case "cashback": return "payments";
-            case "bank": return "credit_card";
-            case "student": return "school";
-            case "giftcard": return "card_giftcard";
-            default: return "savings";
+            case "coupon": return <Tag className="w-5 h-5 text-brand-indigo" />;
+            case "cashback": return <TrendingUp className="w-5 h-5 text-brand-indigo" />;
+            case "bank": return <CreditCard className="w-5 h-5 text-brand-indigo" />;
+            case "student": return <GraduationCap className="w-5 h-5 text-brand-indigo" />;
+            case "giftcard": return <Gift className="w-5 h-5 text-brand-indigo" />;
+            default: return <Wallet className="w-5 h-5 text-brand-indigo" />;
         }
     };
 
     return (
-        <section className="bg-primary-50 dark:bg-primary-900/10 border-2 border-primary-100 dark:border-primary-900 rounded-2xl p-6 md:p-8">
-            <h2 className="text-xl font-headline-md font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-                <Icon name="magic_button" className="text-primary text-2xl" /> Maximize Your Savings
+        <section className="bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 md:p-8 shadow-premium-sm">
+            <h2 className="text-xl font-display-sm font-bold text-slate-900 dark:text-white mb-8 flex items-center gap-2">
+                <Sparkles className="text-brand-indigo w-5 h-5" /> Maximize Your Savings
             </h2>
             
             <div className="space-y-4 relative">
                 {/* Connecting Line */}
-                <div className="absolute left-[19px] top-4 bottom-12 w-[2px] bg-primary-200 dark:bg-primary-800 z-0"></div>
+                <div className="absolute left-[23px] top-4 bottom-12 w-[2px] bg-slate-200 dark:bg-slate-800 z-0"></div>
                 
                 {activeSteps.map((step, index) => (
-                    <div key={index} className="flex flex-col md:flex-row md:items-center justify-between relative z-10 gap-2 bg-white dark:bg-surface-900 p-4 rounded-xl shadow-sm border border-primary-100 dark:border-primary-800 hover:shadow-md transition-shadow cursor-default" onClick={() => console.log("Analytics: onViewStrategyStep", { step: step.type })}>
+                    <div key={index} className="flex flex-col md:flex-row md:items-center justify-between relative z-10 gap-3 bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-premium-md hover:border-brand-indigo/30 transition-all cursor-default" onClick={() => console.log("Analytics: onViewStrategyStep", { step: step.type })}>
                         <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-full bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center text-primary flex-shrink-0">
-                                <Icon name={getIconForType(step.type)} className="text-[20px]" />
+                            <div className="w-12 h-12 rounded-full bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center flex-shrink-0 border border-slate-100 dark:border-slate-800">
+                                {getIconForType(step.type)}
                             </div>
                             <span className="font-bold text-slate-900 dark:text-white">{step.title}</span>
                         </div>
                         {step.savings ? (
-                            <span className="font-bold text-green-600 dark:text-green-400 font-headline-sm">
+                            <span className="font-bold text-brand-emerald font-display-sm md:text-lg">
                                 ₹{step.savings.toLocaleString()}
                             </span>
                         ) : null}
@@ -97,9 +97,9 @@ export function SavingsStrategy({ store, bestDeal }: SavingsStrategyProps) {
             </div>
             
             {totalSavings > 0 && (
-                <div className="mt-6 pt-6 border-t border-primary-200 dark:border-primary-800 flex items-center justify-between">
-                    <span className="text-lg font-bold text-slate-900 dark:text-white uppercase tracking-widest text-sm">Final Savings</span>
-                    <span className="text-3xl font-black font-headline-lg text-green-600 dark:text-green-400">
+                <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                    <span className="text-sm font-bold text-slate-500 uppercase tracking-widest">Final Savings</span>
+                    <span className="text-3xl font-display-md font-bold text-brand-emerald">
                         ₹{totalSavings.toLocaleString()}
                     </span>
                 </div>

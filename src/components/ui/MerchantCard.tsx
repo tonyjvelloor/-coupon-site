@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Tag, TrendingUp, Users } from 'lucide-react';
 
 export interface MerchantCardProps {
     store: {
@@ -23,11 +24,14 @@ export function MerchantCard({ store, className = "", priority = false }: Mercha
     return (
         <Link 
             href={`/stores/${store.slug}`} 
-            className={`premium-card bg-surface-white dark:bg-inverse-surface rounded-2xl border border-surface-variant/20 p-6 flex flex-col group cursor-pointer h-full ${className}`}
+            className={`group relative bg-white dark:bg-[#0F172A] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 flex flex-col cursor-pointer h-full hover:border-brand-indigo/30 dark:hover:border-brand-indigo/50 shadow-premium-sm hover:shadow-premium-md transition-all duration-300 active:scale-[0.98] ${className}`}
         >
-            <div className="flex justify-between items-start mb-6">
-                <div className="w-16 h-16 rounded-xl border border-surface-variant/20 p-2 bg-white flex items-center justify-center group-hover:scale-105 transition-transform overflow-hidden relative">
-                    {store.logo ? (
+            {/* Hover Glow */}
+            <div className="absolute inset-0 bg-gradient-to-br from-brand-indigo/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl pointer-events-none" />
+
+            <div className="flex justify-between items-start mb-6 relative z-10">
+                <div className="w-16 h-16 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex items-center justify-center group-hover:scale-105 transition-transform duration-300 overflow-hidden relative shadow-sm">
+                    {store.logo && store.logo.trim() !== '' ? (
                         <Image
                             src={store.logo}
                             alt={store.name}
@@ -37,35 +41,37 @@ export function MerchantCard({ store, className = "", priority = false }: Mercha
                             priority={priority}
                         />
                     ) : (
-                        <Image
-                            src={`https://icon.horse/icon/${store.slug.replace(/-/g, '')}.com`}
-                            alt={store.name}
-                            fill
-                            className="object-contain p-2"
-                            unoptimized
-                        />
+                        <span className="text-2xl font-bold text-slate-400 dark:text-slate-500 uppercase font-display-sm">
+                            {store.name.charAt(0)}
+                        </span>
                     )}
                 </div>
-                <div className="bg-primary/10 text-primary px-3 py-1 rounded-full font-label-md text-label-sm font-bold flex items-center gap-1">
-                    <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>local_offer</span>
+                
+                <div className="bg-brand-indigo/10 text-brand-indigo px-3 py-1 rounded-full text-[11px] font-bold flex items-center gap-1">
+                    <Tag className="w-3.5 h-3.5" />
                     {store.offerCount} Active
                 </div>
             </div>
             
-            <h3 className="font-title-md font-bold text-on-surface dark:text-white mb-1 group-hover:text-primary transition-colors">{store.name}</h3>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1 group-hover:text-brand-indigo transition-colors relative z-10">
+                {store.name}
+            </h3>
             
-            <p className="font-body-md text-label-md text-success-green font-bold mb-4">
-                {store.bestSavings || "Up to 80% Off"}
-            </p>
+            <div className="flex items-center gap-1.5 text-brand-emerald font-bold mb-5 relative z-10">
+                <TrendingUp className="w-4 h-4" />
+                <span>{store.bestSavings || "Up to 80% Off"}</span>
+            </div>
             
-            <div className="mt-auto pt-4 border-t border-surface-variant/20 flex items-center justify-between">
+            <div className="mt-auto pt-5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between relative z-10">
                 <div className="flex -space-x-2">
-                    {/* Simulated users for social proof */}
-                    <img alt="User" className="w-6 h-6 rounded-full border-2 border-white dark:border-inverse-surface" src="https://i.pravatar.cc/100?img=1"/>
-                    <img alt="User" className="w-6 h-6 rounded-full border-2 border-white dark:border-inverse-surface" src="https://i.pravatar.cc/100?img=2"/>
-                    <img alt="User" className="w-6 h-6 rounded-full border-2 border-white dark:border-inverse-surface" src="https://i.pravatar.cc/100?img=3"/>
+                    <img alt="User" className="w-6 h-6 rounded-full border-2 border-white dark:border-[#0F172A]" src="https://i.pravatar.cc/100?img=1"/>
+                    <img alt="User" className="w-6 h-6 rounded-full border-2 border-white dark:border-[#0F172A]" src="https://i.pravatar.cc/100?img=2"/>
+                    <img alt="User" className="w-6 h-6 rounded-full border-2 border-white dark:border-[#0F172A]" src="https://i.pravatar.cc/100?img=3"/>
                 </div>
-                <span className="font-label-md text-label-sm text-on-surface-variant dark:text-surface-variant">4k+ saved this week</span>
+                <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                    <Users className="w-3.5 h-3.5" />
+                    <span>4k+ saved</span>
+                </div>
             </div>
         </Link>
     );

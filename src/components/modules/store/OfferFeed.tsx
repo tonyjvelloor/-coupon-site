@@ -14,10 +14,10 @@ export function OfferFeed({ store, offers }: OfferFeedProps) {
     return (
         <section>
             <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-headline-md font-bold text-slate-900 dark:text-white">
+                <h3 className="text-2xl font-display-sm font-bold text-slate-900 dark:text-white tracking-tight">
                     Active Offers
                 </h3>
-                <span className="bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-400 text-xs font-bold px-2 py-1 rounded">
+                <span className="bg-slate-100 dark:bg-slate-800 text-slate-500 text-xs font-bold px-2 py-1 rounded-md">
                     {offers.length} verified
                 </span>
             </div>
