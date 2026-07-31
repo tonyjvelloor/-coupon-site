@@ -29,6 +29,9 @@ export const metadata: Metadata = {
   authors: [{ name: "CouponHub" }],
   creator: "CouponHub",
   metadataBase: new URL(siteUrl),
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -54,8 +57,8 @@ export const metadata: Metadata = {
 
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { CouponModalProvider } from "@/components/providers/CouponModalProvider";
-
-// ... imports
+import { ConsentManager } from "@/components/ui/ConsentManager";
+import { AnalyticsProvider } from "@/components/providers/AnalyticsProvider";
 
 export default function RootLayout({
   children,
@@ -73,34 +76,13 @@ export default function RootLayout({
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
-        {/* Google Analytics 4 Placeholder */}
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-XXXXXXXXXX"}`}
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-XXXXXXXXXX"}');
-          `}
-        </Script>
-        {/* Microsoft Clarity Placeholder */}
-        <Script id="microsoft-clarity" strategy="afterInteractive">
-          {`
-            (function(c,l,a,r,i,t,y){
-                c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-                t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-                y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-            })(window, document, "clarity", "script", "${process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID || "XXXXXXXX"}");
-          `}
-        </Script>
       </head>
       <body
         className={`${inter.variable} font-sans antialiased bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white overflow-x-hidden transition-colors duration-300`}
         suppressHydrationWarning
       >
+        <AnalyticsProvider />
+        <ConsentManager />
         <Script
           id="cuelinks-script"
           strategy="lazyOnload"
