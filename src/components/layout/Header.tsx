@@ -36,25 +36,28 @@ export default function Header() {
                             <div className="w-10 h-10 bg-brand-indigo rounded-xl flex items-center justify-center transform group-hover:scale-105 transition-transform shadow-lg shadow-brand-indigo/30">
                                 <span className="material-symbols-outlined text-white" style={{ fontVariationSettings: "'FILL' 1" }}>sell</span>
                             </div>
-                            <span className="font-display-sm md:font-display-sm font-bold tracking-tight">
-                                <span className="text-brand-indigo">coupon</span>
-                                <span className="text-slate-900 dark:text-white">hub</span>
+                            <span className="font-display-sm md:font-display-sm font-bold tracking-tight text-xl">
+                                <span className="text-slate-900 dark:text-white">Coupon</span>
+                                <span className="text-brand-indigo">Hub</span>
                             </span>
                         </Link>
                         
                         <nav className="hidden lg:flex items-center gap-8">
-                            <Link href="/deals" className="text-slate-700 dark:text-slate-200 font-bold font-body-lg text-sm transition-all hover:text-brand-indigo dark:hover:text-brand-indigo">
-                                Deals
-                            </Link>
-                            <Link href="/stores" className="text-slate-700 dark:text-slate-200 font-bold font-body-lg text-sm transition-all hover:text-brand-indigo dark:hover:text-brand-indigo">
-                                Stores
-                            </Link>
-                            <Link href="/cashback" className="text-slate-700 dark:text-slate-200 font-bold font-body-lg text-sm transition-all hover:text-brand-indigo dark:hover:text-brand-indigo">
-                                Cashback
-                            </Link>
-                            <Link href="/best-offers" className="text-slate-700 dark:text-slate-200 font-bold font-body-lg text-sm transition-all hover:text-brand-indigo dark:hover:text-brand-indigo">
-                                Best Offers
-                            </Link>
+                            {[
+                                { name: "Deals", href: "/deals" },
+                                { name: "Stores", href: "/stores" },
+                                { name: "Cashback", href: "/cashback" },
+                                { name: "Best Offers", href: "/best-offers" }
+                            ].map((item) => (
+                                <Link
+                                    key={item.name}
+                                    href={item.href}
+                                    className="relative text-slate-600 dark:text-slate-300 font-medium text-[15px] transition-colors hover:text-brand-indigo dark:hover:text-brand-indigo group py-1"
+                                >
+                                    {item.name}
+                                    <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-brand-indigo transition-all duration-300 ease-out group-hover:w-full rounded-full opacity-0 group-hover:opacity-100" />
+                                </Link>
+                            ))}
                         </nav>
                     </div>
                     
