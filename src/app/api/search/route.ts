@@ -41,7 +41,33 @@ export async function GET(request: Request) {
       take: 5,
     });
 
-    return NextResponse.json({ stores, categories });
+    const coupons = await prisma.coupon.findMany({
+      where: {
+        OR: [
+          { title: { contains: query, mode: 'insensitive' } },
+          { description: { contains: query, mode: 'insensitive' } },
+          { code: { contains: query, mode: 'insensitive' } }
+        ],
+        status: 'ACTIVE',
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        code: true,
+        discountValue: true,
+        store: {
+          select: {
+            name: true,
+            logo: true,
+            slug: true
+          }
+        }
+      },
+      take: 5,
+    });
+
+    return NextResponse.json({ stores, categories, coupons });
   } catch (error) {
     console.error("Search API Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

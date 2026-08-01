@@ -12,14 +12,14 @@ export async function PopularStoresModule() {
     if (!popularStores.length) return null;
 
     return (
-        <section className="bg-gray-50 dark:bg-gray-950 py-16 transition-colors duration-300">
+        <section className="bg-white py-16 transition-colors duration-300">
             <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
                 <div className="flex justify-between items-end mb-10">
                     <div>
-                        <h2 className="font-display-lg text-title-md font-bold text-gray-900 dark:text-white">Top Performing Stores</h2>
-                        <p className="font-body-md text-body-md text-gray-600 dark:text-gray-400 mt-2">The highest cashback and best coupons available today.</p>
+                        <h2 className="font-display-lg text-title-md font-bold text-slate-900">Start Shopping</h2>
+                        <p className="font-body-md text-body-md text-slate-500 mt-2">Find the highest cashback and best coupons for your favorite stores.</p>
                     </div>
-                    <Link href="/stores" className="hidden sm:flex items-center gap-1 font-label-md text-label-md text-primary hover:text-brand-indigo font-bold transition-colors">
+                    <Link href="/stores" className="hidden sm:flex items-center gap-1 font-label-md text-label-md text-brand-indigo hover:text-indigo-700 font-bold transition-colors">
                         View All <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>arrow_forward</span>
                     </Link>
                 </div>

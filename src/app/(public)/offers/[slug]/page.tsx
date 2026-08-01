@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronRight, Home } from "lucide-react";
-import CouponCard from "@/components/ui/CouponCard";
+import { PremiumOfferCard } from "@/components/ui/PremiumOfferCard";
 import { AdBannerSidebar } from "@/components/ui/AdBanner";
 import SEOTextAndFAQ from "@/components/ui/SEOTextAndFAQ";
 import InternalLinks from "@/components/ui/InternalLinks";
@@ -160,9 +160,9 @@ export default async function CollectionPage({ params }: PageProps) {
                         {/* Coupons Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {collection.coupons.map((coupon) => (
-                                <CouponCard
+                                <PremiumOfferCard
                                     key={coupon.id}
-                                    coupon={coupon}
+                                    coupon={coupon as any}
                                     storeName={coupon.merchantIdentity?.store?.name || ""}
                                     storeLogo={coupon.merchantIdentity?.store?.logo || null}
                                 />

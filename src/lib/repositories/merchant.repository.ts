@@ -85,6 +85,39 @@ export class MerchantRepository {
       categories: []
     }));
   }
+
+  /**
+   * Retrieves active public stores.
+   */
+  async getPublicActiveStores(limit: number = 12, excludeStoreId?: string): Promise<PublicMerchant[]> {
+    const stores = await prisma.store.findMany({
+      where: {
+        isActive: true,
+        ...(excludeStoreId ? { id: { not: excludeStoreId } } : {})
+      },
+      orderBy: { offerCount: 'desc' },
+      take: limit
+    });
+
+    return stores.map(store => ({
+      id: store.id,
+      name: store.name,
+      slug: store.slug,
+      description: store.description,
+      seoTitle: store.seoTitle,
+      seoDescription: store.seoDescription,
+      logo: store.logo,
+      website: store.website,
+      cashbackRate: store.cashbackRate,
+      cashbackType: store.cashbackType,
+      offerCount: store.offerCount,
+      isFeatured: store.isFeatured,
+      healthScore: store.healthScore,
+      contents: [],
+      histories: [],
+      categories: []
+    }));
+  }
   /**
    * Retrieves competitors for a given store based on shared categories.
    */
@@ -103,18 +136,64 @@ export class MerchantRepository {
       },
       take: limit,
       select: {
+        id: true,
         name: true,
         slug: true,
+        logo: true,
         cashbackRate: true,
       }
     });
 
     return competitors.map(c => ({
+      id: c.id,
       name: c.name,
       slug: c.slug,
+      logo: c.logo,
       savings: c.cashbackRate ? `${c.cashbackRate} Cashback` : 'Great Deals',
       isBetter: Math.random() > 0.5 // Temporary mock for UI demo
     }));
+  }
+  /**
+   * Retrieves bank offers for a given store.
+   */
+  async getStoreBankOffers(storeId: string) {
+    return prisma.bankOffer.findMany({
+      where: {
+        storeId,
+        isActive: true,
+      },
+      include: { bank: true },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
+  /**
+   * Retrieves shopping tips for a given store's categories.
+   */
+  async getStoreShoppingTips(categoryIds: string[]) {
+    if (!categoryIds || categoryIds.length === 0) return [];
+    
+    // Convert Category IDs to their slugs/names, or assume ShoppingTip uses category names/slugs
+    // Need to lookup category names since ShoppingTip uses string `category`
+    const categories = await prisma.category.findMany({
+      where: { id: { in: categoryIds } },
+      select: { name: true, slug: true }
+    });
+    
+    const categoryNames = categories.map(c => c.name);
+    const categorySlugs = categories.map(c => c.slug);
+    
+    return prisma.shoppingTip.findMany({
+      where: {
+        isActive: true,
+        OR: [
+          { category: { in: categoryNames } },
+          { category: { in: categorySlugs } },
+          { category: 'general' }
+        ]
+      },
+      orderBy: { createdAt: 'desc' }
+    });
   }
 }
 

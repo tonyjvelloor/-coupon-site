@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Outfit } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+});
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-outfit",
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
@@ -29,9 +34,6 @@ export const metadata: Metadata = {
   authors: [{ name: "CouponHub" }],
   creator: "CouponHub",
   metadataBase: new URL(siteUrl),
-  alternates: {
-    canonical: "/",
-  },
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -59,6 +61,8 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { CouponModalProvider } from "@/components/providers/CouponModalProvider";
 import { ConsentManager } from "@/components/ui/ConsentManager";
 import { AnalyticsProvider } from "@/components/providers/AnalyticsProvider";
+import { GlobalSearchProvider } from "@/components/providers/GlobalSearchProvider";
+import { MobileBottomNav } from "@/components/ui/MobileBottomNav";
 
 export default function RootLayout({
   children,
@@ -78,7 +82,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.variable} font-sans antialiased bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white overflow-x-hidden transition-colors duration-300`}
+        className={`${inter.variable} ${outfit.variable} font-sans antialiased bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white overflow-x-hidden transition-colors duration-300`}
         suppressHydrationWarning
       >
         <AnalyticsProvider />
@@ -99,10 +103,13 @@ export default function RootLayout({
             `,
           }}
         />
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <CouponModalProvider>
-            {children}
-          </CouponModalProvider>
+        <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange>
+          <GlobalSearchProvider>
+            <CouponModalProvider>
+              {children}
+              <MobileBottomNav />
+            </CouponModalProvider>
+          </GlobalSearchProvider>
         </ThemeProvider>
         <script
           type="application/ld+json"

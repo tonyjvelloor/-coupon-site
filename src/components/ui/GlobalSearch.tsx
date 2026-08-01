@@ -12,7 +12,7 @@ export function GlobalSearch({ isOpen, onClose }: { isOpen: boolean, onClose: ()
 
     const [query, setQuery] = useState('');
     const [loading, setLoading] = useState(false);
-    const [results, setResults] = useState<{ stores: any[], coupons: any[] }>({ stores: [], coupons: [] });
+    const [results, setResults] = useState<{ stores: any[], coupons: any[], categories: any[] }>({ stores: [], coupons: [], categories: [] });
     const [selectedIndex, setSelectedIndex] = useState(0);
 
     // Flat list of selectable items for keyboard navigation
@@ -22,7 +22,8 @@ export function GlobalSearch({ isOpen, onClose }: { isOpen: boolean, onClose: ()
         }
         const items: any[] = [];
         results.stores.forEach(s => items.push({ type: 'store', data: s }));
-        results.coupons.forEach(c => items.push({ type: 'coupon', data: c }));
+        results.categories?.forEach(c => items.push({ type: 'category', data: c }));
+        results.coupons?.forEach(c => items.push({ type: 'coupon', data: c }));
         return items;
     };
 
@@ -32,7 +33,7 @@ export function GlobalSearch({ isOpen, onClose }: { isOpen: boolean, onClose: ()
     useEffect(() => {
         if (isOpen) {
             setQuery('');
-            setResults({ stores: [], coupons: [] });
+            setResults({ stores: [], coupons: [], categories: [] });
             setSelectedIndex(0);
             setTimeout(() => inputRef.current?.focus(), 50);
         }
@@ -42,7 +43,7 @@ export function GlobalSearch({ isOpen, onClose }: { isOpen: boolean, onClose: ()
     useEffect(() => {
         const fetchResults = async () => {
             if (!query.trim() || query.length < 2) {
-                setResults({ stores: [], coupons: [] });
+                setResults({ stores: [], coupons: [], categories: [] });
                 setLoading(false);
                 return;
             }
@@ -103,6 +104,8 @@ export function GlobalSearch({ isOpen, onClose }: { isOpen: boolean, onClose: ()
             router.push(`/search?q=${encodeURIComponent(item.value)}`);
         } else if (item.type === 'store') {
             router.push(`/stores/${item.data.slug}`);
+        } else if (item.type === 'category') {
+            router.push(`/categories/${item.data.slug}`);
         } else if (item.type === 'coupon') {
             // Navigate to the store page with the coupon highlighted, or just to the store page
             router.push(`/stores/${item.data.store.name.toLowerCase().replace(/\s+/g, '-')}#deal-${item.data.id}`);
@@ -139,7 +142,7 @@ export function GlobalSearch({ isOpen, onClose }: { isOpen: boolean, onClose: ()
                 </div>
 
                 {/* Results Area */}
-                <div className="overflow-y-auto flex-1 p-2">
+                <div className="overflow-y-auto overscroll-contain flex-1 p-2 touch-pan-y">
                     
                     {!query.trim() && (
                         <div className="p-2">
@@ -150,7 +153,7 @@ export function GlobalSearch({ isOpen, onClose }: { isOpen: boolean, onClose: ()
                                         key={idx}
                                         onMouseEnter={() => setSelectedIndex(idx)}
                                         onClick={() => handleSelect(item)}
-                                        className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-left ${
+                                        className={`flex items-center min-h-[44px] gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-left ${
                                             selectedIndex === idx 
                                                 ? 'bg-brand-indigo/10 dark:bg-brand-indigo/20 text-brand-indigo dark:text-brand-indigo' 
                                                 : 'bg-transparent text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
@@ -190,7 +193,7 @@ export function GlobalSearch({ isOpen, onClose }: { isOpen: boolean, onClose: ()
                                             key={`store-${store.id}`}
                                             onMouseEnter={() => setSelectedIndex(currentIndex)}
                                             onClick={() => handleSelect({ type: 'store', data: store })}
-                                            className={`w-full flex items-center justify-between px-3 py-3 rounded-xl transition-colors ${
+                                            className={`w-full min-h-[44px] flex items-center justify-between px-3 py-3 rounded-xl transition-colors ${
                                                 isSelected ? 'bg-brand-indigo text-white' : 'hover:bg-slate-50 dark:hover:bg-slate-800 bg-transparent'
                                             }`}
                                         >
@@ -212,7 +215,35 @@ export function GlobalSearch({ isOpen, onClose }: { isOpen: boolean, onClose: ()
                         </div>
                     )}
 
-                    {results.coupons.length > 0 && (
+                    {results.categories && results.categories.length > 0 && (
+                        <div className="mb-4">
+                            <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 px-3 pt-2">Categories</div>
+                            <div className="space-y-1">
+                                {results.categories.map((category: any) => {
+                                    const currentIndex = globalItemIndex++;
+                                    const isSelected = selectedIndex === currentIndex;
+                                    
+                                    return (
+                                        <button
+                                            key={`category-${category.slug}`}
+                                            onMouseEnter={() => setSelectedIndex(currentIndex)}
+                                            onClick={() => handleSelect({ type: 'category', data: category })}
+                                            className={`w-full min-h-[44px] flex items-center justify-between px-3 py-3 rounded-xl transition-colors ${
+                                                isSelected ? 'bg-brand-indigo text-white' : 'hover:bg-slate-50 dark:hover:bg-slate-800 bg-transparent'
+                                            }`}
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <span className={`font-semibold text-sm ${isSelected ? 'text-white' : 'text-slate-900 dark:text-white'}`}>{category.name}</span>
+                                            </div>
+                                            <ArrowRight className={`w-4 h-4 ${isSelected ? 'opacity-100' : 'opacity-0 text-slate-400'}`} />
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+
+                    {results.coupons && results.coupons.length > 0 && (
                         <div>
                             <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 px-3 pt-2">Active Deals</div>
                             <div className="space-y-1">
@@ -225,7 +256,7 @@ export function GlobalSearch({ isOpen, onClose }: { isOpen: boolean, onClose: ()
                                             key={`coupon-${coupon.id}`}
                                             onMouseEnter={() => setSelectedIndex(currentIndex)}
                                             onClick={() => handleSelect({ type: 'coupon', data: coupon })}
-                                            className={`w-full flex items-center gap-4 px-3 py-3 rounded-xl transition-colors text-left ${
+                                            className={`w-full min-h-[44px] flex items-center gap-4 px-3 py-3 rounded-xl transition-colors text-left ${
                                                 isSelected ? 'bg-slate-100 dark:bg-slate-800' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 bg-transparent'
                                             }`}
                                         >

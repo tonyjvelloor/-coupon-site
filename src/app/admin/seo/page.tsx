@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { seoService } from "@/lib/services/seo.service";
 import { 
     AlertTriangle, 
     CheckCircle2, 
@@ -10,15 +11,8 @@ import {
 
 export default async function SEOHealthDashboard() {
     // Analytics
-    const totalStores = await prisma.store.count();
-    const missingStoreMeta = await prisma.store.count({
-        where: {
-            OR: [
-                { seoTitle: null },
-                { seoDescription: null }
-            ]
-        }
-    });
+    const platformHealth = await seoService.getPlatformSeoHealth();
+    const { totalStores, issues } = platformHealth;
 
     const totalCollections = await prisma.collection.count();
     const missingCollectionMeta = await prisma.collection.count({
@@ -55,7 +49,7 @@ export default async function SEOHealthDashboard() {
                             <Search className="w-5 h-5 text-blue-500" />
                             Store Metadata
                         </h3>
-                        {missingStoreMeta === 0 ? (
+                        {issues.missingSeoMeta === 0 ? (
                             <CheckCircle2 className="w-5 h-5 text-green-500" />
                         ) : (
                             <AlertTriangle className="w-5 h-5 text-orange-500" />
@@ -63,12 +57,28 @@ export default async function SEOHealthDashboard() {
                     </div>
                     <div className="flex items-end justify-between">
                         <div>
-                            <p className="text-3xl font-bold text-gray-900 dark:text-white">{totalStores - missingStoreMeta}</p>
+                            <p className="text-3xl font-bold text-gray-900 dark:text-white">{totalStores - issues.missingSeoMeta}</p>
                             <p className="text-sm text-gray-500">Optimized Stores</p>
                         </div>
                         <div className="text-right">
-                            <p className="text-xl font-semibold text-orange-500">{missingStoreMeta}</p>
+                            <p className="text-xl font-semibold text-orange-500">{issues.missingSeoMeta}</p>
                             <p className="text-sm text-gray-500">Missing Data</p>
+                        </div>
+                    </div>
+                    
+                    {/* Additional Store Issues */}
+                    <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 space-y-2">
+                        <div className="flex justify-between text-sm">
+                            <span className="text-gray-500">Missing Logos</span>
+                            <span className="font-medium text-gray-700 dark:text-gray-300">{issues.missingLogos}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                            <span className="text-gray-500">Missing Categories</span>
+                            <span className="font-medium text-orange-500">{issues.missingCategories}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                            <span className="text-gray-500">Orphaned Stores</span>
+                            <span className="font-medium text-red-500">{issues.orphanedStores}</span>
                         </div>
                     </div>
                 </div>

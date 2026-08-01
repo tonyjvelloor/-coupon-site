@@ -1,5 +1,5 @@
 import { couponService } from "@/lib/services/coupon.service";
-import CouponCard from "@/components/ui/CouponCard";
+import { PremiumOfferCard } from "@/components/ui/PremiumOfferCard";
 import { Sparkles } from "lucide-react";
 
 export const metadata = {
@@ -41,9 +41,9 @@ export default async function BestOffersPage() {
                 {coupons.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {coupons.map((coupon) => (
-                            <CouponCard
+                            <PremiumOfferCard
                                 key={coupon.id}
-                                coupon={coupon}
+                                coupon={coupon as any}
                                 storeName={coupon.merchantName}
                                 storeLogo={coupon.merchantLogo}
                             />

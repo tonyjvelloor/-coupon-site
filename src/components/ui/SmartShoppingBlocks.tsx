@@ -23,15 +23,15 @@ export function SmartShoppingBlocks({ storeName, contents = [] }: SmartShoppingB
     ];
     return (
         <section className="mt-12 space-y-6">
-            <h2 className="text-2xl font-display-sm font-bold text-slate-900 dark:text-white flex items-center gap-2 tracking-tight">
+            <h2 className="text-heading text-slate-900 dark:text-white flex items-center gap-2">
                 <Lightbulb className="text-brand-indigo w-6 h-6" /> Smart Shopping
             </h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 
                 {/* 1. Shopping Tips */}
                 <div className="bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
-                    <h3 className="font-bold text-slate-900 dark:text-white mb-5 flex items-center gap-2">
+                    <h3 className="text-section text-slate-900 dark:text-white mb-4 flex items-center gap-2">
                         <Sparkles className="text-amber-500 w-5 h-5" /> Shopping Tips
                     </h3>
                     <ul className="space-y-4 relative">
@@ -48,7 +48,7 @@ export function SmartShoppingBlocks({ storeName, contents = [] }: SmartShoppingB
 
                 {/* 2. Buying Advice */}
                 <div className="bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
-                    <h3 className="font-bold text-slate-900 dark:text-white mb-5 flex items-center gap-2">
+                    <h3 className="text-section text-slate-900 dark:text-white mb-4 flex items-center gap-2">
                         <LineChart className="text-brand-indigo w-5 h-5" /> Buying Advice
                     </h3>
                     <div className="flex items-center gap-2 mb-2">
@@ -58,7 +58,7 @@ export function SmartShoppingBlocks({ storeName, contents = [] }: SmartShoppingB
                         </span>
                         <span className="font-bold text-brand-emerald">Good Time</span>
                     </div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-5 font-medium">Prices are currently stable.</p>
+                    <p className="text-body text-slate-600 dark:text-slate-400 mb-4">Prices are currently stable.</p>
                     
                     <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-800 space-y-3 shadow-sm">
                         <div className="flex justify-between items-center text-sm">
@@ -74,7 +74,7 @@ export function SmartShoppingBlocks({ storeName, contents = [] }: SmartShoppingB
 
                 {/* 3. Policies */}
                 <div className="bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
-                    <h3 className="font-bold text-slate-900 dark:text-white mb-5 flex items-center gap-2">
+                    <h3 className="text-section text-slate-900 dark:text-white mb-4 flex items-center gap-2">
                         <Scale className="text-slate-500 w-5 h-5" /> Policies
                     </h3>
                     <ul className="space-y-4">
@@ -107,7 +107,7 @@ export function SmartShoppingBlocks({ storeName, contents = [] }: SmartShoppingB
 
                 {/* 4. Learn More */}
                 <div className="bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 flex flex-col shadow-sm">
-                    <h3 className="font-bold text-slate-900 dark:text-white mb-5 flex items-center gap-2">
+                    <h3 className="text-section text-slate-900 dark:text-white mb-4 flex items-center gap-2">
                         <BookOpen className="text-brand-indigo w-5 h-5" /> Learn More
                     </h3>
                     <div className="grid grid-cols-2 gap-3 flex-1">

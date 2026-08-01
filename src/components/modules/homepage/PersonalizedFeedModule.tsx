@@ -6,11 +6,7 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { MerchantCard } from "@/components/ui/MerchantCard";
 import { MerchantCardSkeleton } from "@/components/ui/SkeletonCards";
 
-interface PersonalizedFeedModuleProps {
-    children: React.ReactNode;
-}
-
-export function PersonalizedFeedModule({ children }: PersonalizedFeedModuleProps) {
+export function PersonalizedFeedModule() {
     const { profile, isLoaded } = useShoppingProfile();
     const [recommendedStores, setRecommendedStores] = useState<any[]>([]);
     const [loadingRecommendations, setLoadingRecommendations] = useState(true);
@@ -54,14 +50,14 @@ export function PersonalizedFeedModule({ children }: PersonalizedFeedModuleProps
         fetchRecommendations();
     }, [isLoaded, profile, hasProfile]);
 
-    // During SSR or initial hydration phase, render the static children for SEO
-    // We only swap it out once the client has loaded and confirmed they have a profile
+    // During SSR or initial hydration phase, render nothing
+    // We only show recommendations once the client has loaded and confirmed they have a profile
     if (!isLoaded) {
-        return <div className="animate-pulse">{children}</div>;
+        return null;
     }
 
     if (!hasProfile || (hasProfile && !loadingRecommendations && recommendedStores.length === 0)) {
-        return <>{children}</>;
+        return null;
     }
 
     return (

@@ -22,6 +22,13 @@ export class CouponService {
   async getCuratedDeals(walletBanks: string[], savedStoreSlugs: string[], limit: number = 6): Promise<PublicCoupon[]> {
     return await couponRepository.getCuratedCoupons(walletBanks, savedStoreSlugs, limit);
   }
+
+  /**
+   * Records a user vote for a coupon.
+   */
+  async voteCoupon(id: string, isSuccess: boolean): Promise<void> {
+    return await couponRepository.voteCoupon(id, isSuccess);
+  }
 }
 
 export const couponService = new CouponService();

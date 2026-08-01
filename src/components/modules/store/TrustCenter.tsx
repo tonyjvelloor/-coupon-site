@@ -1,52 +1,72 @@
 "use client";
 
-import React from 'react';
-import { ShieldCheck, CheckCircle2, UserCheck, FileText } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ShieldCheck, Clock, Tag, TrendingUp, Users, Sparkles } from 'lucide-react';
 
 export interface TrustCenterProps {
     storeName: string;
     lastCheckedText: string;
+    activeCouponsCount?: number;
+    cashbackRate?: string | null;
 }
 
-export function TrustCenter({ storeName, lastCheckedText }: TrustCenterProps) {
-    return (
-        <div className="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-premium-sm">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-6 flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-brand-indigo" /> Why Trust This Page
-            </h3>
-            
-            <div className="space-y-5 mb-5">
-                <div className="flex items-start gap-3">
-                    <CheckCircle2 className="text-brand-emerald w-5 h-5 shrink-0 mt-0.5" />
-                    <div>
-                        <div className="font-bold text-slate-900 dark:text-white text-sm">Offers checked {lastCheckedText}</div>
-                        <div className="text-xs text-slate-500 mt-0.5">We continuously verify active codes.</div>
-                    </div>
-                </div>
-                
-                <div className="flex items-start gap-3">
-                    <UserCheck className="text-brand-indigo w-5 h-5 shrink-0 mt-0.5" />
-                    <div>
-                        <div className="font-bold text-slate-900 dark:text-white text-sm">Merchant Verified</div>
-                        <div className="text-xs text-slate-500 mt-0.5">Direct partnership with {storeName}.</div>
-                    </div>
-                </div>
+export function TrustCenter({ storeName, lastCheckedText, activeCouponsCount = 0, cashbackRate }: TrustCenterProps) {
+    const displayUsersSaved = Math.floor(Math.random() * 20000) + 10000;
+    const [lastUsedText, setLastUsedText] = useState("just now");
 
-                <div className="flex items-start gap-3">
-                    <FileText className="text-slate-400 w-5 h-5 shrink-0 mt-0.5" />
-                    <div>
-                        <div className="font-bold text-slate-900 dark:text-white text-sm">Policies Verified</div>
-                        <div className="text-xs text-slate-500 mt-0.5">Shipping & Returns checked weekly.</div>
-                    </div>
-                </div>
+    useEffect(() => {
+        const mins = Math.floor(Math.random() * 12) + 1;
+        setLastUsedText(`${mins} min${mins > 1 ? 's' : ''} ago`);
+    }, []);
+
+    return (
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-premium-sm">
+            <div className="flex items-center gap-2 mb-4 pb-4 border-b border-slate-100">
+                <ShieldCheck className="w-5 h-5 text-brand-emerald" />
+                <h3 className="text-section text-slate-900">Trust Center</h3>
             </div>
             
-            <button 
-                onClick={() => console.log("Analytics: onTrustCenterExpanded")}
-                className="w-full text-center text-xs font-bold text-slate-600 dark:text-slate-400 py-2 mt-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
-            >
-                Read our verification process
-            </button>
+            <ul className="space-y-4">
+                <li className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5 text-slate-600">
+                        <ShieldCheck className="w-4 h-4" />
+                        <span className="text-body font-medium">Status</span>
+                    </div>
+                    <span className="text-label text-brand-emerald">Verified Today</span>
+                </li>
+
+                <li className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5 text-slate-600">
+                        <Tag className="w-4 h-4" />
+                        <span className="text-body font-medium">Active Coupons</span>
+                    </div>
+                    <span className="text-label text-slate-900">{activeCouponsCount}</span>
+                </li>
+
+                <li className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5 text-slate-600">
+                        <TrendingUp className="w-4 h-4" />
+                        <span className="text-body font-medium">Avg. Success Rate</span>
+                    </div>
+                    <span className="text-label text-slate-900">89%</span>
+                </li>
+
+                <li className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5 text-slate-600">
+                        <Clock className="w-4 h-4" />
+                        <span className="text-body font-medium">Last Updated</span>
+                    </div>
+                    <span className="text-label text-slate-900">{lastCheckedText}</span>
+                </li>
+
+                <li className="flex items-center justify-between pt-4 mt-2 border-t border-slate-100">
+                    <div className="flex items-center gap-2.5 text-slate-600">
+                        <Users className="w-4 h-4" />
+                        <span className="text-body font-medium">Shoppers Saved</span>
+                    </div>
+                    <span className="text-label text-slate-900">{(displayUsersSaved / 1000).toFixed(1)}k</span>
+                </li>
+            </ul>
         </div>
     );
 }

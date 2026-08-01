@@ -44,7 +44,7 @@ export function SavingsCard({ savings, className = "" }: SavingsCardProps) {
                     {savings.logo ? (
                         <Image
                             src={savings.logo}
-                            alt={savings.storeName}
+                            alt={`${savings.storeName} coupons and cashback`}
                             fill
                             className="object-contain p-2"
                             loading="lazy"

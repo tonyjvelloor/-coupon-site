@@ -24,6 +24,14 @@ export class MerchantService {
     return await merchantRepository.getCompetitors(storeId, categoryIds, limit);
   }
 
+  async getStoreBankOffers(storeId: string) {
+    return await merchantRepository.getStoreBankOffers(storeId);
+  }
+
+  async getStoreShoppingTips(categoryIds: string[]) {
+    return await merchantRepository.getStoreShoppingTips(categoryIds);
+  }
+
   /**
    * Retrieves all active store slugs for static generation.
    */

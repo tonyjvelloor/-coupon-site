@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import dynamic from 'next/dynamic';
+import { getExperimentVariant } from "@/lib/ab-testing";
 
 // Modular Homepage Composition Layer
 import { HeroModule } from "@/components/modules/homepage/HeroModule";
@@ -13,54 +14,42 @@ import { ShoppingTipsModule } from "@/components/modules/homepage/ShoppingTipsMo
 import { RecentlyUpdatedModule } from "@/components/modules/homepage/RecentlyUpdatedModule";
 import { CategoriesModule } from "@/components/modules/homepage/CategoriesModule";
 
-export const revalidate = 900;
+export const revalidate = 0; // Disable static generation for A/B testing page
 
 export const metadata: Metadata = {
     title: "CouponHub | Save more every time you shop online",
     description: "Find verified coupons, cashback offers, payment discounts, and shopping tips for thousands of stores.",
+    alternates: {
+        canonical: process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store",
+    },
 };
 
 // Dynamic Imports for heavy below-the-fold components
 // (Newsletter moved to Footer)
 
-export default function Home() {
+export default async function Home() {
+    const heroCopyVariant = await getExperimentVariant("HOME_HERO_COPY");
+
     return (
         <div className="min-h-screen pb-24">
             
-            {/* 1. HERO SECTION */}
-            <HeroModule />
+            {/* 1. HERO SECTION (Search & Trending Searches) */}
+            <HeroModule variant={heroCopyVariant} />
+
+            {/* 2. Confidence Proof */}
             <TrustMarkersModule />
 
             {/* MAIN CONTENT - MODULAR ORCHESTRATION */}
             <div className="space-y-4 py-8">
                 
-                {/* 2. Popular Today (Intent) / Personalized Feed */}
-                <PersonalizedFeedModule>
-                    <PopularStoresModule />
-                </PersonalizedFeedModule>
+                {/* 3. Start Shopping (Merchant Grid) */}
+                <PopularStoresModule />
 
-                {/* 3. Today's Best Coupons (Money Section) - Surface background inside module */}
-                <BestOffersModule />
-
-                {/* 4. Savings (Cashback & Card Offers) - White background inside module */}
-                <SavingsModule />
-
-                {/* Grid for Sales & Tips - White background */}
-                <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-container-max mx-auto">
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                        {/* 5. Upcoming Shopping Events */}
-                        <UpcomingSalesModule />
-
-                        {/* 6. Shopping Tips */}
-                        <ShoppingTipsModule />
-                    </div>
-                </section>
-
-                {/* 7. Recently Updated (Freshness Signal) - Surface background inside module */}
-                <RecentlyUpdatedModule />
-
-                {/* 8. Categories (Browsing behavior last) - White background inside module */}
+                {/* 4. Trending Right Now (Categories) */}
                 <CategoriesModule />
+
+                {/* 5. Today's Biggest Savings */}
+                <BestOffersModule />
 
             </div>
         </div>

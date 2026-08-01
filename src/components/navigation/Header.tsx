@@ -6,7 +6,7 @@ import { Icon } from '../ui/Icon';
 import Image from 'next/image';
 import { ThemeToggle } from '../ui/ThemeToggle';
 import { MobileNav } from './MobileNav';
-import { GlobalSearch } from '../ui/GlobalSearch';
+import { useGlobalSearch } from '../providers/GlobalSearchProvider';
 
 export interface Category {
     id: string;
@@ -21,7 +21,7 @@ export interface Category {
 export function Header({ categories = [] }: { categories?: Category[] }) {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
-    const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const { openSearch } = useGlobalSearch();
 
     return (
         <header className="sticky top-0 z-50 bg-white/90 dark:bg-surface-900/90 backdrop-blur-md border-b border-surface-200 dark:border-surface-800 transition-colors duration-300">
@@ -47,7 +47,7 @@ export function Header({ categories = [] }: { categories?: Category[] }) {
                     {/* Primary Search System (Desktop) */}
                     <div className="hidden md:flex flex-1 max-w-2xl relative">
                         <button
-                            onClick={() => setIsSearchOpen(true)}
+                            onClick={openSearch}
                             className="w-full flex items-center gap-3 pl-4 pr-4 py-3 rounded-full bg-surface-100 dark:bg-surface-800 border-2 border-transparent hover:border-primary/50 transition-all text-sm text-on-surface-variant font-medium shadow-inner"
                         >
                             <Icon name="search" className="text-[20px]" />
@@ -76,7 +76,7 @@ export function Header({ categories = [] }: { categories?: Category[] }) {
                     <div className="flex items-center gap-3 shrink-0">
                         <button 
                             className="md:hidden w-10 h-10 rounded-full bg-surface-100 dark:bg-surface-800 flex items-center justify-center text-on-surface hover:bg-surface-200 transition-colors"
-                            onClick={() => setIsSearchOpen(true)}
+                            onClick={openSearch}
                         >
                             <Icon name="search" className="text-[20px]" />
                         </button>
@@ -111,8 +111,6 @@ export function Header({ categories = [] }: { categories?: Category[] }) {
                 onClose={() => setMobileMenuOpen(false)} 
                 categories={categories}
             />
-            {/* Global Search Modal */}
-            <GlobalSearch isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
         </header>
     );
 }

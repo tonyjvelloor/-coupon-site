@@ -71,7 +71,7 @@ export function SavingsStrategy({ store, bestDeal }: SavingsStrategyProps) {
 
     return (
         <section className="bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 md:p-8 shadow-premium-sm">
-            <h2 className="text-xl font-display-sm font-bold text-slate-900 dark:text-white mb-8 flex items-center gap-2">
+            <h2 className="text-heading text-slate-900 dark:text-white mb-8 flex items-center gap-2">
                 <Sparkles className="text-brand-indigo w-5 h-5" /> Maximize Your Savings
             </h2>
             
@@ -85,10 +85,10 @@ export function SavingsStrategy({ store, bestDeal }: SavingsStrategyProps) {
                             <div className="w-12 h-12 rounded-full bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center flex-shrink-0 border border-slate-100 dark:border-slate-800">
                                 {getIconForType(step.type)}
                             </div>
-                            <span className="font-bold text-slate-900 dark:text-white">{step.title}</span>
+                            <span className="text-body font-semibold text-slate-900 dark:text-white">{step.title}</span>
                         </div>
                         {step.savings ? (
-                            <span className="font-bold text-brand-emerald font-display-sm md:text-lg">
+                            <span className="text-section text-brand-emerald">
                                 ₹{step.savings.toLocaleString()}
                             </span>
                         ) : null}
@@ -98,8 +98,8 @@ export function SavingsStrategy({ store, bestDeal }: SavingsStrategyProps) {
             
             {totalSavings > 0 && (
                 <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                    <span className="text-sm font-bold text-slate-500 uppercase tracking-widest">Final Savings</span>
-                    <span className="text-3xl font-display-md font-bold text-brand-emerald">
+                    <span className="text-overline text-slate-500 uppercase">Estimated Savings</span>
+                    <span className="text-display-l text-brand-emerald">
                         ₹{totalSavings.toLocaleString()}
                     </span>
                 </div>

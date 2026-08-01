@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Metadata } from "next";
+import { contentSplitService } from "@/lib/services/content-split.service";
 
 export const revalidate = 3600;
 
@@ -40,6 +41,11 @@ export default async function StoreFaqPage({ params }: PageProps) {
 
     const faqContentStr = store.storeContents.find(c => c.type === 'FAQ')?.content;
     
+    // Redirect to embedded hub if threshold not met
+    if (!contentSplitService.shouldSplitFaq(faqContentStr)) {
+        redirect(`/stores/${slug}#shopping-guide`);
+    }
+
     if (!faqContentStr) {
         return (
             <div className="py-12 text-center bg-gray-50 rounded-xl">

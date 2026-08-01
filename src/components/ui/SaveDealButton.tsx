@@ -45,8 +45,8 @@ export default function SaveDealButton({ dealId, className = "" }: SaveDealButto
         <button
             onClick={toggleSave}
             className={`group relative p-2 rounded-full transition-all duration-300 ${isSaved
-                    ? "bg-red-50 text-red-500 hover:bg-red-100"
-                    : "bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-red-400"
+                    ? "bg-indigo-50 text-brand-indigo hover:bg-indigo-100"
+                    : "bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-brand-indigo"
                 } ${className}`}
             title={isSaved ? "Remove from saved" : "Save this deal"}
             aria-label={isSaved ? "Remove from saved" : "Save this deal"}
@@ -57,7 +57,7 @@ export default function SaveDealButton({ dealId, className = "" }: SaveDealButto
             />
             {/* Pulse effect on save */}
             {isAnimating && (
-                <span className="absolute inset-0 rounded-full bg-red-400 animate-ping opacity-25"></span>
+                <span className="absolute inset-0 rounded-full bg-brand-indigo animate-ping opacity-25"></span>
             )}
         </button>
     );

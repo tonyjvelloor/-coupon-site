@@ -25,7 +25,7 @@ export default function StoreCard({ store }: StoreCardProps) {
                     {store.logo && store.logo.trim() !== '' ? (
                         <Image
                             src={store.logo}
-                            alt={store.name}
+                            alt={`${store.name} coupons and cashback`}
                             fill
                             className="object-contain p-1.5"
                         />

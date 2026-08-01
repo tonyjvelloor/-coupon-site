@@ -28,7 +28,7 @@ export function StickyStoreAssistant({ storeSlug, storeName }: StickyStoreAssist
     });
 
     return (
-        <div className="fixed bottom-6 right-6 z-50">
+        <div className="fixed md:bottom-6 md:right-6 bottom-20 right-4 z-50">
             {isOpen ? (
                 <div className="bg-white dark:bg-surface-800 rounded-2xl shadow-2xl w-80 sm:w-96 overflow-hidden flex flex-col h-[500px] border border-surface-200 dark:border-surface-700">
                     <div className="p-4 bg-primary-600 text-white flex justify-between items-center">

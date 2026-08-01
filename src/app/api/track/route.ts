@@ -1,12 +1,23 @@
 import { NextResponse } from "next";
 import { prisma } from "@/lib/db";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: Request) {
     try {
-        const { type, id } = await req.json();
+        const { type, id, experiment_id, variant } = await req.json();
 
         if (!id) {
             return NextResponse.json({ error: "ID is required" }, { status: 400 });
+        }
+
+        if (experiment_id && variant) {
+             logger.info({
+                 type: "experiment_conversion",
+                 experiment_id,
+                 variant,
+                 target_type: type,
+                 target_id: id
+             });
         }
 
         if (type === "coupon") {

@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { OfferCard } from "@/components/ui/OfferCard";
+import { PremiumOfferCard } from "@/components/ui/PremiumOfferCard";
 
 export async function BestOffersModule() {
     const bestCoupons = await prisma.coupon.findMany({
@@ -17,17 +17,17 @@ export async function BestOffersModule() {
     if (!bestCoupons.length) return null;
 
     return (
-        <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-container-max mx-auto bg-gray-50 dark:bg-gray-900/50 rounded-[2.5rem]">
+        <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-container-max mx-auto bg-slate-50 rounded-[2.5rem]">
             <SectionHeader 
-                title="Most claimed today" 
+                title="Today's Biggest Savings" 
                 subtitle="These are the exact offers people are using to save big right now."
                 action={{ label: "View all deals", href: "/best-offers" }} 
             />
             <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-6 -mx-4 px-4 sm:mx-0 sm:px-0 md:grid md:grid-cols-2 lg:grid-cols-4 md:overflow-visible gap-6 md:pb-0">
                 {bestCoupons.map((coupon, index) => (
                     <div key={coupon.id} className="shrink-0 snap-start w-[300px] md:w-auto">
-                        <OfferCard 
-                            isBestDeal={index < 2}
+                        <PremiumOfferCard 
+                            badgeLabel={index < 2 ? "Most Popular" : undefined}
                         coupon={{
                             id: coupon.id,
                             title: coupon.title,
@@ -40,7 +40,7 @@ export async function BestOffersModule() {
                             isExclusive: coupon.isExclusive,
                             expiresAt: coupon.expiresAt
                         }}
-                        storeName={coupon.merchantIdentity?.store?.name}
+                        storeName={coupon.merchantIdentity?.store?.name || 'Store'}
                         storeLogo={coupon.merchantIdentity?.store?.logo}
                     />
                     </div>

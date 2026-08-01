@@ -12,7 +12,7 @@ export class CouponRepository {
       include: { merchantIdentity: true }
     });
 
-    if (!store || !store.merchantIdentity) {
+    if (!store || !store.isActive || !store.merchantIdentity) {
       return [];
     }
 
@@ -51,12 +51,13 @@ export class CouponRepository {
     }));
   }
 
-  async getRecentPublicCoupons(limit: number = 20): Promise<PublicCoupon[]> {
+  async getRecentPublicCoupons(limit: number = 20, excludeStoreId?: string): Promise<PublicCoupon[]> {
     const coupons = await prisma.coupon.findMany({
       where: {
         deletedAt: null,
         merchantIdentity: {
-          canonicalStoreId: { not: null }
+          canonicalStoreId: excludeStoreId ? { not: excludeStoreId } : { not: null },
+          store: { isActive: true }
         },
         OR: [
           { expiresAt: null },
@@ -102,7 +103,8 @@ export class CouponRepository {
       where: {
         deletedAt: null,
         merchantIdentity: {
-          canonicalStoreId: { not: null }
+          canonicalStoreId: { not: null },
+          store: { isActive: true }
         },
         OR: [
           { expiresAt: null },
@@ -146,6 +148,91 @@ export class CouponRepository {
         merchantLogo: store.logo,
         createdAt: c.createdAt
       };
+    });
+  }
+
+  async getTrendingCoupons(excludeStoreId?: string, limit: number = 6): Promise<PublicCoupon[]> {
+    const coupons = await prisma.coupon.findMany({
+      where: {
+        deletedAt: null,
+        merchantIdentity: {
+          canonicalStoreId: excludeStoreId ? { not: excludeStoreId } : { not: null },
+          store: { isActive: true }
+        }
+      },
+      orderBy: { usageCount: 'desc' },
+      take: limit,
+      include: { merchantIdentity: { include: { store: true } } }
+    });
+
+    return coupons.map(c => {
+      const store = c.merchantIdentity.store!;
+      return {
+        id: c.id,
+        title: c.title,
+        description: c.description,
+        code: c.code,
+        type: c.type,
+        discountType: c.discountType,
+        discountValue: c.discountValue,
+        affiliateUrl: c.affiliateUrl,
+        expiresAt: c.expiresAt,
+        isVerified: c.isVerified,
+        isExclusive: c.isExclusive,
+        merchantName: store.name,
+        merchantSlug: store.slug,
+        merchantLogo: store.logo,
+        createdAt: c.createdAt
+      };
+    });
+  }
+
+  async getExpiringCoupons(excludeStoreId?: string, limit: number = 6): Promise<PublicCoupon[]> {
+    const coupons = await prisma.coupon.findMany({
+      where: {
+        deletedAt: null,
+        expiresAt: { not: null, gt: new Date() },
+        merchantIdentity: {
+          canonicalStoreId: excludeStoreId ? { not: excludeStoreId } : { not: null },
+          store: { isActive: true }
+        }
+      },
+      orderBy: { expiresAt: 'asc' },
+      take: limit,
+      include: { merchantIdentity: { include: { store: true } } }
+    });
+
+    return coupons.map(c => {
+      const store = c.merchantIdentity.store!;
+      return {
+        id: c.id,
+        title: c.title,
+        description: c.description,
+        code: c.code,
+        type: c.type,
+        discountType: c.discountType,
+        discountValue: c.discountValue,
+        affiliateUrl: c.affiliateUrl,
+        expiresAt: c.expiresAt,
+        isVerified: c.isVerified,
+        isExclusive: c.isExclusive,
+        merchantName: store.name,
+        merchantSlug: store.slug,
+        merchantLogo: store.logo,
+        createdAt: c.createdAt
+      };
+    });
+  }
+
+  async voteCoupon(id: string, isSuccess: boolean): Promise<void> {
+    const incrementField = isSuccess ? 'successCount' : 'failureCount';
+    await prisma.coupon.update({
+      where: { id },
+      data: {
+        [incrementField]: {
+          increment: 1
+        }
+      }
     });
   }
 }

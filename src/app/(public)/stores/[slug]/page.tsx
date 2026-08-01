@@ -9,15 +9,19 @@ import { formatDistanceToNow } from "date-fns";
 import ExitIntentPopup from "@/components/ui/ExitIntentPopup";
 import { RecentStoreTracker } from "@/components/ui/RecentStoreTracker";
 import { StickyStoreAssistant } from "@/components/ui/StickyStoreAssistant";
+import { ScrollTracker } from "@/components/ui/ScrollTracker";
 
 // Store Composition Modules
 import { StoreHero } from "@/components/modules/store/StoreHero";
+import { ShoppingIntelligenceSummary } from "@/components/modules/store/ShoppingIntelligenceSummary";
 import { SavingsStrategy } from "@/components/modules/store/SavingsStrategy";
 import { OfferFeed } from "@/components/modules/store/OfferFeed";
 import { AdditionalSavings } from "@/components/modules/store/AdditionalSavings";
 import { TrustCenter } from "@/components/modules/store/TrustCenter";
 import { ShoppingGuide } from "@/components/modules/store/ShoppingGuide";
 import { DiscoveryRail } from "@/components/modules/store/DiscoveryRail";
+import { BankOffers } from "@/components/modules/store/BankOffers";
+import { ShoppingTips } from "@/components/modules/store/ShoppingTips";
 
 interface PageProps {
     params: Promise<{ slug: string }>;
@@ -69,6 +73,10 @@ export default async function StorePage({ params }: PageProps) {
     const categoryIds = store.categories.map((c: any) => c.id);
     const competitors = await merchantService.getCompetitors(store.id, categoryIds, 3);
     
+    // Fetch hub knowledge sections
+    const bankOffers = await merchantService.getStoreBankOffers(store.id);
+    const shoppingTips = await merchantService.getStoreShoppingTips(categoryIds);
+    
     // Fetch coupons and filter active
     const coupons = await couponService.getStoreCoupons(slug);
     const now = new Date();
@@ -89,8 +97,11 @@ export default async function StorePage({ params }: PageProps) {
         ? formatDistanceToNow(new Date(Math.max(...activeCoupons.map((c: any) => new Date(c.createdAt).getTime()))), { addSuffix: true }) 
         : "today";
 
+    const bestBankOffer = bankOffers.length > 0 ? bankOffers[0].discountValue : undefined;
+
     return (
         <div className="bg-background min-h-screen pb-24 relative">
+            <ScrollTracker />
             <RecentStoreTracker storeSlug={store.slug} />
             <ExitIntentPopup />
             <StickyStoreAssistant storeSlug={store.slug} storeName={store.name} />
@@ -98,41 +109,44 @@ export default async function StorePage({ params }: PageProps) {
             {/* STAGE 1: Immediate Answer (Hero) */}
             <StoreHero store={store} activeCoupons={activeCoupons} bestDeal={bestDeal} />
 
-            <div className="max-w-container-max mx-auto px-4 sm:px-6 lg:px-8 mt-10">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                    
-                    {/* Main Content Area (Left 2/3) */}
-                    <div className="lg:col-span-2 space-y-12">
-                        
-                        {/* STAGE 2: Savings Strategy Pipeline */}
-                        <SavingsStrategy store={store} bestDeal={bestDeal} />
+            <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 space-y-12">
+                
+                <ShoppingIntelligenceSummary 
+                    storeName={store.name}
+                    bestCouponValue={bestDeal?.discountValue || undefined}
+                    bestCashbackValue={store.cashbackRate || undefined}
+                    bestBankOfferValue={bestBankOffer}
+                />
 
-                        {/* STAGE 3: Active Offers */}
-                        <OfferFeed store={store} offers={remainingOffers} />
-                        
-                        {/* STAGE 4: More Savings Available */}
-                        <AdditionalSavings store={store} hasStudent={hasStudent} />
+                {/* STAGE 2: Savings Strategy Pipeline */}
+                <SavingsStrategy store={store} bestDeal={bestDeal} />
 
-                        {/* STAGE 6: Smart Shopping */}
-                        <ShoppingGuide storeName={store.name} contents={store.contents} />
-
-                        {/* STAGE 7: Discovery */}
-                        <DiscoveryRail competitors={competitors} />
-                        
-                    </div>
-
-                    {/* Sidebar Area (Right 1/3) */}
-                    <div className="space-y-8 lg:pl-4">
-                        {/* STAGE 5: Evidence-Based Trust */}
-                        <TrustCenter storeName={store.name} lastCheckedText={lastCheckedText} />
-                    </div>
+                {/* STAGE 3: Active Offers */}
+                <OfferFeed store={store} offers={remainingOffers} />
+                
+                {/* STAGE 4: More Savings Available */}
+                <div className="space-y-12">
+                    <AdditionalSavings store={store} hasStudent={hasStudent} />
+                    <BankOffers storeSlug={store.slug} offers={bankOffers} />
                 </div>
+
+                {/* STAGE 5 & 6: Smart Shopping & Trust */}
+                <div id="shopping-guide" className="scroll-mt-24 space-y-12">
+                    <ShoppingTips storeSlug={store.slug} tips={shoppingTips} />
+                    <TrustCenter storeName={store.name} lastCheckedText={lastCheckedText} activeCouponsCount={activeCoupons.length} />
+                    <ShoppingGuide storeName={store.name} contents={store.contents} />
+                </div>
+
+                {/* STAGE 7: Discovery */}
+                <DiscoveryRail competitors={competitors} />
+                
             </div>
             
             <StoreSchema store={store} coupons={activeCoupons} />
         </div>
     );
 }
+
 
 // Helper to generate JSON-LD for Store
 function StoreSchema({ store, coupons }: { store: any, coupons: any[] }) {
@@ -144,17 +158,25 @@ function StoreSchema({ store, coupons }: { store: any, coupons: any[] }) {
         name: `${store.name} Coupons & Promo Codes`,
         description: store.seoDescription || store.description || `Best coupons and offers for ${store.name}`,
         url: `${siteUrl}/stores/${store.slug}`,
-        hasPart: coupons.slice(0, 10).map((coupon: any) => ({
-            "@type": "Offer",
-            itemOffered: {
-                "@type": "Service",
-                name: coupon.title
-            },
-            priceCurrency: "USD",
-            price: "0",
-            description: coupon.description || coupon.title,
-            url: `${siteUrl}/stores/${store.slug}`
-        }))
+        hasPart: {
+            "@type": "ItemList",
+            name: `${store.name} Offers`,
+            itemListElement: coupons.slice(0, 10).map((coupon: any, index: number) => ({
+                "@type": "ListItem",
+                position: index + 1,
+                item: {
+                    "@type": "Offer",
+                    itemOffered: {
+                        "@type": "Service",
+                        name: coupon.title
+                    },
+                    priceCurrency: "USD",
+                    price: "0",
+                    description: coupon.description || coupon.title,
+                    url: `${siteUrl}/stores/${store.slug}`
+                }
+            }))
+        }
     };
 
     const organizationSchema = {
@@ -163,6 +185,15 @@ function StoreSchema({ store, coupons }: { store: any, coupons: any[] }) {
         name: store.name,
         url: store.website,
         logo: store.logo || `${siteUrl}/logo.png`,
+    };
+
+    const merchantSchema = {
+        "@context": "https://schema.org",
+        "@type": "Store",
+        name: store.name,
+        url: store.website,
+        image: store.logo || `${siteUrl}/logo.png`,
+        description: store.description
     };
 
     let faqSchema = null;
@@ -227,6 +258,10 @@ function StoreSchema({ store, coupons }: { store: any, coupons: any[] }) {
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(merchantSchema) }}
             />
             {faqSchema && (
                 <script

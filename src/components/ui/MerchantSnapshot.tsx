@@ -29,13 +29,12 @@ export function MerchantSnapshot({ store }: MerchantSnapshotProps) {
                 
                 {/* Header: Logo and Title */}
                 <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-800 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                    <div className="w-12 h-12 rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-800 flex items-center justify-center overflow-hidden shrink-0 shadow-sm relative">
                         {store.logo ? (
                             <Image
                                 src={store.logo}
-                                alt={store.name}
-                                width={48}
-                                height={48}
+                                alt={`${store.name} coupons and cashback`}
+                                fill
                                 className="object-contain p-1"
                             />
                         ) : (
