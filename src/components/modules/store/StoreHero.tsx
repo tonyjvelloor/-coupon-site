@@ -58,7 +58,7 @@ export function StoreHero({ store, activeCoupons, bestDeal }: StoreHeroProps) {
         console.log("Analytics: onCopyCoupon", { store: store.name, dealId: bestDeal?.id });
         
         const outUrl = bestDeal 
-            ? `/out?url=${encodeURIComponent(bestDeal.affiliateUrl)}&couponId=${bestDeal.id}&source=store-hero`
+            ? `/out?url=${encodeURIComponent(bestDeal.affiliateUrl)}&couponId=${bestDeal.id}&storeId=${store.id}&source=store-hero`
             : "";
 
         if (bestDeal) {

@@ -128,7 +128,7 @@ export default async function EventPage({ params }: PageProps) {
                     {deals.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                             {deals.map((deal) => (
-                                <Link key={deal.id} href={`/out?url=${encodeURIComponent(deal.affiliateUrl)}&source=event-page&couponId=${deal.id}`} target="_blank" className="bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-xl p-5 hover:shadow-lg hover:border-orange-300 transition-all flex flex-col h-full group">
+                                <Link key={deal.id} href={`/out?url=${encodeURIComponent(deal.affiliateUrl)}&source=event-page&couponId=${deal.id}&storeId=${deal.merchantIdentity?.store?.id || ''}`} target="_blank" className="bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-xl p-5 hover:shadow-lg hover:border-orange-300 transition-all flex flex-col h-full group">
                                     <div className="flex items-start justify-between mb-3">
                                         <div className="bg-orange-50 text-orange-700 text-xs font-bold px-2 py-1 rounded uppercase tracking-wide">
                                             {deal.discountValue || deal.type}

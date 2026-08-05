@@ -30,6 +30,7 @@ export interface DecisionCardProps {
     };
     storeName?: string;
     storeLogo?: string | null;
+    storeId?: string | null;
     isBestDeal?: boolean;
 }
 /** Masks the second half of a code: "FIRST10" → "FIRS•••" */
@@ -38,7 +39,7 @@ function maskCode(code: string): string {
     return code.slice(0, visibleLen) + "•".repeat(code.length - visibleLen);
 }
 
-export function DecisionCard({ coupon, storeName, isBestDeal = false }: DecisionCardProps) {
+export function DecisionCard({ coupon, storeName, storeId, isBestDeal = false }: DecisionCardProps) {
     const [copied, setCopied] = useState(false);
     const [activated, setActivated] = useState(false);
     const [hasRevealedFeedback, setHasRevealedFeedback] = useState(false);
@@ -69,7 +70,8 @@ export function DecisionCard({ coupon, storeName, isBestDeal = false }: Decision
             trackEvent('deal_clicked', { couponId: coupon.id });
         }
         setHasRevealedFeedback(true);
-        const outUrl = `/out?url=${encodeURIComponent(coupon.affiliateUrl)}&couponId=${coupon.id}&source=decision-card`;
+        const storeParam = storeId ? `&storeId=${storeId}` : '';
+        const outUrl = `/out?url=${encodeURIComponent(coupon.affiliateUrl)}&couponId=${coupon.id}&source=decision-card${storeParam}`;
         window.open(outUrl, "_blank");
     };
 

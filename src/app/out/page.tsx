@@ -97,7 +97,7 @@ export default async function OutboundPage({ searchParams }: { searchParams: Pro
     const storeId = typeof params.storeId === "string" ? params.storeId : null;
     const couponId = typeof params.couponId === "string" ? params.couponId : null;
     
-    if (!url || !storeId) {
+    if (!url) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
                 <p className="text-gray-500">Invalid outbound link.</p>
@@ -111,15 +111,19 @@ export default async function OutboundPage({ searchParams }: { searchParams: Pro
         merchantName = hostname.replace("www.", "");
     } catch (e) {}
 
-    const policy = await getMerchantPolicy(storeId);
-    let mode = policy.redirectMode;
+    // If storeId is missing, skip merchant policy and default to INSTANT redirect
+    let mode = 'INSTANT';
+    if (storeId) {
+        const policy = await getMerchantPolicy(storeId);
+        mode = policy.redirectMode;
 
-    if (policy.brandBidding === 'PROHIBITED') {
-        mode = 'MODAL_ONLY';
-    }
+        if (policy.brandBidding === 'PROHIBITED') {
+            mode = 'MODAL_ONLY';
+        }
 
-    if (policy.requiresInterstitial && mode !== 'MODAL_ONLY') {
-        mode = 'INTERSTITIAL';
+        if (policy.requiresInterstitial && mode !== 'MODAL_ONLY') {
+            mode = 'INTERSTITIAL';
+        }
     }
 
     const subid = crypto.randomUUID();
@@ -138,7 +142,9 @@ export default async function OutboundPage({ searchParams }: { searchParams: Pro
     };
 
     // Fire and forget the event logging securely with waitUntil
-    waitUntil(logOutboundEvent(subid, storeId, couponId, mode, url, sessionData));
+    if (storeId) {
+        waitUntil(logOutboundEvent(subid, storeId, couponId, mode, url, sessionData));
+    }
 
     // INSTANT Redirect (outside try/catch to preserve NEXT_REDIRECT)
     if (mode === "INSTANT") {

@@ -17,6 +17,7 @@ export interface IntelligenceCouponCardProps {
     id?: string;
     affiliateUrl?: string;
     storeName?: string;
+    storeId?: string | null;
 }
 
 /** Masks the second half of a code: "FIRST10" → "FIRS•••" */
@@ -42,7 +43,8 @@ export function IntelligenceCouponCard({
     hasTerms,
     id = "unknown",
     affiliateUrl = "#",
-    storeName = "Store"
+    storeName = "Store",
+    storeId
 }: IntelligenceCouponCardProps) {
     const [copied, setCopied] = useState(false);
     const [activated, setActivated] = useState(false);
@@ -55,7 +57,8 @@ export function IntelligenceCouponCard({
         } else {
             setActivated(true);
         }
-        const outUrl = `/out?url=${encodeURIComponent(affiliateUrl)}&couponId=${id}&source=intelligence-card`;
+        const storeParam = storeId ? `&storeId=${storeId}` : '';
+        const outUrl = `/out?url=${encodeURIComponent(affiliateUrl)}&couponId=${id}&source=intelligence-card${storeParam}`;
         window.open(outUrl, "_blank");
     };
     return (
