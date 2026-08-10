@@ -29,7 +29,7 @@ export default function NewCampaignLinkPage() {
         expiresAt: "",
     });
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://couponhub.store";
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://www.couponhub.store";
 
     // Fetch stores for dropdown
     useEffect(() => {

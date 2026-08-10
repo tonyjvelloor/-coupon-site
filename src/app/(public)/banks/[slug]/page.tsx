@@ -76,7 +76,7 @@ export default async function BankPage({ params }: PageProps) {
                     <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
                         <div className="w-20 h-20 bg-blue-50 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center border border-blue-200 dark:border-blue-800 overflow-hidden relative">
                             {bank.logo ? (
-                                <Image src={bank.logo} alt={bank.name} fill className="object-cover" />
+                                <Image unoptimized src={bank.logo} alt={bank.name} fill className="object-cover" />
                             ) : (
                                 <Icon name="account_balance" className="text-4xl text-blue-600 dark:text-blue-400" />
                             )}
@@ -109,7 +109,7 @@ export default async function BankPage({ params }: PageProps) {
                                     <div className="flex items-center gap-4 mb-4">
                                         <div className="w-12 h-12 bg-gray-50 rounded-full border border-gray-100 flex items-center justify-center overflow-hidden shrink-0">
                                             {offer.store?.logo ? (
-                                                <Image src={offer.store.logo} alt={offer.store.name} width={48} height={48} className="object-cover" />
+                                                <Image unoptimized src={offer.store.logo} alt={offer.store.name} width={48} height={48} className="object-cover" />
                                             ) : (
                                                 <Icon name="storefront" className="text-gray-400" />
                                             )}

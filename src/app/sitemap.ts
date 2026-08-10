@@ -2,7 +2,7 @@ import { MetadataRoute } from "next";
 import { prisma } from "@/lib/db";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
 
     // 1. Static Routes
     const staticRoutes = [
@@ -34,7 +34,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     // 2. Dynamic Store Routes
     const stores = await prisma.store.findMany({
-        where: { isActive: true },
+        where: { 
+            isActive: true,
+            activeOfferCount: { gt: 0 }
+        },
         select: { 
             slug: true, 
             updatedAt: true,

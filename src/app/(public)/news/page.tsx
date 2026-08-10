@@ -65,8 +65,7 @@ export default async function NewsListingPage() {
 
                                 {article.imageUrl ? (
                                     <div className="w-full h-48 relative bg-gray-100 overflow-hidden">
-                                        <Image
-                                            src={article.imageUrl}
+                                        <Image unoptimized src={article.imageUrl}
                                             alt={article.title}
                                             fill
                                             className="object-cover group-hover:scale-105 transition-transform duration-500"

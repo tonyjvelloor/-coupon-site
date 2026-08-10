@@ -23,8 +23,7 @@ export default function StoreCard({ store }: StoreCardProps) {
             <div className="flex items-center gap-3 mb-2">
                 <div className="w-12 h-12 relative bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 flex items-center justify-center shrink-0 overflow-hidden shadow-sm group-hover:ring-2 ring-indigo-50 dark:ring-indigo-900/30 transition-all">
                     {store.logo && store.logo.trim() !== '' ? (
-                        <Image
-                            src={store.logo}
+                        <Image unoptimized src={store.logo}
                             alt={`${store.name} coupons and cashback`}
                             fill
                             className="object-contain p-1.5"

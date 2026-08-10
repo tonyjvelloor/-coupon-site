@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 export const revalidate = 3600; // Cache feed for 1 hour
 
 export async function GET() {
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
 
     const posts = await prisma.blogPost.findMany({
         where: { isPublished: true },

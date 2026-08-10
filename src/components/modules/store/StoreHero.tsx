@@ -110,7 +110,7 @@ export function StoreHero({ store, activeCoupons, bestDeal }: StoreHeroProps) {
                         <div className="flex items-center gap-4">
                             <div className="w-16 h-16 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden shrink-0 shadow-premium-sm">
                                 {store.logo ? (
-                                    <Image src={store.logo} alt={`${store.name} store logo`} width={64} height={64} className="object-contain p-1" />
+                                    <Image unoptimized src={store.logo} alt={`${store.name} store logo`} width={64} height={64} className="object-contain p-1" />
                                 ) : (
                                     <span className="text-heading text-slate-400">{store.name.charAt(0)}</span>
                                 )}

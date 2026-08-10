@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     title: "CouponHub | Save more every time you shop online",
     description: "Find verified coupons, cashback offers, payment discounts, and shopping tips for thousands of stores.",
     alternates: {
-        canonical: process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store",
+        canonical: process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store",
     },
 };
 

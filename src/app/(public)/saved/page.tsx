@@ -91,7 +91,7 @@ export default function SavedHubPage() {
                                     <Link key={`recent-${store.slug}`} href={`/stores/${store.slug}`} className="w-32 shrink-0 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-800 rounded-xl p-4 flex flex-col items-center gap-3 hover:border-primary hover:shadow-sm transition">
                                         <div className="w-16 h-16 rounded-xl bg-surface-50 dark:bg-surface-800 flex items-center justify-center border border-surface-100 dark:border-surface-700 overflow-hidden relative">
                                             {store.logo ? (
-                                                <Image src={store.logo} alt={store.name} fill className="object-contain p-2" />
+                                                <Image unoptimized src={store.logo} alt={store.name} fill className="object-contain p-2" />
                                             ) : (
                                                 <span className="font-bold text-xl text-surface-400">{store.name.charAt(0)}</span>
                                             )}

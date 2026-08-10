@@ -19,7 +19,7 @@ export default async function BlogListingPage() {
         },
     });
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
 
     return (
         <div className="bg-gray-50 min-h-screen">

@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     if (!category) return { title: "Category Not Found" };
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
 
     const ogTitle = `${category.name} Coupons & Promo Codes | CouponHub`;
     const ogDescription = category.description || `Get the best ${category.name.toLowerCase()} coupons, promo codes, and deals from top stores. Save big with verified offers.`;
@@ -140,7 +140,7 @@ export default async function CategoryPage({ params }: PageProps) {
                     <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
                         <div className="w-20 h-20 bg-primary-50 dark:bg-primary-900/30 rounded-2xl flex items-center justify-center border border-primary-200 dark:border-primary-800 overflow-hidden relative">
                             {['fashion', 'electronics', 'food-dining', 'health-beauty', 'home-living', 'sports-fitness', 'entertainment', 'travel'].includes(category.slug) ? (
-                                <Image src={`/images/categories/${category.slug}.jpg`} alt={category.name} fill className="object-cover" />
+                                <Image unoptimized src={`/images/categories/${category.slug}.jpg`} alt={category.name} fill className="object-cover" />
                             ) : (
                                 <Icon name={(category.icon || "category").toLowerCase().replace(/[^a-z0-9_]/g, "_")} className="text-4xl text-primary-600 dark:text-primary-400" />
                             )}
@@ -278,7 +278,7 @@ export default async function CategoryPage({ params }: PageProps) {
 
 // Helper to generate JSON-LD for Category
 function CategorySchema({ category, coupons }: { category: any, coupons: any }) {
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
     const jsonLd = {
         "@context": "https://schema.org",
         "@type": "CollectionPage",

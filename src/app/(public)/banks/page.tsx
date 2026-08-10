@@ -43,7 +43,7 @@ export default async function BanksIndexPage() {
                         >
                             <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center shrink-0 mb-4 overflow-hidden border border-gray-100">
                                 {bank.logo ? (
-                                    <Image src={bank.logo} alt={bank.name} width={64} height={64} className="object-cover" />
+                                    <Image unoptimized src={bank.logo} alt={bank.name} width={64} height={64} className="object-cover" />
                                 ) : (
                                     <Icon name="account_balance" className="w-8 h-8 text-blue-600" />
                                 )}

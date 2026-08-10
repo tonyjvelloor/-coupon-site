@@ -30,8 +30,7 @@ const getMerchantPolicy = unstable_cache(
     { revalidate: 3600 }
 );
 
-import { waitUntil } from "@vercel/functions";
-
+// Removed waitUntil
 // ... existing imports
 
 async function logOutboundEvent(
@@ -141,9 +140,9 @@ export default async function OutboundPage({ searchParams }: { searchParams: Pro
         landingPage: cookieStore.get("ch_landing_page")?.value,
     };
 
-    // Fire and forget the event logging securely with waitUntil
+    // Await the event logging to ensure it finishes before redirect throws NEXT_REDIRECT
     if (storeId) {
-        waitUntil(logOutboundEvent(subid, storeId, couponId, mode, url, sessionData));
+        await logOutboundEvent(subid, storeId, couponId, mode, url, sessionData);
     }
 
     // INSTANT Redirect (outside try/catch to preserve NEXT_REDIRECT)

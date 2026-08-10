@@ -42,8 +42,7 @@ export function SavingsCard({ savings, className = "" }: SavingsCardProps) {
             <div className="flex items-center justify-between mb-5">
                 <div className="w-14 h-14 rounded-lg border border-gray-100 dark:border-gray-700 p-2 bg-white flex items-center justify-center group-hover:scale-105 transition-transform overflow-hidden relative">
                     {savings.logo ? (
-                        <Image
-                            src={savings.logo}
+                        <Image unoptimized src={savings.logo}
                             alt={`${savings.storeName} coupons and cashback`}
                             fill
                             className="object-contain p-2"

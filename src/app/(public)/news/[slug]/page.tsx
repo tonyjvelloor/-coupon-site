@@ -86,8 +86,7 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
                     {/* Header/Hero Section */}
                     {article.imageUrl ? (
                         <div className="w-full h-[400px] relative bg-gray-900 flex items-end">
-                            <Image
-                                src={article.imageUrl}
+                            <Image unoptimized src={article.imageUrl}
                                 alt={article.title}
                                 fill
                                 className="object-cover opacity-60 mix-blend-overlay"

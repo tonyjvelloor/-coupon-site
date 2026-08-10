@@ -47,17 +47,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     if (!store) return { title: "Store Not Found" };
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
     const monthYear = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(new Date());
     const ogTitle = store.seoTitle || `${store.name} Coupons & Promo Codes – ${monthYear} | CouponHub`;
     const ogDescription = store.seoDescription || `Save more with verified ${store.name} coupons, promo codes, cashback offers and shopping guides. Updated daily by CouponHub.`;
-    
+
     return {
         title: ogTitle,
         description: ogDescription,
         alternates: {
             canonical: `${siteUrl}/stores/${store.slug}`,
         },
+        robots: (store.activeOfferCount && store.activeOfferCount > 0) ? { index: true, follow: true } : { index: false, follow: true }
     };
 }
 
@@ -150,7 +151,7 @@ export default async function StorePage({ params }: PageProps) {
 
 // Helper to generate JSON-LD for Store
 function StoreSchema({ store, coupons }: { store: any, coupons: any[] }) {
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
     
     const collectionSchema = {
         "@context": "https://schema.org",

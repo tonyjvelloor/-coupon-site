@@ -32,8 +32,7 @@ export function MerchantCard({ store, className = "", priority = false }: Mercha
             <div className="flex justify-between items-start mb-6 relative z-10">
                 <div className="w-16 h-16 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex items-center justify-center group-hover:scale-105 transition-transform duration-300 overflow-hidden relative shadow-sm">
                     {store.logo && store.logo.trim() !== '' ? (
-                        <Image
-                            src={store.logo}
+                        <Image unoptimized src={store.logo}
                             alt={store.name}
                             fill
                             className="object-contain p-2"

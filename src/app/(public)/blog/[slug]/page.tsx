@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
         };
     }
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
     const ogTitle = post.seoTitle || post.title;
     const ogDescription = post.seoDescription || post.content.substring(0, 160);
 
@@ -153,7 +153,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         notFound();
     }
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
     
     // JSON-LD Structured Data Schema for SEO
     const jsonLd = {
@@ -262,7 +262,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                         <div className="mt-8 bg-gray-50 rounded-2xl p-6 border border-gray-100 flex flex-col sm:flex-row gap-6 items-center sm:items-start">
                             <div className="w-20 h-20 bg-violet-100 rounded-full flex items-center justify-center shrink-0">
                                 {post.author.profileImage ? (
-                                    <Image src={post.author.profileImage} alt={post.author.name || "Author"} width={80} height={80} className="rounded-full object-cover" />
+                                    <Image unoptimized src={post.author.profileImage} alt={post.author.name || "Author"} width={80} height={80} className="rounded-full object-cover" />
                                 ) : (
                                     <User className="w-10 h-10 text-violet-500" />
                                 )}

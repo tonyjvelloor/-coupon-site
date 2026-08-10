@@ -117,7 +117,7 @@ export function PremiumOfferCard({ coupon, storeName, storeLogo, badgeLabel }: P
                 <div className="flex items-center gap-4">
                     {storeLogo ? (
                         <div className="w-12 h-12 relative bg-white rounded-xl border border-slate-100 flex items-center justify-center overflow-hidden shrink-0">
-                            <Image src={storeLogo} alt={storeName} fill className="object-contain p-2" />
+                            <Image unoptimized src={storeLogo} alt={storeName} fill className="object-contain p-2" />
                         </div>
                     ) : (
                         <div className="w-12 h-12 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-center shrink-0">

@@ -23,7 +23,7 @@ export async function GET() {
         orderBy: { name: "asc" },
     });
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
 
     const content = `# CouponHub
 

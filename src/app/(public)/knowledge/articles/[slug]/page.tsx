@@ -52,7 +52,7 @@ export default async function ArticlePage({ params }: { params: { slug: string }
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-surface-200 dark:bg-surface-800 flex items-center justify-center overflow-hidden relative border border-surface-300 dark:border-surface-700">
                 {article.author.profileImage ? (
-                  <Image src={article.author.profileImage} alt={article.author.name || 'Author'} fill className="object-cover" />
+                  <Image unoptimized src={article.author.profileImage} alt={article.author.name || 'Author'} fill className="object-cover" />
                 ) : (
                   <span className="text-sm font-bold">{article.author.name?.charAt(0) || 'A'}</span>
                 )}
@@ -78,7 +78,7 @@ export default async function ArticlePage({ params }: { params: { slug: string }
       {article.coverImage && (
         <div className="max-w-5xl mx-auto px-4 sm:px-6 mb-12">
           <div className="aspect-[21/9] w-full relative rounded-2xl overflow-hidden bg-surface-100 dark:bg-surface-900 border border-surface-200 dark:border-surface-800 shadow-sm">
-            <Image src={article.coverImage} alt={article.title} fill className="object-cover" priority />
+            <Image unoptimized src={article.coverImage} alt={article.title} fill className="object-cover" priority />
           </div>
         </div>
       )}

@@ -35,7 +35,7 @@ export function DiscoveryRail({ competitors }: DiscoveryRailProps) {
                     >
                         <div className="w-14 h-14 rounded-xl border border-slate-100 dark:border-slate-800 flex items-center justify-center bg-slate-50 dark:bg-slate-800/50 overflow-hidden shrink-0">
                             {store.logo ? (
-                                <Image src={store.logo} alt={`${store.name} coupons and cashback`} width={40} height={40} className="object-contain" />
+                                <Image unoptimized src={store.logo} alt={`${store.name} coupons and cashback`} width={40} height={40} className="object-contain" />
                             ) : (
                                 <span className="font-bold text-xl text-slate-400">{store.name.charAt(0)}</span>
                             )}

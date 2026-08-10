@@ -33,7 +33,7 @@ export function MerchantCard({ name, logoUrl, isVerified, lastUpdated, metrics, 
                 <div className="flex items-center gap-4">
                     <div className="store-logo w-16 h-16 rounded-xl border border-surface-200 bg-white dark:bg-surface-900 shrink-0 relative">
                         {logoUrl ? (
-                            <Image src={logoUrl} alt={name} fill className="object-contain p-2" />
+                            <Image unoptimized src={logoUrl} alt={name} fill className="object-contain p-2" />
                         ) : (
                             <Icon name="storefront" className="text-3xl text-surface-300" />
                         )}

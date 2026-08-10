@@ -23,7 +23,7 @@ export default async function CampaignLinksPage() {
         orderBy: { createdAt: "desc" },
     });
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://couponhub.store";
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://www.couponhub.store";
 
     return (
         <div className="p-6 max-w-7xl mx-auto">

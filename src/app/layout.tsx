@@ -13,7 +13,7 @@ const outfit = Outfit({
   variable: "--font-outfit",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
 
 export const metadata: Metadata = {
   title: {

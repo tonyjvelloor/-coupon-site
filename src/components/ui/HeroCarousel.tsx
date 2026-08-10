@@ -30,8 +30,7 @@ export default function HeroCarousel() {
                     className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentIndex ? "opacity-100 float-animation" : "opacity-0 pointer-events-none"
                         }`}
                 >
-                    <Image
-                        src={image.src}
+                    <Image unoptimized src={image.src}
                         alt={image.alt}
                         fill
                         className="object-contain drop-shadow-2xl relative z-10"

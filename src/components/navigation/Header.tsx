@@ -39,7 +39,7 @@ export function Header({ categories = [] }: { categories?: Category[] }) {
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-3 shrink-0 group">
                         <div className="w-10 h-10 sm:w-12 sm:h-12 relative flex items-center justify-center transition-transform group-hover:scale-105">
-                            <Image src="/logo.jpg" alt="CouponHub Logo" fill className="object-contain rounded-xl shadow-sm" priority />
+                            <Image unoptimized src="/logo.jpg" alt="CouponHub Logo" fill className="object-contain rounded-xl shadow-sm" priority />
                         </div>
                         <span className="text-xl sm:text-2xl font-headline-lg font-bold text-gray-900 dark:text-white tracking-tight hidden sm:block">CouponHub</span>
                     </Link>

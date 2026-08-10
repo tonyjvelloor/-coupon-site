@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     if (!collection) return { title: "Collection Not Found" };
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
     const ogTitle = collection.seoTitle || `${collection.name} Coupons & Offers`;
     const ogDescription = collection.seoDescription || `Discover the best ${collection.name} coupons and deals today.`;
 
@@ -96,7 +96,7 @@ export default async function CollectionPage({ params }: PageProps) {
         notFound();
     }
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://couponhub.store";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
 
     // Collection JSON-LD Schema
     const jsonLd = {

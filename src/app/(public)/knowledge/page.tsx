@@ -74,8 +74,7 @@ export default async function KnowledgeHubPage() {
                 <Link href={`/knowledge/articles/${featuredArticle.slug}`} className="group block bg-white dark:bg-surface-900 rounded-2xl overflow-hidden border border-surface-200 dark:border-surface-800 shadow-sm hover:shadow-md transition-all">
                   {featuredArticle.coverImage && (
                     <div className="aspect-[2/1] relative w-full overflow-hidden bg-surface-100 dark:bg-surface-800">
-                      <Image 
-                        src={featuredArticle.coverImage} 
+                      <Image unoptimized src={featuredArticle.coverImage} 
                         alt={featuredArticle.title} 
                         fill 
                         className="object-cover group-hover:scale-105 transition-transform duration-700"
@@ -111,8 +110,7 @@ export default async function KnowledgeHubPage() {
                     <Link key={article.id} href={`/knowledge/articles/${article.slug}`} className="group block bg-white dark:bg-surface-900 rounded-xl overflow-hidden border border-surface-200 dark:border-surface-800 shadow-sm hover:shadow-md transition-all">
                       {article.coverImage && (
                         <div className="aspect-[16/9] relative w-full overflow-hidden bg-surface-100 dark:bg-surface-800">
-                          <Image 
-                            src={article.coverImage} 
+                          <Image unoptimized src={article.coverImage} 
                             alt={article.title} 
                             fill 
                             className="object-cover group-hover:scale-105 transition-transform duration-700"
@@ -149,7 +147,7 @@ export default async function KnowledgeHubPage() {
                     <Link key={guide.id} href={`/stores/${guide.store.slug}/buying-guide`} className="group flex items-start gap-3">
                       <div className="w-10 h-10 rounded-lg bg-surface-100 dark:bg-surface-800 flex items-center justify-center shrink-0 border border-surface-200 dark:border-surface-700 overflow-hidden relative">
                         {guide.store.logo ? (
-                          <Image src={guide.store.logo} alt={guide.store.name} fill className="object-contain p-1" />
+                          <Image unoptimized src={guide.store.logo} alt={guide.store.name} fill className="object-contain p-1" />
                         ) : (
                           <span className="text-sm font-bold">{guide.store.name.charAt(0)}</span>
                         )}
