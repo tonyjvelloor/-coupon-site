@@ -12,6 +12,7 @@ export const metadata: Metadata = {
 
 async function getStores() {
     return prisma.store.findMany({
+        where: { activeOfferCount: { gt: 0 } },
         orderBy: { name: "asc" },
     });
 }

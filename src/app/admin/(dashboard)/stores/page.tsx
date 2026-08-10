@@ -5,9 +5,6 @@ import { Plus, Search, Store as StoreIcon, ExternalLink } from "lucide-react";
 export default async function StoresPage() {
     const stores = await prisma.store.findMany({
         orderBy: { name: "asc" },
-        include: {
-            storeCategories: { include: { category: true } },
-        },
     });
 
     return (
