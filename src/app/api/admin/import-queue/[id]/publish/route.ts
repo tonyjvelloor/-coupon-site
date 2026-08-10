@@ -15,28 +15,77 @@ export async function POST(
   try {
     const { id } = await params;
     const body = await request.json().catch(() => ({}));
-    const confirmedStoreId = body.storeId || undefined;
 
-    const result: any = await prisma.$transaction(async (tx) => {
-      const publisher = new PublishService(tx);
-      // In a real app we'd map session.user.id to adminId
-      const publishResult = await publisher.publish(id, "admin", confirmedStoreId); 
-      
-      await tx.importedOffer.update({
-        where: { id: id },
-        data: { status: "PUBLISHED" }
+    // The UI sends a Store ID (or MerchantIdentity ID).
+    // We need a MerchantIdentity ID for PublishService.
+    // Strategy: if storeId provided, find or create the canonical MerchantIdentity for that store.
+    // If not provided, fall back to the ImportedOffer's own resolvedIdentityId.
+    const confirmedStoreId: string | undefined = body.storeId || undefined;
+
+    // Resolve merchantIdentityId
+    let merchantIdentityId: string | undefined;
+
+    if (confirmedStoreId) {
+      // Try to find a CANONICAL MerchantIdentity for this store
+      const identity = await prisma.merchantIdentity.findFirst({
+        where: {
+          canonicalStoreId: confirmedStoreId,
+          type: "CANONICAL",
+        },
+        select: { id: true },
       });
 
-      return publishResult;
+      if (identity) {
+        merchantIdentityId = identity.id;
+      } else {
+        // No CANONICAL identity yet — create one on the fly
+        const newIdentity = await prisma.merchantIdentity.create({
+          data: {
+            type: "CANONICAL",
+            canonicalStoreId: confirmedStoreId,
+          },
+          select: { id: true },
+        });
+        merchantIdentityId = newIdentity.id;
+      }
+    } else {
+      // No store selected — fall back to the ImportedOffer's suggestedStoreId
+      const offer = await prisma.importedOffer.findUnique({
+        where: { id },
+        select: { suggestedStoreId: true },
+      });
+      const fallbackStoreId = offer?.suggestedStoreId ?? undefined;
+
+      if (fallbackStoreId) {
+        const identity = await prisma.merchantIdentity.findFirst({
+          where: { canonicalStoreId: fallbackStoreId, type: "CANONICAL" },
+          select: { id: true },
+        });
+        merchantIdentityId = identity?.id;
+      }
+    }
+
+    if (!merchantIdentityId) {
+      return NextResponse.json(
+        { error: "No store selected. Please pick a store from the dropdown before publishing." },
+        { status: 400 }
+      );
+    }
+
+    const publisher = new PublishService();
+
+    const result = await publisher.publish(id, {
+      actorType: "ADMIN",
+      actorId: session.id,
+      merchantIdentityId,
     });
 
     // Spawn async intelligence tasks (non-blocking)
     try {
       const { TaskGenerator } = await import("@/lib/intelligence/task-generator");
-      await TaskGenerator.publish("COUPON_PUBLISHED", "Coupon", result.couponId);
-      
-      if (result.storeId) {
-          await TaskGenerator.publish("MERCHANT_UPDATED", "Store", result.storeId);
+      await TaskGenerator.publish("COUPON_PUBLISHED", "Coupon", id);
+      if (confirmedStoreId) {
+        await TaskGenerator.publish("MERCHANT_UPDATED", "Store", confirmedStoreId);
       }
     } catch (err) {
       console.error("Failed to spawn intelligence tasks:", err);
