@@ -14,7 +14,7 @@ import { ShoppingTipsModule } from "@/components/modules/homepage/ShoppingTipsMo
 import { RecentlyUpdatedModule } from "@/components/modules/homepage/RecentlyUpdatedModule";
 import { CategoriesModule } from "@/components/modules/homepage/CategoriesModule";
 
-export const revalidate = 0; // Disable static generation for A/B testing page
+export const revalidate = 3600; // Enable edge caching to save DB compute
 
 export const metadata: Metadata = {
     title: "CouponHub | Save more every time you shop online",
