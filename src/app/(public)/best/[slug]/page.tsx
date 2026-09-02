@@ -21,11 +21,40 @@ export async function generateStaticParams() {
     try {
         const categories = await prisma.category.findMany({
             where: { isActive: true },
-            select: { slug: true },
+            include: { 
+                storeCategories: {
+                    select: {
+                        store: {
+                            select: {
+                                merchantIdentity: {
+                                    select: {
+                                        coupons: {
+                                            where: { OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] },
+                                            select: { id: true }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
         });
-        return categories.map((cat) => ({
-            slug: cat.slug,
-        }));
+        
+        // Quality Gate logic via store aggregation
+        return categories
+            .map(cat => {
+                const activeStores = cat.storeCategories.length;
+                let activeOffers = 0;
+                cat.storeCategories.forEach(sc => {
+                    if (sc.store.merchantIdentity) {
+                        activeOffers += sc.store.merchantIdentity.coupons.length;
+                    }
+                });
+                return { slug: `${cat.slug}-coupons`, activeStores, activeOffers };
+            })
+            .filter(cat => cat.activeStores >= 5 && cat.activeOffers >= 10)
+            .map(cat => ({ slug: cat.slug }));
     } catch (error) {
         console.warn("Failed to generate static params for categories:", error);
         return [];
@@ -34,43 +63,56 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { slug } = await params;
+    const dbSlug = slug.replace('-coupons', '');
+    
     const category = await prisma.category.findUnique({
-        where: { slug, isActive: true },
+        where: { slug: dbSlug, isActive: true },
+        include: {
+            storeCategories: {
+                select: {
+                    store: {
+                        select: {
+                            merchantIdentity: {
+                                select: { id: true }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     });
 
     if (!category) return { title: "Category Not Found" };
 
+    const storeIdentityIds = category.storeCategories
+        .map(sc => sc.store.merchantIdentity?.id)
+        .filter(Boolean) as string[];
+
+    const activeOffers = await prisma.coupon.count({
+        where: {
+            merchantIdentityId: { in: storeIdentityIds },
+            deletedAt: null,
+            OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }]
+        }
+    });
+
+    const activeStores = storeIdentityIds.length;
+    const isIndexable = activeStores >= 5 && activeOffers >= 10;
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
 
-    const ogTitle = `${category.name} Coupons & Promo Codes | CouponHub`;
-    const ogDescription = category.description || `Get the best ${category.name.toLowerCase()} coupons, promo codes, and deals from top stores. Save big with verified offers.`;
-
+    const ogTitle = `Best ${category.name} Coupons & Deals – ${activeOffers} Active Offers`;
+    const ogDescription = `Discover ${activeOffers} currently available ${category.name.toLowerCase()} coupons, promo codes and offers from stores tracked by CouponHub.`;
+    
     return {
         title: ogTitle,
         description: ogDescription,
+        robots: { index: isIndexable, follow: true },
         alternates: {
-            canonical: `${siteUrl}/category/${category.slug}`,
-        },
-        openGraph: {
-            title: ogTitle,
-            description: ogDescription,
-            images: [
-                {
-                    url: `${siteUrl}/api/og?title=${encodeURIComponent(category.name + ' Coupons')}&description=${encodeURIComponent('Save big with ' + category.name.toLowerCase() + ' deals')}&type=category`,
-                    width: 1200,
-                    height: 630,
-                    alt: `${category.name} Coupons`,
-                },
-            ],
-        },
-        twitter: {
-            card: 'summary_large_image',
-            title: ogTitle,
-            description: ogDescription,
-            images: [`${siteUrl}/api/og?title=${encodeURIComponent(category.name + ' Coupons')}&description=${encodeURIComponent('Save big with ' + category.name.toLowerCase() + ' deals')}&type=category`],
+            canonical: `${siteUrl}/best/${slug}`,
         }
     };
 }
+
 
 import { EmptyStateFallback } from "@/components/ui/EmptyStateFallback";
 
@@ -78,9 +120,10 @@ import { EmptyStateFallback } from "@/components/ui/EmptyStateFallback";
 
 export default async function CategoryPage({ params }: PageProps) {
     const { slug } = await params;
+    const dbSlug = slug.replace('-coupons', '');
 
     const category = await prisma.category.findUnique({
-        where: { slug, isActive: true },
+        where: { slug: dbSlug, isActive: true },
         include: {
             children: { where: { isActive: true } },
             storeCategories: {
@@ -108,6 +151,23 @@ export default async function CategoryPage({ params }: PageProps) {
         .map((sc) => sc.store.merchantIdentity?.id)
         .filter(Boolean) as string[];
 
+    // Count total active coupons for quality gate
+    const totalActiveCoupons = await prisma.coupon.count({
+        where: {
+            merchantIdentityId: { in: storeIdentityIds },
+            deletedAt: null,
+            OR: [
+                { expiresAt: null },
+                { expiresAt: { gt: new Date() } }
+            ]
+        }
+    });
+
+    // QUALITY GATE: If this category doesn't meet the inventory thresholds, don't render it.
+    if (stores.length < 5 || totalActiveCoupons < 10) {
+        notFound(); // 404 to prevent thin-content indexing
+    }
+
     const categoryCoupons = await prisma.coupon.findMany({
         where: {
             merchantIdentityId: { in: storeIdentityIds },
@@ -119,7 +179,7 @@ export default async function CategoryPage({ params }: PageProps) {
         },
         include: { merchantIdentity: { include: { store: true } } },
         orderBy: { createdAt: "desc" },
-        take: 12,
+        take: 30, // Get more coupons for the best-coupons page
     });
 
 

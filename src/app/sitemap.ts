@@ -82,18 +82,53 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         });
     });
 
-    // 3. Dynamic Category Routes
+    // 3. Dynamic Category Routes (Programmatic SEO with Quality Gates)
+    // Only index categories that have enough inventory to be valuable to users
     const categories = await prisma.category.findMany({
         where: { isActive: true },
-        select: { slug: true, updatedAt: true },
+        select: { 
+            slug: true, 
+            updatedAt: true,
+            storeCategories: {
+                select: {
+                    store: {
+                        select: {
+                            merchantIdentity: {
+                                select: {
+                                    coupons: {
+                                        where: { OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] },
+                                        select: { id: true }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
     });
 
-    const categoryRoutes = categories.map((category) => ({
-        url: `${baseUrl}/category/${category.slug}`,
-        lastModified: category.updatedAt,
-        changeFrequency: "daily" as const,
-        priority: 0.7,
-    }));
+    const categoryRoutes: MetadataRoute.Sitemap = [];
+    
+    categories.forEach((category) => {
+        const activeStores = category.storeCategories.length;
+        let activeOffers = 0;
+        category.storeCategories.forEach(sc => {
+            if (sc.store.merchantIdentity) {
+                activeOffers += sc.store.merchantIdentity.coupons.length;
+            }
+        });
+        
+        // SEO State Machine: Indexable Threshold
+        if (activeStores >= 5 && activeOffers >= 10) {
+            categoryRoutes.push({
+                url: `${baseUrl}/best/${category.slug}-coupons`,
+                lastModified: category.updatedAt,
+                changeFrequency: "daily" as const,
+                priority: 0.8,
+            });
+        }
+    });
 
     // 4. Dynamic Blog Routes
     const blogPosts = await prisma.blogPost.findMany({
