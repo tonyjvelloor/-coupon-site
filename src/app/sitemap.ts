@@ -156,5 +156,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.8,
     }));
 
-    return [...staticRoutes, ...storeRoutes, ...categoryRoutes, ...blogRoutes, ...collectionRoutes];
+    // 6. Dynamic Compare Routes (Programmatic SEO: Store vs Store)
+    const topStores = await prisma.store.findMany({
+        where: { isActive: true, activeOfferCount: { gt: 10 } },
+        select: { slug: true, updatedAt: true, storeCategories: { select: { categoryId: true } } },
+        orderBy: { activeOfferCount: 'desc' },
+        take: 50 // Limit to top 50 stores to prevent quadratic explosion (50 * 50 = ~1,225 pairs max)
+    });
+
+    const compareRoutes: MetadataRoute.Sitemap = [];
+    
+    for (let i = 0; i < topStores.length; i++) {
+        for (let j = i + 1; j < topStores.length; j++) {
+            const storeA = topStores[i];
+            const storeB = topStores[j];
+            // Only generate comparison if they share a category
+            const sharesCategory = storeA.storeCategories.some(c1 => 
+                storeB.storeCategories.some(c2 => c1.categoryId === c2.categoryId)
+            );
+            if (sharesCategory) {
+                // Ensure alphabetical order to avoid duplicate reverse pages
+                const [slug1, slug2] = [storeA.slug, storeB.slug].sort();
+                // Use the most recent update time
+                const lastModified = storeA.updatedAt > storeB.updatedAt ? storeA.updatedAt : storeB.updatedAt;
+                
+                compareRoutes.push({
+                    url: `${baseUrl}/compare/${slug1}-vs-${slug2}`,
+                    lastModified,
+                    changeFrequency: "weekly" as const,
+                    priority: 0.7,
+                });
+            }
+        }
+    }
+
+    return [...staticRoutes, ...storeRoutes, ...categoryRoutes, ...blogRoutes, ...collectionRoutes, ...compareRoutes];
 }
