@@ -34,7 +34,9 @@ export const revalidate = 3600;
 export async function generateStaticParams() {
     try {
         const stores = await merchantService.getAllStoreSlugs();
-        return stores.map((store) => ({
+        // Limit to top 50 stores to prevent Vercel build timeouts.
+        // The remaining 1,500+ stores will be generated on-demand via ISR.
+        return stores.slice(0, 50).map((store) => ({
             slug: store.slug,
         }));
     } catch (error) {
