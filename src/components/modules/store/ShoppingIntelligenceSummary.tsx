@@ -68,12 +68,15 @@ export function ShoppingIntelligenceSummary({
         )}
 
         {/* Final Metric */}
-        <div className="bg-brand-indigo/10 dark:bg-brand-indigo/20 backdrop-blur-sm rounded-xl p-4 border border-brand-indigo/30">
+        <div className="bg-brand-indigo/10 dark:bg-brand-indigo/20 backdrop-blur-sm rounded-xl p-4 border border-brand-indigo/30 flex flex-col justify-center">
           <div className="text-brand-indigo dark:text-brand-indigo-300 text-sm font-bold mb-1 uppercase tracking-wider">
             Total Savings
           </div>
           <div className="text-xl font-bold text-brand-indigo dark:text-white">
-            Maximized
+            Maximized 
+            <span className="text-xs font-normal text-brand-indigo/70 dark:text-brand-indigo-400 block mt-1">
+              (Coupon + Cashback + Bank)
+            </span>
           </div>
         </div>
       </div>

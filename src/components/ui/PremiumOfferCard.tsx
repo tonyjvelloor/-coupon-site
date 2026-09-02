@@ -200,7 +200,7 @@ export function PremiumOfferCard({ coupon, storeName, storeLogo, badgeLabel }: P
                             ) : revealed ? (
                                 <><Copy className="w-4 h-4" /> Copy Code</>
                             ) : (
-                                <><Copy className="w-4 h-4" /> Copy Code</>
+                                <><Copy className="w-4 h-4" /> Reveal Code</>
                             )}
                         </div>
                     </button>
