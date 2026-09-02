@@ -51,8 +51,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
     const monthYear = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(new Date());
-    const ogTitle = store.seoTitle || `${store.name} Coupons & Promo Codes – ${monthYear} | CouponHub`;
-    const ogDescription = store.seoDescription || `Save more with verified ${store.name} coupons, promo codes, cashback offers and shopping guides. Updated daily by CouponHub.`;
+    const ogTitle = store.seoTitle || `${store.name} Coupons, Promo Codes & Deals – ${monthYear}`;
+    const ogDescription = store.seoDescription || `Save with ${store.activeOfferCount || 'active'} verified ${store.name} coupons and promo codes for ${monthYear}. Discover the best discount codes, cashback offers, and deals updated daily by CouponHub.`;
 
     return {
         title: ogTitle,
@@ -74,7 +74,7 @@ export default async function StorePage({ params }: PageProps) {
     
     // Fetch competitors
     const categoryIds = store.categories.map((c: any) => c.id);
-    const competitors = await merchantService.getCompetitors(store.id, categoryIds, 3);
+    const competitors = await merchantService.getCompetitors(store.id, categoryIds, 6);
     
     // Fetch hub knowledge sections
     const bankOffers = await merchantService.getStoreBankOffers(store.id);
@@ -199,30 +199,6 @@ function StoreSchema({ store, coupons }: { store: any, coupons: any[] }) {
         description: store.description
     };
 
-    let faqSchema = null;
-    const faqContent = store.contents?.find((c: any) => c.type === 'FAQ')?.content;
-    if (faqContent) {
-        try {
-            const faqs = JSON.parse(faqContent);
-            if (Array.isArray(faqs) && faqs.length > 0) {
-                faqSchema = {
-                    "@context": "https://schema.org",
-                    "@type": "FAQPage",
-                    mainEntity: faqs.map((faq: any) => ({
-                        "@type": "Question",
-                        name: faq.question,
-                        acceptedAnswer: {
-                            "@type": "Answer",
-                            text: faq.answer
-                        }
-                    }))
-                };
-            }
-        } catch (e) {
-            // ignore JSON parse errors
-        }
-    }
-
     const breadcrumbSchema = {
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
@@ -266,12 +242,6 @@ function StoreSchema({ store, coupons }: { store: any, coupons: any[] }) {
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(merchantSchema) }}
             />
-            {faqSchema && (
-                <script
-                    type="application/ld+json"
-                    dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-                />
-            )}
         </>
     );
 }

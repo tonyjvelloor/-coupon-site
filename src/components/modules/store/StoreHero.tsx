@@ -117,18 +117,23 @@ export function StoreHero({ store, activeCoupons, bestDeal }: StoreHeroProps) {
                             </div>
                             <div>
                                 <h1 className="text-display-l text-slate-900">
-                                    {store.name} Coupons
+                                    {store.name} Coupons & Promo Codes
                                 </h1>
                                 
                                 <div className="mt-2 flex flex-wrap items-center gap-3 text-caption text-slate-600">
                                     <span className="flex items-center gap-1.5 font-medium text-brand-emerald">
-                                        <span className="material-symbols-outlined text-[16px]">verified</span>
-                                        Verified Merchant
+                                        <ShieldCheck className="w-4 h-4" />
+                                        Verified Offers
                                     </span>
                                     <span className="hidden md:inline text-slate-300">•</span>
                                     <span className="flex items-center gap-1.5 font-medium">
-                                        <span className="material-symbols-outlined text-[16px]">schedule</span>
-                                        Updated {lastCheckedText}
+                                        <Tag className="w-4 h-4" />
+                                        {activeCoupons.length} Active Offers
+                                    </span>
+                                    <span className="hidden md:inline text-slate-300">•</span>
+                                    <span className="flex items-center gap-1.5 font-medium">
+                                        <Clock className="w-4 h-4" />
+                                        Last checked: {lastCheckedText}
                                     </span>
                                 </div>
                             </div>
