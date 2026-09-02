@@ -17,11 +17,13 @@ import { ShoppingIntelligenceSummary } from "@/components/modules/store/Shopping
 import { SavingsStrategy } from "@/components/modules/store/SavingsStrategy";
 import { OfferFeed } from "@/components/modules/store/OfferFeed";
 import { AdditionalSavings } from "@/components/modules/store/AdditionalSavings";
-import { TrustCenter } from "@/components/modules/store/TrustCenter";
-import { ShoppingGuide } from "@/components/modules/store/ShoppingGuide";
-import { DiscoveryRail } from "@/components/modules/store/DiscoveryRail";
-import { BankOffers } from "@/components/modules/store/BankOffers";
-import { ShoppingTips } from "@/components/modules/store/ShoppingTips";
+import dynamic from "next/dynamic";
+
+const TrustCenter = dynamic(() => import("@/components/modules/store/TrustCenter").then(mod => mod.TrustCenter), { ssr: true });
+const ShoppingGuide = dynamic(() => import("@/components/modules/store/ShoppingGuide").then(mod => mod.ShoppingGuide), { ssr: true });
+const DiscoveryRail = dynamic(() => import("@/components/modules/store/DiscoveryRail").then(mod => mod.DiscoveryRail), { ssr: true });
+const BankOffers = dynamic(() => import("@/components/modules/store/BankOffers").then(mod => mod.BankOffers), { ssr: true });
+const ShoppingTips = dynamic(() => import("@/components/modules/store/ShoppingTips").then(mod => mod.ShoppingTips), { ssr: true });
 
 interface PageProps {
     params: Promise<{ slug: string }>;

@@ -6,13 +6,13 @@ import { getExperimentVariant } from "@/lib/ab-testing";
 import { HeroModule } from "@/components/modules/homepage/HeroModule";
 import { TrustMarkersModule } from "@/components/modules/homepage/TrustMarkersModule";
 import { PopularStoresModule } from "@/components/modules/homepage/PopularStoresModule";
-import { PersonalizedFeedModule } from "@/components/modules/homepage/PersonalizedFeedModule";
-import { BestOffersModule } from "@/components/modules/homepage/BestOffersModule";
-import { SavingsModule } from "@/components/modules/homepage/SavingsModule";
-import { UpcomingSalesModule } from "@/components/modules/homepage/UpcomingSalesModule";
-import { ShoppingTipsModule } from "@/components/modules/homepage/ShoppingTipsModule";
-import { RecentlyUpdatedModule } from "@/components/modules/homepage/RecentlyUpdatedModule";
-import { CategoriesModule } from "@/components/modules/homepage/CategoriesModule";
+const PersonalizedFeedModule = dynamic(() => import("@/components/modules/homepage/PersonalizedFeedModule").then(mod => mod.PersonalizedFeedModule), { ssr: true });
+const BestOffersModule = dynamic(() => import("@/components/modules/homepage/BestOffersModule").then(mod => mod.BestOffersModule), { ssr: true });
+const SavingsModule = dynamic(() => import("@/components/modules/homepage/SavingsModule").then(mod => mod.SavingsModule), { ssr: true });
+const UpcomingSalesModule = dynamic(() => import("@/components/modules/homepage/UpcomingSalesModule").then(mod => mod.UpcomingSalesModule), { ssr: true });
+const ShoppingTipsModule = dynamic(() => import("@/components/modules/homepage/ShoppingTipsModule").then(mod => mod.ShoppingTipsModule), { ssr: true });
+const RecentlyUpdatedModule = dynamic(() => import("@/components/modules/homepage/RecentlyUpdatedModule").then(mod => mod.RecentlyUpdatedModule), { ssr: true });
+const CategoriesModule = dynamic(() => import("@/components/modules/homepage/CategoriesModule").then(mod => mod.CategoriesModule), { ssr: true });
 
 export const revalidate = 3600; // Enable edge caching to save DB compute
 
