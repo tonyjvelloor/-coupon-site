@@ -67,6 +67,25 @@ export function TrustCenter({ storeName, lastCheckedText, activeCouponsCount = 0
                     <span className="text-label text-slate-900">{(displayUsersSaved / 1000).toFixed(1)}k</span>
                 </li>
             </ul>
+
+            {/* Merchant Reputation Grades */}
+            <div className="mt-6 pt-4 border-t border-slate-100">
+                <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-3">Merchant Grades</h4>
+                <div className="grid grid-cols-3 gap-2">
+                    <div className="bg-slate-50 rounded-xl p-3 text-center border border-slate-100">
+                        <div className="text-brand-emerald font-black text-xl mb-1">A+</div>
+                        <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider leading-tight">Coupon<br/>Reliability</div>
+                    </div>
+                    <div className="bg-slate-50 rounded-xl p-3 text-center border border-slate-100">
+                        <div className="text-brand-emerald font-black text-xl mb-1">A</div>
+                        <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider leading-tight">Cashback<br/>Speed</div>
+                    </div>
+                    <div className="bg-slate-50 rounded-xl p-3 text-center border border-slate-100">
+                        <div className="text-amber-500 font-black text-xl mb-1">B</div>
+                        <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider leading-tight">Return<br/>Policy</div>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }
