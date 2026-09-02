@@ -90,10 +90,10 @@ export default function ExitIntentPopup() {
                             <Mail className="w-6 h-6" />
                         </div>
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                            Wait! Don't leave empty handed
+                            Before you go...
                         </h2>
                         <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            Join 50,000+ smart shoppers who get our hand-picked, exclusive coupon codes delivered straight to their inbox.
+                            Get our top 5 secret coupon codes that aren't on the site emailed to you right now.
                         </p>
                     </div>
 
