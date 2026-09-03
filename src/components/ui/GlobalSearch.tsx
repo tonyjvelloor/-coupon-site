@@ -260,9 +260,12 @@ export function GlobalSearch({ isOpen, onClose }: { isOpen: boolean, onClose: ()
                                                 isSelected ? 'bg-slate-100 dark:bg-slate-800' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 bg-transparent'
                                             }`}
                                         >
-                                            <div className="w-10 h-10 rounded-lg bg-brand-emerald/10 border border-brand-emerald/20 flex flex-col items-center justify-center shrink-0">
-                                                <span className="text-[9px] font-bold text-brand-emerald uppercase leading-none">SAVE</span>
-                                                <Tag className="text-brand-emerald w-3.5 h-3.5 mt-0.5" />
+                                            <div className="w-10 h-10 rounded-lg bg-slate-50 border border-slate-100 dark:bg-slate-800 dark:border-slate-700 flex flex-col items-center justify-center shrink-0 overflow-hidden">
+                                                {coupon.store.logo ? (
+                                                    <Image src={coupon.store.logo} alt={coupon.store.name} width={32} height={32} className="object-contain p-1" unoptimized />
+                                                ) : (
+                                                    <Tag className="text-slate-400 w-4 h-4" />
+                                                )}
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <div className={`font-bold text-sm truncate ${isSelected ? 'text-brand-indigo' : 'text-slate-900 dark:text-white'}`}>

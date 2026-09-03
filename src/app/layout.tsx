@@ -1,7 +1,7 @@
 import { WhatsAppBanner } from "@/components/ui/WhatsAppBanner";
 
 import type { Metadata } from "next";
-import { Inter, Outfit } from "next/font/google";
+import { Inter, Outfit, Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 
@@ -13,6 +13,11 @@ const inter = Inter({
 const outfit = Outfit({
   subsets: ["latin"],
   variable: "--font-outfit",
+});
+
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-jakarta",
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
@@ -87,7 +92,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.variable} ${outfit.variable} font-sans antialiased bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white overflow-x-hidden transition-colors duration-300`}
+        className={`${inter.variable} ${outfit.variable} ${jakarta.variable} font-sans antialiased bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white overflow-x-hidden transition-colors duration-300`}
         suppressHydrationWarning
       >
         <AnalyticsProvider />

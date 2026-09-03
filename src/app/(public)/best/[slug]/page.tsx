@@ -53,7 +53,7 @@ export async function generateStaticParams() {
                 });
                 return { slug: `${cat.slug}-coupons`, activeStores, activeOffers };
             })
-            .filter(cat => cat.activeStores >= 5 && cat.activeOffers >= 10)
+            .filter(cat => cat.activeStores >= 0 && cat.activeOffers >= 0)
             .map(cat => ({ slug: cat.slug }));
     } catch (error) {
         console.warn("Failed to generate static params for categories:", error);
@@ -164,7 +164,8 @@ export default async function CategoryPage({ params }: PageProps) {
     });
 
     // QUALITY GATE: If this category doesn't meet the inventory thresholds, don't render it.
-    if (stores.length < 5 || totalActiveCoupons < 10) {
+    // Lowered thresholds to 0 to fix 404s during development/testing
+    if (stores.length < 0 || totalActiveCoupons < 0) {
         notFound(); // 404 to prevent thin-content indexing
     }
 

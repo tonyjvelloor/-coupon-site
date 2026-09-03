@@ -160,8 +160,12 @@ export default function SearchInput() {
                                             onClick={() => setIsOpen(false)}
                                             className="flex items-start gap-3 p-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-colors group"
                                         >
-                                            <div className="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5">
-                                                <Tag className="w-4 h-4 text-gray-400 group-hover:text-violet-500" />
+                                            <div className="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                                {coupon.store.logo ? (
+                                                    <img src={coupon.store.logo} alt={coupon.store.name} className="w-6 h-6 object-contain" />
+                                                ) : (
+                                                    <Tag className="w-4 h-4 text-gray-400 group-hover:text-violet-500" />
+                                                )}
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <div className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-1 group-hover:text-violet-600 dark:group-hover:text-violet-400">

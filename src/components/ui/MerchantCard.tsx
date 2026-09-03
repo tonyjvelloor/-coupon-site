@@ -24,53 +24,63 @@ export function MerchantCard({ store, className = "", priority = false }: Mercha
     return (
         <Link 
             href={`/stores/${store.slug}`} 
-            className={`group relative bg-white dark:bg-[#0F172A] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 flex flex-col cursor-pointer h-full hover:border-brand-indigo/30 dark:hover:border-brand-indigo/50 shadow-premium-sm hover:shadow-premium-md transition-all duration-300 active:scale-[0.98] ${className}`}
+            className={`store-card group bg-surface-card rounded-2xl p-space-md shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between hover:-translate-y-1 relative h-full ${className}`}
         >
-            {/* Hover Glow */}
-            <div className="absolute inset-0 bg-gradient-to-br from-brand-indigo/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl pointer-events-none" />
+            <div className="flex items-start justify-between gap-space-sm mb-space-md">
+                <div className="flex items-center gap-space-sm">
+                    {/* Brand Logo Wrapper matching new layout but keeping real Image */}
+                    <div className="w-14 h-14 rounded-2xl border border-slate-100 flex items-center justify-center p-2 shadow-sm flex-shrink-0 relative overflow-hidden bg-white">
+                        {store.logo && store.logo.trim() !== '' ? (
+                            <Image unoptimized src={store.logo}
+                                alt={store.name}
+                                fill
+                                className="object-contain p-2"
+                                loading={priority ? undefined : "lazy"}
+                                priority={priority}
+                            />
+                        ) : (
+                            <span className="text-xl font-bold text-slate-400 uppercase font-mono">
+                                {store.name.charAt(0)}
+                            </span>
+                        )}
+                    </div>
+                    <div>
+                        <div className="flex items-center gap-1">
+                            <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold group-hover:text-primary transition-colors line-clamp-1">{store.name}</h3>
+                            <span className="material-symbols-outlined text-verified-emerald text-[16px]" title="Verified Official Merchant">verified</span>
+                        </div>
+                        <span className="font-body-sm text-body-sm text-text-muted">Top Store</span>
+                    </div>
+                </div>
+                {/* Active tag */}
+                <span className="inline-flex items-center gap-1 font-label-badge text-label-badge px-space-xs py-1 rounded-full bg-brand-indigo-light text-primary font-semibold flex-shrink-0">
+                    <span className="material-symbols-outlined text-[12px]">local_offer</span> {store.offerCount} Active
+                </span>
+            </div>
 
-            <div className="flex justify-between items-start mb-6 relative z-10">
-                <div className="w-16 h-16 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex items-center justify-center group-hover:scale-105 transition-transform duration-300 overflow-hidden relative shadow-sm">
-                    {store.logo && store.logo.trim() !== '' ? (
-                        <Image unoptimized src={store.logo}
-                            alt={store.name}
-                            fill
-                            className="object-contain p-2"
-                            loading={priority ? undefined : "lazy"}
-                            priority={priority}
-                        />
-                    ) : (
-                        <span className="text-2xl font-bold text-slate-400 dark:text-slate-500 uppercase font-display-sm">
-                            {store.name.charAt(0)}
-                        </span>
-                    )}
+            {/* Offer Highlight Banner */}
+            <div className="bg-surface-container-low rounded-xl p-space-sm mb-space-md">
+                <div className="flex items-baseline gap-1">
+                    <span className="text-verified-emerald font-extrabold text-xl">{store.bestSavings || "Up to 80% OFF"}</span>
+                    <span className="font-label-badge text-label-badge text-secondary font-bold">Max Savings</span>
                 </div>
-                
-                <div className="bg-brand-indigo/10 text-brand-indigo px-3 py-1 rounded-full text-[11px] font-bold flex items-center gap-1">
-                    <Tag className="w-3.5 h-3.5" />
-                    {store.offerCount} Active
-                </div>
+                <p className="font-body-sm text-body-sm text-on-surface-variant line-clamp-1 mt-0.5">Top offers applied at checkout</p>
             </div>
-            
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1 group-hover:text-brand-indigo transition-colors relative z-10">
-                {store.name}
-            </h3>
-            
-            <div className="flex items-center gap-1.5 text-brand-emerald font-bold mb-5 relative z-10">
-                <TrendingUp className="w-4 h-4" />
-                <span>{store.bestSavings || "Up to 80% Off"}</span>
-            </div>
-            
-            <div className="mt-auto pt-5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between relative z-10">
-                <div className="flex -space-x-2">
-                    <img alt="User" className="w-6 h-6 rounded-full border-2 border-white dark:border-[#0F172A]" src="https://i.pravatar.cc/100?img=1"/>
-                    <img alt="User" className="w-6 h-6 rounded-full border-2 border-white dark:border-[#0F172A]" src="https://i.pravatar.cc/100?img=2"/>
-                    <img alt="User" className="w-6 h-6 rounded-full border-2 border-white dark:border-[#0F172A]" src="https://i.pravatar.cc/100?img=3"/>
+
+            {/* Footer / Social Proof & Action */}
+            <div className="flex items-center justify-between pt-space-xs">
+                <div className="flex items-center gap-2">
+                    <div className="flex -space-x-2 overflow-hidden">
+                        <div className="inline-block h-6 w-6 rounded-full bg-deal-amber text-on-surface font-label-badge text-[10px] flex items-center justify-center font-bold ring-2 ring-white">RS</div>
+                        <div className="inline-block h-6 w-6 rounded-full bg-primary text-white font-label-badge text-[10px] flex items-center justify-center font-bold ring-2 ring-white">AP</div>
+                        <div className="inline-block h-6 w-6 rounded-full bg-secondary text-white font-label-badge text-[10px] flex items-center justify-center font-bold ring-2 ring-white">MK</div>
+                    </div>
+                    <span className="font-body-sm text-body-sm text-text-muted font-medium">4k+ saved</span>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
-                    <Users className="w-3.5 h-3.5" />
-                    <span>4k+ saved</span>
-                </div>
+                <button className="coupon-action-btn inline-flex items-center gap-1 bg-surface-container hover:bg-primary hover:text-on-primary text-on-surface font-label-btn text-label-btn px-space-sm py-1.5 rounded-lg transition-colors" type="button">
+                    <span>View Offers</span>
+                    <span className="material-symbols-outlined text-[16px]">chevron_right</span>
+                </button>
             </div>
         </Link>
     );
