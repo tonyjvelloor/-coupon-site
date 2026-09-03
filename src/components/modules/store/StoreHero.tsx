@@ -107,16 +107,16 @@ export function StoreHero({ store, activeCoupons, bestDeal }: StoreHeroProps) {
                     
                     {/* Left: Merchant Context */}
                     <div className="flex-1 space-y-6">
-                        <div className="flex items-center gap-4">
-                            <div className="w-16 h-16 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden shrink-0 shadow-premium-sm">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+                            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border border-slate-200 bg-white flex items-center justify-center overflow-hidden shrink-0 shadow-premium-sm">
                                 {store.logo ? (
-                                    <Image unoptimized src={store.logo} alt={`${store.name} store logo`} width={64} height={64} className="object-contain p-1" />
+                                    <Image unoptimized src={store.logo} alt={`${store.name} store logo`} width={96} height={96} className="object-contain p-2 w-full h-full" />
                                 ) : (
-                                    <span className="text-heading text-slate-400">{store.name.charAt(0)}</span>
+                                    <span className="text-display-m text-slate-400 font-bold">{store.name.charAt(0)}</span>
                                 )}
                             </div>
                             <div>
-                                <h1 className="text-display-l text-slate-900">
+                                <h1 className="text-display-l text-slate-900 leading-tight">
                                     {store.name} Coupons & Promo Codes
                                 </h1>
                                 
