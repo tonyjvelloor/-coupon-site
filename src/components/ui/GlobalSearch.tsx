@@ -105,7 +105,7 @@ export function GlobalSearch({ isOpen, onClose }: { isOpen: boolean, onClose: ()
         } else if (item.type === 'store') {
             router.push(`/stores/${item.data.slug}`);
         } else if (item.type === 'category') {
-            router.push(`/categories/${item.data.slug}`);
+            router.push(`/best/${item.data.slug}-coupons`);
         } else if (item.type === 'coupon') {
             // Navigate to the store page with the coupon highlighted, or just to the store page
             router.push(`/stores/${item.data.store.name.toLowerCase().replace(/\s+/g, '-')}#deal-${item.data.id}`);

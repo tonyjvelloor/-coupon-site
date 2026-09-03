@@ -200,7 +200,7 @@ export default async function CategoryPage({ params }: PageProps) {
                     <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
                         <div className="w-20 h-20 bg-primary-50 dark:bg-primary-900/30 rounded-2xl flex items-center justify-center border border-primary-200 dark:border-primary-800 overflow-hidden relative">
                             {['fashion', 'electronics', 'food-dining', 'health-beauty', 'home-living', 'sports-fitness', 'entertainment', 'travel'].includes(category.slug) ? (
-                                <Image unoptimized src={`/images/categories/${category.slug}.jpg`} alt={category.name} fill className="object-cover" />
+                                <Image unoptimized src={`/images/best/${category.slug}-coupons.jpg`} alt={category.name} fill className="object-cover" />
                             ) : (
                                 <Icon name={(category.icon || "category").toLowerCase().replace(/[^a-z0-9_]/g, "_")} className="text-4xl text-primary-600 dark:text-primary-400" />
                             )}
@@ -227,7 +227,7 @@ export default async function CategoryPage({ params }: PageProps) {
                             {category.children.map((child) => (
                                 <Link
                                     key={child.id}
-                                    href={`/category/${child.slug}`}
+                                    href={`/best/${child.slug}-coupons`}
                                     className="px-4 py-2 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-lg text-sm font-semibold text-slate-800 dark:text-slate-200 hover:border-primary-300 hover:text-primary-600 transition-colors shadow-sm"
                                 >
                                     {child.name}
@@ -344,7 +344,7 @@ function CategorySchema({ category, coupons }: { category: any, coupons: any }) 
         "@type": "CollectionPage",
         name: `${category.name} Coupons`,
         description: category.description || `Best coupons and offers for ${category.name}`,
-        url: `${siteUrl}/category/${category.slug}`,
+        url: `${siteUrl}/best/${category.slug}-coupons`,
         hasPart: coupons.slice(0, 10).map((coupon: any) => ({
             "@type": "Offer",
             itemOffered: {
@@ -354,7 +354,7 @@ function CategorySchema({ category, coupons }: { category: any, coupons: any }) 
             priceCurrency: "USD",
             price: "0",
             description: coupon.description || coupon.title,
-            url: `${siteUrl}/category/${category.slug}`
+            url: `${siteUrl}/best/${category.slug}-coupons`
         }))
     };
 
@@ -401,7 +401,7 @@ function CategorySchema({ category, coupons }: { category: any, coupons: any }) 
                 "@type": "ListItem",
                 position: 3,
                 name: category.name,
-                item: `${siteUrl}/category/${category.slug}`
+                item: `${siteUrl}/best/${category.slug}-coupons`
             }
         ]
     };

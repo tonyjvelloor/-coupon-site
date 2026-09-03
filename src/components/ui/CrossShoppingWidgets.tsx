@@ -53,7 +53,7 @@ export function CrossShoppingWidgets({ storeName, competitors, popularCategories
                         { name: 'Fashion', slug: 'fashion' },
                         { name: 'Travel', slug: 'travel' }
                     ]).map(cat => (
-                        <Link key={cat.name} href={`/category/${cat.slug}`} className="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 text-sm font-medium rounded-full transition">
+                        <Link key={cat.name} href={`/best/${cat.slug}-coupons`} className="px-3 py-1.5 bg-surface-100 hover:bg-surface-200 text-surface-700 text-sm font-medium rounded-full transition">
                             {cat.name}
                         </Link>
                     ))}

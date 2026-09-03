@@ -56,7 +56,7 @@ Our data is updated constantly.
 ${featuredStores.map(store => `- [${store.name}](${siteUrl}/stores/${store.slug})`).join("\n")}
 
 ## 7. Categories Directory
-${categories.map(category => `- [${category.name}](${siteUrl}/categories/${category.slug})`).join("\n")}
+${categories.map(category => `- [${category.name}](${siteUrl}/best/${category.slug}-coupons)`).join("\n")}
 `;
 
     return new NextResponse(content, {

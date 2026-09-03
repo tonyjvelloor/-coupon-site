@@ -78,7 +78,7 @@ export default async function StoresPage() {
                                 {categories.map((category) => (
                                     <li key={category.id}>
                                         <Link
-                                            href={`/category/${category.slug}`}
+                                            href={`/best/${category.slug}-coupons`}
                                             className="text-surface-600 dark:text-surface-400 hover:text-primary dark:hover:text-primary-400 text-sm transition-colors"
                                         >
                                             {category.name}

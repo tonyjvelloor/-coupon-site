@@ -38,7 +38,7 @@ export async function CategoriesModule() {
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                 {categories.map((cat) => (
-                    <Link key={cat.id} href={`/category/${cat.slug}`} className="group relative bg-white p-6 rounded-2xl border border-slate-200 hover:border-brand-indigo/30 shadow-premium-sm hover:shadow-premium-md transition-all duration-300 active:scale-[0.98] flex flex-col items-start gap-4 overflow-hidden">
+                    <Link key={cat.id} href={`/best/${cat.slug}-coupons`} className="group relative bg-white p-6 rounded-2xl border border-slate-200 hover:border-brand-indigo/30 shadow-premium-sm hover:shadow-premium-md transition-all duration-300 active:scale-[0.98] flex flex-col items-start gap-4 overflow-hidden">
                         
                         {/* Subtle Background Glow on Hover */}
                         <div className="absolute inset-0 bg-gradient-to-br from-brand-indigo/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />

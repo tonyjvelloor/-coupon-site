@@ -45,7 +45,7 @@ export default async function SitemapPage() {
                     <ul className="space-y-2">
                         {categories.map(cat => (
                             <li key={cat.slug}>
-                                <Link href={`/category/${cat.slug}`} className="text-violet-600 hover:underline">
+                                <Link href={`/best/${cat.slug}-coupons`} className="text-violet-600 hover:underline">
                                     {cat.name} Coupons
                                 </Link>
                             </li>

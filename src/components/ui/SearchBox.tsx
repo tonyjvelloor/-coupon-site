@@ -111,7 +111,7 @@ export function SearchBox({ placeholder = "Search stores or categories...", clas
   const handleSelectCategory = (category: SuggestionCategory) => {
     setIsOpen(false);
     setQuery("");
-    router.push(`/category/${category.slug}`);
+    router.push(`/best/${category.slug}-coupons`);
     if (onSelectSuggestion) onSelectSuggestion();
   };
 

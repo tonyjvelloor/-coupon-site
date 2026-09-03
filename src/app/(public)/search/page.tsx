@@ -154,7 +154,7 @@ export default async function SearchPage({
                                 </div>
                                 <div className="flex flex-wrap gap-3">
                                     {categories.map(cat => (
-                                        <Link key={cat.id} href={`/category/${cat.slug}`} className="inline-flex items-center gap-2 px-4 py-2 bg-violet-50 hover:bg-violet-100 text-violet-700 rounded-xl font-semibold transition border border-violet-100">
+                                        <Link key={cat.id} href={`/best/${cat.slug}-coupons`} className="inline-flex items-center gap-2 px-4 py-2 bg-violet-50 hover:bg-violet-100 text-violet-700 rounded-xl font-semibold transition border border-violet-100">
                                             <Icon name="folder_open" className="text-[16px]" /> {cat.name}
                                         </Link>
                                     ))}

@@ -63,7 +63,7 @@ export default async function CategoriesPage() {
                                 className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow"
                             >
                                 <Link
-                                    href={`/category/${category.slug}`}
+                                    href={`/best/${category.slug}-coupons`}
                                     className="p-6 flex items-start gap-4"
                                 >
                                     <div className="w-14 h-14 rounded-xl bg-violet-100 flex items-center justify-center shrink-0">
@@ -85,7 +85,7 @@ export default async function CategoriesPage() {
                                         {category.children.slice(0, 4).map((child) => (
                                             <Link
                                                 key={child.id}
-                                                href={`/category/${child.slug}`}
+                                                href={`/best/${child.slug}-coupons`}
                                                 className="text-sm text-gray-600 hover:text-violet-600 transition-colors"
                                             >
                                                 {child.name}
