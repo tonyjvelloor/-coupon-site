@@ -43,12 +43,22 @@ export async function GET(request: Request) {
 
     const coupons = await prisma.coupon.findMany({
       where: {
-        OR: [
-          { title: { contains: query, mode: 'insensitive' } },
-          { description: { contains: query, mode: 'insensitive' } },
-          { code: { contains: query, mode: 'insensitive' } }
+        AND: [
+          {
+            OR: [
+              { title: { contains: query, mode: 'insensitive' } },
+              { description: { contains: query, mode: 'insensitive' } },
+              { code: { contains: query, mode: 'insensitive' } }
+            ]
+          },
+          {
+            OR: [
+                { expiresAt: null },
+                { expiresAt: { gt: new Date() } }
+            ]
+          }
         ],
-        status: 'ACTIVE',
+        deletedAt: null
       },
       select: {
         id: true,
@@ -56,18 +66,35 @@ export async function GET(request: Request) {
         description: true,
         code: true,
         discountValue: true,
-        store: {
+        merchantIdentity: {
           select: {
-            name: true,
-            logo: true,
-            slug: true
+            store: {
+              select: {
+                name: true,
+                logo: true,
+                slug: true
+              }
+            }
           }
         }
       },
       take: 5,
     });
 
-    return NextResponse.json({ stores, categories, coupons });
+    const formattedCoupons = coupons.map(c => ({
+      id: c.id,
+      title: c.title,
+      description: c.description,
+      code: c.code,
+      discountValue: c.discountValue,
+      store: c.merchantIdentity?.store ? {
+        name: c.merchantIdentity.store.name,
+        logo: c.merchantIdentity.store.logo,
+        slug: c.merchantIdentity.store.slug
+      } : { name: 'Store', logo: null, slug: '#' }
+    }));
+
+    return NextResponse.json({ stores, categories, coupons: formattedCoupons });
   } catch (error) {
     console.error("Search API Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

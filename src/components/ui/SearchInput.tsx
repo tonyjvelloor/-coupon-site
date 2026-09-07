@@ -27,7 +27,7 @@ interface SearchResult {
 
 export default function SearchInput() {
     const [query, setQuery] = useState("");
-    const [debouncedQuery] = useDebounce(query, 300);
+    const [debouncedQuery] = useDebounce(query, 150);
     const [results, setResults] = useState<SearchResult | null>(null);
     const [loading, setLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);

@@ -62,7 +62,7 @@ export function GlobalSearch({ isOpen, onClose }: { isOpen: boolean, onClose: ()
             }
         };
 
-        const timer = setTimeout(fetchResults, 200); // 200ms debounce
+        const timer = setTimeout(fetchResults, 150); // 150ms debounce
         return () => clearTimeout(timer);
     }, [query]);
 
