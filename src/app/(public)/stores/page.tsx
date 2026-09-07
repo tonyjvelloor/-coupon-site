@@ -1,139 +1,158 @@
 import { prisma } from "@/lib/db";
 import { Metadata } from "next";
 import Link from "next/link";
+import StoresDirectoryClient from "./StoresDirectoryClient";
+
 export const revalidate = 3600;
 
-import { Search, Store as StoreIcon } from "lucide-react";
-import StoreCard from "@/components/ui/StoreCard";
-
 export const metadata: Metadata = {
-    title: "All Stores - Coupons & Offers",
+    title: "All Stores Directory - Verified Partner Stores & Cashback Offers",
     description:
-        "Browse all stores and find the best coupons, promo codes, and deals. Save big with verified offers from top online stores in India.",
+        "Browse India's top shopping destinations. Get tested coupon codes, exclusive cashback up to 25%, and glitch deals updated every morning.",
 };
 
-async function getStores() {
-    return prisma.store.findMany({
+async function getStoresData() {
+    const stores = await prisma.store.findMany({
         where: { activeOfferCount: { gt: 0 } },
         orderBy: { name: "asc" },
+        include: {
+            storeCategories: {
+                include: {
+                    category: true
+                }
+            }
+        }
     });
+
+    return stores.map(store => ({
+        id: store.id,
+        name: store.name,
+        slug: store.slug,
+        logo: store.logo,
+        cashbackRate: store.cashbackRate,
+        offerCount: store.activeOfferCount,
+        description: store.description,
+        primaryCategory: store.storeCategories?.[0]?.category?.name || 'Retail',
+        isFeatured: store.isFeatured
+    }));
 }
 
-async function getCategories() {
-    return prisma.category.findMany({
+async function getCategoriesData() {
+    const categories = await prisma.category.findMany({
         where: { isActive: true },
         orderBy: { displayOrder: "asc" },
+        select: {
+            id: true,
+            name: true,
+            slug: true
+        }
     });
+    return categories;
 }
 
 export default async function StoresPage() {
-    const [stores, categories] = await Promise.all([getStores(), getCategories()]);
-
-    // Group stores alphabetically
-    const storesByLetter = stores.reduce(
-        (acc, store) => {
-            const letter = store.name.charAt(0).toUpperCase();
-            if (!acc[letter]) acc[letter] = [];
-            acc[letter].push(store);
-            return acc;
-        },
-        {} as Record<string, typeof stores>
-    );
-
-    const letters = Object.keys(storesByLetter).sort();
+    const [stores, categories] = await Promise.all([getStoresData(), getCategoriesData()]);
 
     return (
-        <div>
-            {/* Hero */}
-            <section className="bg-gradient-to-br from-primary-700 to-primary-900 text-white py-12">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <h1 className="text-3xl lg:text-4xl font-bold mb-4">All Stores</h1>
-                    <p className="text-primary-200 text-lg max-w-2xl">
-                        Explore all {stores.length}+ stores and find the best deals with verified
-                        coupons and cashback offers.
-                    </p>
+        <div className="flex flex-col w-full bg-surface-page min-h-screen">
+            {/* Top Breadcrumb & Stat Banner Bar */}
+            <section className="w-full bg-surface-container-low py-space-sm">
+                <div className="max-w-max-width mx-auto px-gutter-desktop flex flex-wrap items-center justify-between gap-space-sm text-body-sm text-text-muted">
+                    <nav className="flex items-center gap-space-xs font-body-sm">
+                        <Link href="/" className="hover:text-primary transition-colors flex items-center gap-1">
+                            <span className="material-symbols-outlined text-[16px]">home</span>
+                            <span>Home</span>
+                        </Link>
+                        <span className="text-outline-variant">/</span>
+                        <span className="text-on-surface font-semibold">All Stores Directory</span>
+                    </nav>
+                    <div className="flex items-center gap-space-md">
+                        <span className="inline-flex items-center gap-1 font-label-badge text-label-badge bg-verified-emerald-bg text-verified-emerald px-space-xs py-0.5 rounded-full">
+                            <span className="material-symbols-outlined text-[14px]">bolt</span>
+                            <span>{stores.length}+ Merchants Tested Today</span>
+                        </span>
+                        <span className="hidden md:inline-flex items-center gap-1 text-text-muted">
+                            <span className="material-symbols-outlined text-[16px] text-primary">verified_user</span>
+                            Guaranteed UPI Cashback Tracked
+                        </span>
+                    </div>
                 </div>
             </section>
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="flex flex-col lg:flex-row gap-8">
-                    {/* Sidebar */}
-                    <aside className="w-full lg:w-64 lg:min-w-[16rem] shrink-0">
-                        {/* Search */}
-                        <div className="mb-6">
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                <input
-                                    type="text"
-                                    placeholder="Search stores..."
-                                    className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-surface-200 focus:ring-2 focus:ring-primary focus:border-transparent outline-none dark:bg-surface-800 dark:border-surface-700 dark:text-white"
-                                />
+            {/* Interactive Client Component for Search, Grid, and Directory */}
+            <StoresDirectoryClient stores={stores} categories={categories} />
+
+            {/* Trust & Value Proposition Block */}
+            <section className="w-full bg-surface-card py-space-2xl">
+                <div className="max-w-max-width mx-auto px-gutter-desktop">
+                    <div className="text-center max-w-2xl mx-auto mb-space-xl">
+                        <h2 className="font-headline-lg text-headline-lg text-on-surface mb-space-xs">Why Shop Through CouponHub Partner Stores?</h2>
+                        <p className="font-body-md text-body-md text-text-muted">We bridge the gap between shoppers and actual savings with zero expired clutter.</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-space-md">
+                        <div className="bg-surface-page p-space-lg rounded-2xl flex flex-col items-start">
+                            <div className="w-12 h-12 rounded-xl bg-verified-emerald-bg text-verified-emerald flex items-center justify-center mb-space-sm">
+                                <span className="material-symbols-outlined text-[26px]">fact_check</span>
                             </div>
+                            <h3 className="font-headline-sm text-headline-sm text-on-surface mb-1">100% Tested Daily</h3>
+                            <p className="font-body-sm text-body-sm text-text-muted">Human coupon editors personally check checkout pages everyday to weed out broken expired codes.</p>
                         </div>
-
-                        {/* Categories Filter */}
-                        <div className="bg-white dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700 p-4">
-                            <h3 className="font-semibold text-slate-900 dark:text-white mb-3">Categories</h3>
-                            <ul className="space-y-2">
-                                {categories.map((category) => (
-                                    <li key={category.id}>
-                                        <Link
-                                            href={`/best/${category.slug}-coupons`}
-                                            className="text-surface-600 dark:text-surface-400 hover:text-primary dark:hover:text-primary-400 text-sm transition-colors"
-                                        >
-                                            {category.name}
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
+                        <div className="bg-surface-page p-space-lg rounded-2xl flex flex-col items-start">
+                            <div className="w-12 h-12 rounded-xl bg-brand-indigo-light text-primary flex items-center justify-center mb-space-sm">
+                                <span className="material-symbols-outlined text-[26px]">payments</span>
+                            </div>
+                            <h3 className="font-headline-sm text-headline-sm text-on-surface mb-1">Direct Bank / UPI</h3>
+                            <p className="font-body-sm text-body-sm text-text-muted">Your cashback tracks automatically and transfers straight into your GPay, PhonePe, or Savings Bank.</p>
                         </div>
-
-                        {/* Alphabet Navigation */}
-                        <div className="bg-white dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700 p-4 mt-4">
-                            <h3 className="font-semibold text-slate-900 dark:text-white mb-3">Browse A-Z</h3>
-                            <div className="flex flex-wrap gap-1">
-                                {letters.map((letter) => (
-                                    <a
-                                        key={letter}
-                                        href={`#letter-${letter}`}
-                                        className="w-8 h-8 flex items-center justify-center rounded bg-surface-100 dark:bg-surface-800 hover:bg-primary-100 dark:hover:bg-primary-900/30 hover:text-primary dark:hover:text-primary text-sm font-medium transition-colors text-slate-900 dark:text-surface-100"
-                                    >
-                                        {letter}
-                                    </a>
-                                ))}
+                        <div className="bg-surface-page p-space-lg rounded-2xl flex flex-col items-start">
+                            <div className="w-12 h-12 rounded-xl bg-hot-coral-bg text-hot-coral flex items-center justify-center mb-space-sm">
+                                <span className="material-symbols-outlined text-[26px]">layers</span>
                             </div>
+                            <h3 className="font-headline-sm text-headline-sm text-on-surface mb-1">Double Savings Hack</h3>
+                            <p className="font-body-sm text-body-sm text-text-muted">Stack coupon discount promo codes on the merchant cart AND receive CouponHub extra cashback on top.</p>
                         </div>
-                    </aside>
-
-                    {/* Stores Grid */}
-                    <div className="flex-1 min-w-0">
-                        {letters.map((letter) => (
-                            <div key={letter} id={`letter-${letter}`} className="mb-8">
-                                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                                    <span className="w-10 h-10 rounded-lg bg-primary-100 dark:bg-primary-900/30 text-primary dark:text-primary-400 flex items-center justify-center">
-                                        {letter}
-                                    </span>
-                                </h2>
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                                    {storesByLetter[letter].map((store) => (
-                                        <StoreCard key={store.id} store={store} />
-                                    ))}
-                                </div>
+                        <div className="bg-surface-page p-space-lg rounded-2xl flex flex-col items-start">
+                            <div className="w-12 h-12 rounded-xl bg-deal-amber-bg text-deal-amber flex items-center justify-center mb-space-sm">
+                                <span className="material-symbols-outlined text-[26px]">lock_open</span>
                             </div>
-                        ))}
-
-                        {stores.length === 0 && (
-                            <div className="text-center py-12">
-                                <StoreIcon className="w-16 h-16 text-surface-300 dark:text-surface-600 mx-auto mb-4" />
-                                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
-                                    No stores yet
-                                </h3>
-                                <p className="text-surface-500 dark:text-surface-400">Check back soon for new stores!</p>
-                            </div>
-                        )}
+                            <h3 className="font-headline-sm text-headline-sm text-on-surface mb-1">Zero Hidden Fees</h3>
+                            <p className="font-body-sm text-body-sm text-text-muted">No premium paywalls. 100% free forever for all consumers with instant browser auto-apply benefits.</p>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </section>
+
+            {/* Glitch & WhatsApp VIP Community Banner */}
+            <section className="w-full bg-secondary text-on-secondary py-space-xl">
+                <div className="max-w-max-width mx-auto px-gutter-desktop">
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-space-lg">
+                        <div className="max-w-xl">
+                            <div className="inline-flex items-center gap-1.5 bg-secondary-container text-on-secondary-container px-2.5 py-0.5 rounded-full font-label-badge text-label-badge mb-space-xs">
+                                <span className="material-symbols-outlined text-[16px]">electric_bolt</span>
+                                PRICE GLITCH ALERTS
+                            </div>
+                            <h3 className="font-headline-lg text-headline-lg font-extrabold mb-space-xs text-on-secondary">
+                                Never Miss 90% Off Glitch Deals Again!
+                            </h3>
+                            <p className="font-body-md text-body-md opacity-90 text-on-secondary">
+                                Join 45,000+ smart deal hunters who get 0-minute alerts before flash pricing errors get corrected.
+                            </p>
+                        </div>
+                        <div className="flex flex-col sm:flex-row items-center gap-space-sm w-full md:w-auto">
+                            <a 
+                                href="https://wa.me" 
+                                target="_blank" 
+                                rel="noopener"
+                                className="w-full sm:w-auto inline-flex items-center justify-center gap-space-xs bg-secondary-container hover:bg-secondary-fixed text-on-secondary-container font-headline-sm text-headline-sm px-space-xl py-space-sm rounded-xl font-bold transition-all shadow-md"
+                            >
+                                <span className="material-symbols-outlined text-[22px]">chat</span>
+                                <span>Join VIP WhatsApp</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
     );
 }
