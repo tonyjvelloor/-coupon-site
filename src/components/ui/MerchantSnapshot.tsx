@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent } from './Card';
 import { Icon } from './Icon';
+import { SafeImage } from './SafeImage';
 
 export interface MerchantSnapshotProps {
     store: {
@@ -30,15 +31,15 @@ export function MerchantSnapshot({ store }: MerchantSnapshotProps) {
                 {/* Header: Logo and Title */}
                 <div className="flex items-center gap-4 mb-4">
                     <div className="w-12 h-12 rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-800 flex items-center justify-center overflow-hidden shrink-0 shadow-sm relative">
-                        {store.logo ? (
-                            <Image unoptimized src={store.logo}
-                                alt={`${store.name} coupons and cashback`}
-                                fill
-                                className="object-contain p-1"
-                            />
-                        ) : (
-                            <span className="font-bold text-xl text-surface-400 dark:text-surface-500">{store.name.charAt(0)}</span>
-                        )}
+                        <SafeImage 
+                            unoptimized 
+                            src={store.logo}
+                            alt={`${store.name} coupons and cashback`}
+                            fill
+                            className="object-contain p-1"
+                            fallbackText={store.name}
+                            fallbackClassName="text-xl"
+                        />
                     </div>
                     
                     <div className="flex flex-col justify-center flex-grow">

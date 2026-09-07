@@ -8,6 +8,7 @@ import { MerchantSnapshot } from "@/components/ui/MerchantSnapshot";
 import SEOTextAndFAQ from "@/components/ui/SEOTextAndFAQ";
 import InternalLinks from "@/components/ui/InternalLinks";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { Icon } from "@/components/ui/Icon";
 import { Stack } from "@/components/ui/Stack";
 
@@ -201,7 +202,7 @@ export default async function CategoryPage({ params }: PageProps) {
                     <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
                         <div className="w-20 h-20 bg-primary-50 dark:bg-primary-900/30 rounded-2xl flex items-center justify-center border border-primary-200 dark:border-primary-800 overflow-hidden relative">
                             {['fashion', 'electronics', 'food-dining', 'health-beauty', 'home-living', 'sports-fitness', 'entertainment', 'travel'].includes(category.slug) ? (
-                                <Image unoptimized src={`/images/best/${category.slug}-coupons.jpg`} alt={category.name} fill className="object-cover" />
+                                <SafeImage unoptimized src={`/images/best/${category.slug}-coupons.jpg`} alt={category.name} fill className="object-cover" fallbackText={category.name} fallbackClassName="text-4xl" />
                             ) : (
                                 <Icon name={(category.icon || "category").toLowerCase().replace(/[^a-z0-9_]/g, "_")} className="text-4xl text-primary-600 dark:text-primary-400" />
                             )}
