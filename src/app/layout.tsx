@@ -41,9 +41,6 @@ export const metadata: Metadata = {
   authors: [{ name: "CouponHub" }],
   creator: "CouponHub",
   metadataBase: new URL(siteUrl),
-  verification: {
-    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
-  },
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -63,7 +60,7 @@ export const metadata: Metadata = {
     follow: true,
   },
   verification: {
-    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "7OKZPsR8Q1yyEz2nCicFxuCjGkTznbxAwibu4vVfFUQ",
   },
 };
 
