@@ -120,7 +120,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         });
         
         // SEO State Machine: Indexable Threshold
-        if (activeStores >= 5 && activeOffers >= 10) {
+        if (activeStores >= 1 && activeOffers >= 1) {
             categoryRoutes.push({
                 url: `${baseUrl}/best/${category.slug}-coupons`,
                 lastModified: category.updatedAt,

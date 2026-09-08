@@ -98,7 +98,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     });
 
     const activeStores = storeIdentityIds.length;
-    const isIndexable = activeStores >= 5 && activeOffers >= 10;
+    const isIndexable = activeStores >= 1 && activeOffers >= 1;
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
 
     const ogTitle = `Best ${category.name} Coupons & Deals – ${activeOffers} Active Offers`;
