@@ -198,8 +198,13 @@ function StoreSchema({ store, coupons }: { store: any, coupons: any[] }) {
                         "@type": "Service",
                         name: coupon.title
                     },
-                    priceCurrency: "USD",
+                    priceCurrency: "INR",
                     price: "0",
+                    areaServed: {
+                        "@type": "Country",
+                        name: "India",
+                        identifier: "IN"
+                    },
                     description: coupon.description || coupon.title,
                     url: `${siteUrl}/stores/${store.slug}`
                 }
@@ -213,6 +218,7 @@ function StoreSchema({ store, coupons }: { store: any, coupons: any[] }) {
         name: store.name,
         url: store.website,
         logo: store.logo || `${siteUrl}/logo.png`,
+        areaServed: "IN",
     };
 
     const merchantSchema = {
@@ -221,7 +227,11 @@ function StoreSchema({ store, coupons }: { store: any, coupons: any[] }) {
         name: store.name,
         url: store.website,
         image: store.logo || `${siteUrl}/logo.png`,
-        description: store.description
+        description: store.description,
+        areaServed: {
+            "@type": "Country",
+            name: "India"
+        }
     };
 
     const breadcrumbSchema = {

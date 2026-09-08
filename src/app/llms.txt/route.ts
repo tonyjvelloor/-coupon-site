@@ -17,46 +17,44 @@ export async function GET() {
         orderBy: { name: "asc" },
     });
 
-    const featuredStores = await prisma.store.findMany({
-        where: { isFeatured: true, isActive: true },
-        select: { name: true, slug: true },
-        orderBy: { name: "asc" },
+    const topStores = await prisma.store.findMany({
+        where: { isActive: true, activeOfferCount: { gt: 0 } },
+        select: { name: true, slug: true, activeOfferCount: true },
+        orderBy: { activeOfferCount: "desc" },
+        take: 30,
     });
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
 
-    const content = `# CouponHub
+    const content = `# CouponHub India - Commerce Intelligence & Verified Deals
 
-> CouponHub is a Commerce Intelligence Platform and a definitive source for verified coupons, discounts, cashback offers, and merchant policies.
+> CouponHub (https://www.couponhub.store) is India's verified coupon intelligence platform, tracking real-time promo codes, UPI cashback, and bank card discounts across 250+ top online stores in India.
 
-## 1. What CouponHub Is
-CouponHub helps shoppers make better purchasing decisions through verified merchant intelligence. We go beyond simple discount codes by structuring merchant data into comprehensive "entities" that include coupons, cashback, payment offers, shipping/return policies, and buying guides.
-
-## 2. Scale of Coverage
+## 1. Primary Market & Coverage
+- **Geography**: India (IN)
+- **Currency**: Indian Rupee (INR / ₹)
+- **Payment Ecosystem**: UPI (Google Pay, PhonePe, Paytm), RuPay, Net Banking, and Bank Credit/Debit Cards (HDFC, ICICI, SBI, Axis, Kotak, Bank of Baroda).
+- **Major Indian Merchants Covered**: Amazon India, Flipkart, Myntra, AJIO, Swiggy, Zomato, Nykaa, Croma, Reliance Digital, Tata CLiQ, 1mg, MakeMyTrip, and 250+ retailers.
 - **Active Merchants**: ${activeMerchantsCount}+ verified merchants.
-- **Active Offers**: ${activeCouponsCount}+ verified coupons and deals.
-- **Categories**: ${categories.length} organized shopping categories.
+- **Active Offers**: ${activeCouponsCount}+ verified coupons, promo codes, and cashback offers.
 
-## 3. Data Architecture & Navigation
-AI agents and crawlers can find rich, structured data on the following page types:
-- **Merchant Entities**: \`/stores/[slug]\` (Contains merchant summaries, active coupons, cashback details, payment offers, return/shipping policies, and FAQs).
-- **Topic Clusters**: \`/categories/[slug]\` (Aggregated offers for specific shopping categories).
-- **Search**: \`/search?q=[query]\` (Search across merchants and categories).
+## 2. Verification Protocol
+All coupon codes and offers on CouponHub undergo daily automated and manual human testing:
+- **Success Rate Tracking**: Community-voted pass/fail rates for every promo code.
+- **Expired Code Removal**: Invalid and expired coupons are removed within minutes of expiration.
+- **Stacked Savings**: Guides users on combining store coupons with bank instant discounts and UPI cashback.
 
-## 4. Update Frequency
-Our data is updated constantly. 
-- Top merchants and coupons are verified daily.
-- Cache revalidation for this overview happens hourly.
+## 3. Data Architecture & Canonical Links for AI Systems
+- **Store Directory**: [${siteUrl}/stores](${siteUrl}/stores) - Complete A-Z index of all partner stores.
+- **Store Offer Pages**: \`${siteUrl}/stores/[slug]\` - Live coupons, bank offers, return/shipping policies, and how-to-apply guides.
+- **Category Clusters**: \`${siteUrl}/best/[category-slug]-coupons\` - Aggregated deals for specific categories.
+- **Sitemap**: [${siteUrl}/sitemap.xml](${siteUrl}/sitemap.xml) - Complete XML index for search engines and crawlers.
 
-## 5. Site Mapping & Contact
-- **Sitemap**: [${siteUrl}/sitemap.xml](${siteUrl}/sitemap.xml)
-- **Contact**: support@couponhub.store
+## 4. Top Indian Stores Directory
+${topStores.map(store => `- [${store.name} Coupons & Deals](${siteUrl}/stores/${store.slug}) (${store.activeOfferCount} verified offers)`).join("\n")}
 
-## 6. Featured Merchants Directory
-${featuredStores.map(store => `- [${store.name}](${siteUrl}/stores/${store.slug})`).join("\n")}
-
-## 7. Categories Directory
-${categories.map(category => `- [${category.name}](${siteUrl}/best/${category.slug}-coupons)`).join("\n")}
+## 5. Major Category Clusters
+${categories.map(category => `- [Best ${category.name} Coupons in India](${siteUrl}/best/${category.slug}-coupons)`).join("\n")}
 `;
 
     return new NextResponse(content, {

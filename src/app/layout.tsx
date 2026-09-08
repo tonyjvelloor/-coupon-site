@@ -24,36 +24,40 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store
 
 export const metadata: Metadata = {
   title: {
-    default: "CouponHub - Best Coupons, Offers & Deals Worldwide",
-    template: "%s | CouponHub",
+    default: "CouponHub - Verified Coupons, Promo Codes & Cashback in India",
+    template: "%s | CouponHub India",
   },
   description:
-    "Get the best coupons, promo codes, and deals from top online stores. Save money on your online shopping with verified coupon codes from CouponHub.",
+    "Save big on online shopping in India. Get 100% verified coupons, exclusive promo codes, UPI cashback, and bank card discounts for Amazon, Flipkart, Myntra, Ajio, Swiggy, and 250+ top brands.",
   keywords: [
-    "coupons",
-    "promo codes",
-    "deals",
-    "offers",
-    "discount codes",
-    "cashback",
-    "online shopping",
+    "coupons India",
+    "promo codes India",
+    "online shopping discount India",
+    "cashback offers India",
+    "Amazon India coupons",
+    "Ajio coupon code today",
+    "Flipkart deals",
+    "Myntra discount code",
+    "UPI cashback",
+    "bank credit card offers",
+    "verified coupons",
   ],
-  authors: [{ name: "CouponHub" }],
+  authors: [{ name: "CouponHub India" }],
   creator: "CouponHub",
   metadataBase: new URL(siteUrl),
   openGraph: {
     type: "website",
-    locale: "en_US",
-    siteName: "CouponHub",
-    title: "CouponHub - Best Coupons, Offers & Deals Worldwide",
+    locale: "en_IN",
+    siteName: "CouponHub India",
+    title: "CouponHub - Verified Coupons, Promo Codes & Cashback in India",
     description:
-      "Get the best coupons, promo codes, and deals from top online stores.",
+      "Save big on online shopping in India with tested coupons, promo codes, UPI cashback, and bank card discounts.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "CouponHub - Best Coupons, Offers & Deals Worldwide",
+    title: "CouponHub - Verified Coupons, Promo Codes & Cashback in India",
     description:
-      "Get the best coupons, promo codes, and deals from top online stores.",
+      "Save big on online shopping in India with tested coupons, promo codes, UPI cashback, and bank card discounts.",
   },
   robots: {
     index: true,
