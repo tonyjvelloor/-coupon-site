@@ -153,6 +153,59 @@ export default async function StoresPage() {
                     </div>
                 </div>
             </section>
+
+            {/* Structured Data for Google Rich Snippets & Discovery */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "CollectionPage",
+                        name: "All Stores Directory - Verified Partner Stores & Cashback Offers",
+                        description: "Browse verified coupons, discount codes, and cashback offers across top online shopping stores in India.",
+                        url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store"}/stores`,
+                        mainEntity: {
+                            "@type": "ItemList",
+                            name: "Partner Stores & Brands",
+                            numberOfItems: stores.length,
+                            itemListElement: stores.slice(0, 50).map((s, idx) => ({
+                                "@type": "ListItem",
+                                position: idx + 1,
+                                item: {
+                                    "@type": "Store",
+                                    name: s.name,
+                                    url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store"}/stores/${s.slug}`,
+                                    image: s.logo || undefined,
+                                    description: s.description || undefined
+                                }
+                            }))
+                        }
+                    })
+                }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "BreadcrumbList",
+                        itemListElement: [
+                            {
+                                "@type": "ListItem",
+                                position: 1,
+                                name: "Home",
+                                item: process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store"
+                            },
+                            {
+                                "@type": "ListItem",
+                                position: 2,
+                                name: "All Stores",
+                                item: `${process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store"}/stores`
+                            }
+                        ]
+                    })
+                }}
+            />
         </div>
     );
 }
