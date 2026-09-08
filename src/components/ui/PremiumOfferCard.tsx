@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { SafeImage } from "./SafeImage";
 import { Copy, Check, ExternalLink, ShieldCheck, Clock, TrendingUp, Users } from "lucide-react";
 import SaveDealButton from "./SaveDealButton";
 import { trackEvent } from "@/lib/analytics";
@@ -115,15 +116,17 @@ export function PremiumOfferCard({ coupon, storeName, storeLogo, badgeLabel }: P
             {/* Header: Store Info & Save Deal */}
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-4">
-                    {storeLogo ? (
-                        <div className="w-12 h-12 relative bg-white rounded-xl border border-slate-100 flex items-center justify-center overflow-hidden shrink-0">
-                            <Image unoptimized src={storeLogo} alt={storeName} fill className="object-contain p-2" />
-                        </div>
-                    ) : (
-                        <div className="w-12 h-12 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-center shrink-0">
-                            <span className="text-sm font-bold text-slate-400">{storeName.charAt(0)}</span>
-                        </div>
-                    )}
+                    <div className="w-12 h-12 relative bg-white rounded-xl border border-slate-100 flex items-center justify-center overflow-hidden shrink-0">
+                        <SafeImage 
+                            unoptimized 
+                            src={storeLogo} 
+                            alt={storeName} 
+                            fill 
+                            className="object-contain p-2" 
+                            fallbackText={storeName}
+                            fallbackClassName="text-sm font-bold text-slate-400"
+                        />
+                    </div>
                     
                     <div>
                         <span className="text-label text-slate-900 block leading-tight">{storeName}</span>

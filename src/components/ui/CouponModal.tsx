@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import { SafeImage } from "./SafeImage";
 import { X, Copy, Check, ExternalLink, Sparkles, AlertCircle, ThumbsUp, ThumbsDown } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 import { voteCouponAction } from "@/app/actions/coupon";
@@ -118,7 +119,7 @@ export function CouponModal({ coupon, onClose }: CouponModalProps) {
         <div className="px-6 pt-10 pb-6 flex flex-col items-center text-center">
           
           <div className="w-14 h-14 mb-4 rounded-xl border border-slate-100 flex items-center justify-center shadow-sm relative overflow-hidden bg-white">
-             <Image src={storeLogo} alt={coupon.storeName} fill className="object-contain p-2" unoptimized />
+             <SafeImage src={storeLogo} alt={coupon.storeName} fill className="object-contain p-2" unoptimized fallbackText={coupon.storeName} fallbackClassName="text-lg font-bold text-slate-400" />
           </div>
 
           <h2 className="text-heading text-slate-900 mb-1">

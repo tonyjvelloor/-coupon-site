@@ -104,13 +104,36 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const ogTitle = `Best ${category.name} Coupons & Deals – ${activeOffers} Active Offers`;
     const ogDescription = `Discover ${activeOffers} currently available ${category.name.toLowerCase()} coupons, promo codes and offers from stores tracked by CouponHub.`;
     
+    const ogImageUrl = `${siteUrl}/api/og?title=${encodeURIComponent(ogTitle)}&description=${encodeURIComponent(ogDescription)}&type=category`;
+
     return {
         title: ogTitle,
         description: ogDescription,
         robots: { index: isIndexable, follow: true },
         alternates: {
             canonical: `${siteUrl}/best/${slug}`,
-        }
+        },
+        openGraph: {
+            title: ogTitle,
+            description: ogDescription,
+            url: `${siteUrl}/best/${slug}`,
+            siteName: "CouponHub",
+            type: "website",
+            images: [
+                {
+                    url: ogImageUrl,
+                    width: 1200,
+                    height: 630,
+                    alt: ogTitle,
+                }
+            ]
+        },
+        twitter: {
+            card: "summary_large_image",
+            title: ogTitle,
+            description: ogDescription,
+            images: [ogImageUrl],
+        },
     };
 }
 

@@ -56,11 +56,34 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const ogTitle = store.seoTitle || `${store.name} Coupons, Promo Codes & Deals – ${monthYear}`;
     const ogDescription = store.seoDescription || `Save with ${store.activeOfferCount || 'active'} verified ${store.name} coupons and promo codes for ${monthYear}. Discover the best discount codes, cashback offers, and deals updated daily by CouponHub.`;
 
+    const ogImageUrl = `${siteUrl}/api/og?title=${encodeURIComponent(ogTitle)}&description=${encodeURIComponent(ogDescription)}&type=store${store.logo ? `&logo=${encodeURIComponent(store.logo)}` : ''}`;
+
     return {
         title: ogTitle,
         description: ogDescription,
         alternates: {
             canonical: `${siteUrl}/stores/${store.slug}`,
+        },
+        openGraph: {
+            title: ogTitle,
+            description: ogDescription,
+            url: `${siteUrl}/stores/${store.slug}`,
+            siteName: "CouponHub",
+            type: "website",
+            images: [
+                {
+                    url: ogImageUrl,
+                    width: 1200,
+                    height: 630,
+                    alt: ogTitle,
+                }
+            ]
+        },
+        twitter: {
+            card: "summary_large_image",
+            title: ogTitle,
+            description: ogDescription,
+            images: [ogImageUrl],
         },
         robots: (store.activeOfferCount && store.activeOfferCount > 0) ? { index: true, follow: true } : { index: false, follow: true }
     };
