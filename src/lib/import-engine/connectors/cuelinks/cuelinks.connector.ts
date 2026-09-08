@@ -38,11 +38,24 @@ export class CuelinksConnector implements AffiliateConnector {
 
     async *fetch(cursor?: string, since?: Date): AsyncGenerator<RawOffer> {
         const limit = 50;
+        const maxPages = 5; // Fetch up to 250 fresh offers per run to stay well within serverless timeouts
+        let page = 1;
+
         try {
-            const offers = await this.service.getOffers(limit);
-            for (const offer of offers) {
-                this.rowsFetched++;
-                yield offer;
+            while (page <= maxPages) {
+                const offers = await this.service.getOffers(limit, page);
+                if (!offers || !Array.isArray(offers) || offers.length === 0) {
+                    break;
+                }
+                for (const offer of offers) {
+                    this.rowsFetched++;
+                    yield offer;
+                }
+                // If fewer items returned than limit, we have reached the last available page
+                if (offers.length < limit) {
+                    break;
+                }
+                page++;
             }
         } catch (err) {
             this.failures++;

@@ -12,10 +12,16 @@ connectorRegistry.register(new ImpactConnector(isDev));
 connectorRegistry.register(new CJConnector(isDev));
 connectorRegistry.register(new CuelinksConnector());
 
+export const dynamic = "force-dynamic";
+export const maxDuration = 60; // Allow up to 60s for import pipeline execution
+
 export async function GET(request: NextRequest) {
   // Security: Ensure this is called by Vercel Cron or a trusted source
   const authHeader = request.headers.get("authorization");
-  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  const { searchParams } = new URL(request.url);
+  const token = searchParams.get("token");
+
+  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}` && token !== process.env.CRON_SECRET) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

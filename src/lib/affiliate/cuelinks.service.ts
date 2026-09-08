@@ -62,9 +62,10 @@ export class CuelinksService {
     /**
      * Fetches live offers (coupons and deals).
      */
-    async getOffers(limit = 50) {
+    async getOffers(limit = 50, page = 1) {
         const qs = new URLSearchParams({
             per_page: limit.toString(),
+            page: page.toString(),
         });
         const json = await this.fetchWithRetry(`${this.BASE_URL}/offers?${qs}`, { headers: this.headers });
         return json?.data || [];

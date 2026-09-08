@@ -5,15 +5,17 @@ import crypto from 'crypto';
 
 // Optional: Force dynamic evaluation if this is a GET route used for cron
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
 
 export async function GET(request: Request) {
   try {
     // 1. Verify cron secret (if set)
+    const authHeader = request.headers.get("authorization");
     const { searchParams } = new URL(request.url);
     const token = searchParams.get('token');
     const expectedToken = process.env.CRON_SECRET;
     
-    if (expectedToken && token !== expectedToken) {
+    if (expectedToken && authHeader !== `Bearer ${expectedToken}` && token !== expectedToken) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
