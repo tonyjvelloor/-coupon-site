@@ -1,11 +1,17 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
-import { Plus, Search, Store as StoreIcon, ExternalLink } from "lucide-react";
+import { Plus, Search, Store as StoreIcon, ExternalLink, AlertTriangle } from "lucide-react";
+import { BulkGenerateDescriptionsButton } from "@/components/admin/BulkGenerateDescriptionsButton";
 
 export default async function StoresPage() {
-    const stores = await prisma.store.findMany({
-        orderBy: { name: "asc" },
-    });
+    const [stores, missingDescriptionCount] = await Promise.all([
+        prisma.store.findMany({
+            orderBy: { name: "asc" },
+        }),
+        prisma.store.count({
+            where: { isActive: true, OR: [{ description: null }, { description: "" }] }
+        })
+    ]);
 
     return (
         <div>
@@ -14,11 +20,33 @@ export default async function StoresPage() {
                     <h1 className="text-3xl font-bold text-gray-900">Stores</h1>
                     <p className="text-gray-600 mt-1">Manage your affiliate stores</p>
                 </div>
-                <Link href="/admin/stores/new" className="btn-primary flex items-center gap-2">
-                    <Plus className="w-5 h-5" />
-                    Add Store
-                </Link>
+                <div className="flex items-center gap-3">
+                    {missingDescriptionCount > 0 && (
+                        <BulkGenerateDescriptionsButton missingCount={missingDescriptionCount} />
+                    )}
+                    <Link href="/admin/stores/new" className="btn-primary flex items-center gap-2">
+                        <Plus className="w-5 h-5" />
+                        Add Store
+                    </Link>
+                </div>
             </div>
+
+            {missingDescriptionCount > 0 && (
+                <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                        <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />
+                        <div>
+                            <p className="text-sm font-semibold text-amber-900">
+                                {missingDescriptionCount.toLocaleString()} stores have no description
+                            </p>
+                            <p className="text-xs text-amber-700">
+                                Missing descriptions hurt SEO and prevent Google from indexing these pages properly.
+                            </p>
+                        </div>
+                    </div>
+                    <BulkGenerateDescriptionsButton missingCount={missingDescriptionCount} />
+                </div>
+            )}
 
             {/* Search */}
             <div className="mb-6">
