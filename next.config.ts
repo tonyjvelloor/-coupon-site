@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
     '/*': ['./prisma/dev.db'],
   },
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
