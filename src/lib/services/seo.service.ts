@@ -62,13 +62,20 @@ export class SeoService {
     async getPlatformSeoHealth() {
         const [
             totalStores,
+            qualifiedStores,
+            storesWithKnowledge,
             missingSeoMeta,
             missingLogos,
             missingCategories,
             inactiveStores,
-            orphanedStores
+            orphanedStores,
+            totalBanks,
+            activeBankOffers,
+            totalCoupons
         ] = await Promise.all([
             prisma.store.count(),
+            prisma.store.count({ where: { activeOfferCount: { gt: 0 } } }),
+            prisma.store.count({ where: { storeContents: { some: {} } } }),
             prisma.store.count({
                 where: { OR: [{ seoTitle: null }, { seoDescription: null }] }
             }),
@@ -82,11 +89,19 @@ export class SeoService {
                         { isFeatured: false } // Not featured on homepage
                     ]
                 }
-            })
+            }),
+            prisma.bank.count(),
+            prisma.bankOffer.count({ where: { isActive: true } }),
+            prisma.coupon.count({ where: { deletedAt: null } })
         ]);
 
         return {
             totalStores,
+            qualifiedStores,
+            storesWithKnowledge,
+            totalBanks,
+            activeBankOffers,
+            totalCoupons,
             issues: {
                 missingSeoMeta,
                 missingLogos,
