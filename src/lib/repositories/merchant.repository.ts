@@ -31,6 +31,7 @@ export class MerchantRepository {
       cashbackRate: store.cashbackRate,
       cashbackType: store.cashbackType,
       offerCount: store.offerCount,
+      activeOfferCount: store.activeOfferCount,
       isFeatured: store.isFeatured,
       healthScore: store.healthScore,
       contents: store.storeContents.map(c => ({
@@ -78,6 +79,7 @@ export class MerchantRepository {
       cashbackRate: store.cashbackRate,
       cashbackType: store.cashbackType,
       offerCount: store.offerCount,
+      activeOfferCount: store.activeOfferCount,
       isFeatured: store.isFeatured,
       healthScore: store.healthScore,
       contents: [],
@@ -111,6 +113,7 @@ export class MerchantRepository {
       cashbackRate: store.cashbackRate,
       cashbackType: store.cashbackType,
       offerCount: store.offerCount,
+      activeOfferCount: store.activeOfferCount,
       isFeatured: store.isFeatured,
       healthScore: store.healthScore,
       contents: [],

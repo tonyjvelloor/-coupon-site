@@ -33,12 +33,15 @@ export class MerchantService {
   }
 
   /**
-   * Retrieves all active store slugs for static generation.
+   * Retrieves top active store slugs for build-time static generation.
+   * Directly limits query in SQL to prevent transferring 1,500+ records during build.
    */
-  async getAllStoreSlugs(): Promise<{ slug: string }[]> {
+  async getAllStoreSlugs(limit: number = 50): Promise<{ slug: string }[]> {
     const stores = await prisma.store.findMany({
       where: { isActive: true },
-      select: { slug: true }
+      select: { slug: true },
+      take: limit,
+      orderBy: { activeOfferCount: 'desc' }
     });
     return stores;
   }

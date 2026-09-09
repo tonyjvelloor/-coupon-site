@@ -6,7 +6,7 @@ export interface PublishPolicy {
 }
 
 export const defaultPublishPolicy: PublishPolicy = {
-  qualityScore: 90,
+  qualityScore: 60,
   connectorTrust: 95,
   duplicateRisk: 'LOW',
   expiryRequired: false,

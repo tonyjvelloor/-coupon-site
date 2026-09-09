@@ -14,10 +14,11 @@ export class FreshnessRule implements QualityRule {
         if (expiry < now) return { freshness: 0 }; 
         
         const daysToExpiry = (expiry.getTime() - now.getTime()) / (1000 * 3600 * 24);
-        let freshness = 40;
+        let freshness = 50;
         if (daysToExpiry < 3) freshness = 100;
-        else if (daysToExpiry < 14) freshness = 80;
-        else if (daysToExpiry < 30) freshness = 60;
+        else if (daysToExpiry < 14) freshness = 90;
+        else if (daysToExpiry < 60) freshness = 80;
+        else if (daysToExpiry < 180) freshness = 70;
         
         return { freshness };
     }

@@ -28,6 +28,7 @@ export interface PublicMerchant {
   cashbackRate: string | null;
   cashbackType: string | null;
   offerCount: number;
+  activeOfferCount: number;
   isFeatured: boolean;
   contents: StoreContentDTO[];
   healthScore?: any;

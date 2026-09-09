@@ -78,12 +78,28 @@ export class CuelinksConnector implements AffiliateConnector {
             ? raw.categories[0].name 
             : undefined;
 
+        let destinationUrl = raw.url || raw.landing_page || "";
+        if (!destinationUrl && raw.tracking_url) {
+            try {
+                const parsed = new URL(raw.tracking_url);
+                const innerUrl = parsed.searchParams.get("url");
+                if (innerUrl) {
+                    destinationUrl = decodeURIComponent(innerUrl);
+                }
+            } catch {
+                // Fallback to tracking URL
+            }
+        }
+        if (!destinationUrl) {
+            destinationUrl = raw.tracking_url || "";
+        }
+
         return {
             merchantName: raw.campaign_name || "Unknown",
             title: raw.title,
             description: raw.description,
             code: raw.coupon_code || undefined,
-            destinationUrl: raw.tracking_url || "", 
+            destinationUrl, 
             affiliateUrl: raw.tracking_url || "",
             discountType,
             discountValue,

@@ -10,6 +10,7 @@ import { evaluateAutoPublish } from "./publish-policy";
 import { PublishService } from "./publish-service";
 import { EnrichmentHook } from "./types";
 import { DomainNormalizerHook } from "./hooks/domain-normalizer.hook";
+import { revalidatePath } from "next/cache";
 
 export class ImportPipeline {
   private validator = new OfferValidator();
@@ -77,6 +78,7 @@ export class ImportPipeline {
       }
 
       const seenOfferIds = new Set<string>();
+      const affectedStoreSlugs = new Set<string>();
 
       // 2. Fetch & Stream Raw Data
       for await (const pageOrRow of connector.fetch(undefined, since)) {
@@ -105,11 +107,15 @@ export class ImportPipeline {
             let validationResult = connector.validate(normalized);
             let validationErrors = validationResult.errors;
             
-            // 4.5 Merchant Resolution
+            // 4.5 Merchant Resolution (Strict 5-tier identity matching)
             let identityId: string | undefined = undefined;
             let suggestedIdentityId: string | null = null;
             
-            const resolution = await this.resolver.resolve(normalized.merchantName, normalized.storeUrl);
+            const resolution = await this.resolver.resolve(normalized.merchantName, {
+              connectorId: connector.id,
+              connectorMerchantId: normalized.provenance?.connectorMerchantId,
+              domainContext: normalized.destinationUrl || normalized.affiliateUrl,
+            });
             
             if (resolution.identityId) {
               identityId = resolution.identityId;
@@ -131,12 +137,27 @@ export class ImportPipeline {
                       }
                     });
                   }
-                } catch (e) {
+                } catch {
                   // Ignore unique constraint
                 }
               }
             } else if (resolution.suggestedIdentityId) {
               suggestedIdentityId = resolution.suggestedIdentityId;
+            } else if (normalized.merchantName && normalized.merchantName !== "Unknown") {
+              // Auto-provision a new store and canonical merchant identity for valid missing merchant
+              try {
+                identityId = await this.resolver.autoProvisionStore(
+                  normalized.merchantName,
+                  normalized.destinationUrl || normalized.affiliateUrl,
+                  {
+                    connectorId: connector.id,
+                    connectorMerchantId: normalized.provenance?.connectorMerchantId
+                  }
+                );
+                childLogger.info({ merchant: normalized.merchantName, identityId }, "Auto-provisioned store for missing merchant");
+              } catch (autoErr) {
+                childLogger.warn({ err: autoErr, merchant: normalized.merchantName }, "Failed to auto-provision store");
+              }
             }
             
             // Fetch the store for full pipeline validation
@@ -194,7 +215,7 @@ export class ImportPipeline {
                 suggestedStoreId: suggestedIdentityId,
                 resolutionReason: resolution.reason,
                 resolutionSource: resolution.resolutionSource,
-                resolutionConfidence: resolution.signals,
+                resolutionConfidence: resolution.signals as any,
                 
                 validationErrors: validationErrors as any,
                 status
@@ -210,11 +231,16 @@ export class ImportPipeline {
               );
 
               if (shouldAutoPublish) {
-                await this.publishService.publish(importedOffer.id, {
+                const pubResult = await this.publishService.publish(importedOffer.id, {
                   actorType: "SYSTEM",
                   merchantIdentityId: identityId
                 });
-                autoPublishedCount++;
+                if (pubResult.storeSlug) {
+                  affectedStoreSlugs.add(pubResult.storeSlug);
+                }
+                if (pubResult.isNewCoupon) {
+                  autoPublishedCount++;
+                }
               }
             }
 
@@ -271,6 +297,22 @@ export class ImportPipeline {
           avgQuality: avgQuality
         }
       });
+
+      // 11.5 Batch Edge ISR Revalidation (Limits revalidations to 1 per affected store)
+      if (affectedStoreSlugs.size > 0) {
+        for (const slug of affectedStoreSlugs) {
+          try {
+            revalidatePath(`/stores/${slug}`);
+          } catch {
+            // Safe outside Next.js request context
+          }
+        }
+        try {
+          revalidatePath('/stores');
+          revalidatePath('/');
+        } catch {}
+        childLogger.info({ revalidatedCount: affectedStoreSlugs.size }, "Batch store page revalidation completed");
+      }
 
       // 12. Notify
       await notificationEngine.notify({
