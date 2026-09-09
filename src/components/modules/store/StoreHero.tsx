@@ -88,7 +88,7 @@ export function StoreHero({ store, activeCoupons, bestDeal }: StoreHeroProps) {
                                     <span className="material-symbols-outlined text-[14px]">check_circle</span> Verified Merchant
                                 </span>
                                 <span className="bg-brand-indigo-light text-primary font-label-badge text-label-badge px-space-xs py-0.5 rounded-md flex items-center gap-1">
-                                    <span className="material-symbols-outlined text-[14px]">bolt</span> 99% Success
+                                    <span className="material-symbols-outlined text-[14px]">verified</span> Hand-Tested Offers
                                 </span>
                             </div>
                             <h1 className="font-headline-lg text-headline-lg text-on-surface font-extrabold tracking-tight">
