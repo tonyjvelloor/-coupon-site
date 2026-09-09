@@ -152,8 +152,8 @@ export class MerchantRepository {
       name: c.name,
       slug: c.slug,
       logo: c.logo,
-      savings: c.cashbackRate ? `${c.cashbackRate} Cashback` : 'Great Deals',
-      isBetter: Math.random() > 0.5 // Temporary mock for UI demo
+      savings: c.cashbackRate ? `${c.cashbackRate} Cashback` : 'Verified Offers',
+      isBetter: false
     }));
   }
   /**

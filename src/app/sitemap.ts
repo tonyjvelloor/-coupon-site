@@ -50,37 +50,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         },
     });
 
-    const storeRoutes: MetadataRoute.Sitemap = [];
-    
-    stores.forEach((store) => {
-        // Base store route
-        storeRoutes.push({
-            url: `${baseUrl}/stores/${store.slug}`,
-            lastModified: store.updatedAt,
-            changeFrequency: "daily" as const,
-            priority: 0.9,
-        });
+    const storeRoutes: MetadataRoute.Sitemap = stores.map((store) => ({
+        url: `${baseUrl}/stores/${store.slug}`,
+        lastModified: store.updatedAt,
+        changeFrequency: "daily" as const,
+        priority: 0.9,
+    }));
 
-        // Sub-routes based on available content
-        store.storeContents.forEach((content) => {
-            let path = "";
-            switch (content.type) {
-                case "SHIPPING": path = "/shipping"; break;
-                case "RETURNS": path = "/returns"; break;
-                case "STUDENT": path = "/student-discount"; break;
-                case "BUYING_GUIDE": path = "/buying-guide"; break;
-                case "FAQ": path = "/faq"; break;
-            }
-            if (path) {
-                storeRoutes.push({
-                    url: `${baseUrl}/stores/${store.slug}${path}`,
-                    lastModified: content.updatedAt,
-                    changeFrequency: "weekly" as const,
-                    priority: 0.7,
-                });
-            }
-        });
+    // 3. Dynamic Bank Routes (India Bank & Card SEO)
+    const banks = await prisma.bank.findMany({
+        where: { isActive: true },
+        select: {
+            slug: true,
+            updatedAt: true,
+            _count: { select: { bankOffers: { where: { isActive: true } } } },
+        },
     });
+
+    const bankRoutes: MetadataRoute.Sitemap = [
+        {
+            url: `${baseUrl}/banks`,
+            lastModified: new Date(),
+            changeFrequency: "daily" as const,
+            priority: 0.8,
+        },
+        ...banks
+            .filter((b) => b._count.bankOffers > 0)
+            .map((bank) => ({
+                url: `${baseUrl}/banks/${bank.slug}`,
+                lastModified: bank.updatedAt,
+                changeFrequency: "daily" as const,
+                priority: 0.8,
+            })),
+    ];
 
     // 3. Dynamic Category Routes (Programmatic SEO with Quality Gates)
     // Only index categories that have enough inventory to be valuable to users
@@ -190,5 +192,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         }
     }
 
-    return [...staticRoutes, ...storeRoutes, ...categoryRoutes, ...blogRoutes, ...collectionRoutes, ...compareRoutes];
+    return [...staticRoutes, ...storeRoutes, ...bankRoutes, ...categoryRoutes, ...blogRoutes, ...collectionRoutes, ...compareRoutes];
 }
