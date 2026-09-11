@@ -61,7 +61,7 @@ export function OfferFeed({ store, offers }: OfferFeedProps) {
     }, [offers, filter, sortBy]);
 
     return (
-        <section className="space-y-6">
+        <section id="offers" className="space-y-6 scroll-mt-28">
             {/* Header & Meta */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
@@ -163,25 +163,46 @@ export function OfferFeed({ store, offers }: OfferFeedProps) {
             {/* Offer Cards Grid */}
             {filteredOffers.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {filteredOffers.map((coupon, index) => {
-                        let badgeLabel = undefined;
-                        if (index === 0 && filter === 'all') badgeLabel = "Most Popular";
-                        else if (index === 1 && coupon.type === "coupon") badgeLabel = "Highest Savings";
+                    {(() => {
+                        let assignedMen = false;
+                        let assignedWomen = false;
+                        let assignedCodes = false;
 
-                        return (
-                            <div key={coupon.id}>
-                                <PremiumOfferCard
-                                    coupon={{
-                                        ...coupon,
-                                        affiliateUrl: coupon.affiliateUrl || `/go/${coupon.id}`,
-                                    }}
-                                    storeName={store.name}
-                                    storeLogo={store.logo}
-                                    badgeLabel={badgeLabel}
-                                />
-                            </div>
-                        );
-                    })}
+                        return filteredOffers.map((coupon, index) => {
+                            let badgeLabel = undefined;
+                            if (index === 0 && filter === 'all') badgeLabel = "Most Popular";
+                            else if (index === 1 && coupon.type === "coupon") badgeLabel = "Highest Savings";
+
+                            const titleLower = (coupon.title || "").toLowerCase();
+                            const urlLower = (coupon.affiliateUrl || "").toLowerCase();
+                            let anchorId: string | undefined = undefined;
+
+                            if (!assignedMen && (urlLower.includes("-men") || /\bmen\b|\bmen's\b/i.test(titleLower))) {
+                                anchorId = "men";
+                                assignedMen = true;
+                            } else if (!assignedWomen && (urlLower.includes("-women") || /\bwomen\b|\bwomen's\b/i.test(titleLower))) {
+                                anchorId = "women";
+                                assignedWomen = true;
+                            } else if (!assignedCodes && Boolean(coupon.code && coupon.code.trim().length > 0)) {
+                                anchorId = "promo-code";
+                                assignedCodes = true;
+                            }
+
+                            return (
+                                <div key={coupon.id} id={anchorId} className={anchorId ? "scroll-mt-28" : undefined}>
+                                    <PremiumOfferCard
+                                        coupon={{
+                                            ...coupon,
+                                            affiliateUrl: coupon.affiliateUrl || `/go/${coupon.id}`,
+                                        }}
+                                        storeName={store.name}
+                                        storeLogo={store.logo}
+                                        badgeLabel={badgeLabel}
+                                    />
+                                </div>
+                            );
+                        });
+                    })()}
                 </div>
             ) : (
                 <div className="text-center py-12 px-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">

@@ -117,7 +117,6 @@ export default async function StorePage({ params }: PageProps) {
     });
 
     const bestDeal = activeCoupons.length > 0 ? activeCoupons[0] : null;
-    const remainingOffers = activeCoupons.length > 1 ? activeCoupons.slice(1) : [];
     const hasStudent = store.contents.some(c => c.type === 'STUDENT');
 
     const lastCheckedText = activeCoupons.length > 0 
@@ -206,7 +205,7 @@ export default async function StorePage({ params }: PageProps) {
                 <SavingsStrategy store={store} bestDeal={bestDeal} />
 
                 {/* STAGE 3: Active Offers */}
-                <OfferFeed store={store} offers={remainingOffers} />
+                <OfferFeed store={store} offers={activeCoupons} />
                 
                 {/* STAGE 4: More Savings Available */}
                 <div className="space-y-12">
