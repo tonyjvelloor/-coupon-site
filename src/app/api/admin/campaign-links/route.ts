@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { cookies } from "next/headers";
+import { getSession } from "@/lib/auth";
 
 // GET - List all campaign links
 export async function GET() {
-    const cookieStore = await cookies();
-    const adminToken = cookieStore.get("admin_token");
+    const session = await getSession();
 
-    if (!adminToken) {
+    if (!session) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -26,10 +25,9 @@ export async function GET() {
 
 // POST - Create new campaign link
 export async function POST(request: NextRequest) {
-    const cookieStore = await cookies();
-    const adminToken = cookieStore.get("admin_token");
+    const session = await getSession();
 
-    if (!adminToken) {
+    if (!session) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -62,7 +60,7 @@ export async function POST(request: NextRequest) {
                 slug: data.slug.toLowerCase().replace(/[^a-z0-9-]/g, "-"),
                 destinationUrl: data.destinationUrl,
                 description: data.description || null,
-                merchantIdentityId: data.storeId || null,
+                storeId: data.storeId || null,
                 utmSource: data.utmSource || null,
                 utmMedium: data.utmMedium || null,
                 utmCampaign: data.utmCampaign || null,

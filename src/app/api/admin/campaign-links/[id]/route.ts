@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { cookies } from "next/headers";
+import { getSession } from "@/lib/auth";
 
 interface Props {
     params: Promise<{ id: string }>;
@@ -8,10 +8,9 @@ interface Props {
 
 // GET - Get single campaign link
 export async function GET(request: NextRequest, { params }: Props) {
-    const cookieStore = await cookies();
-    const adminToken = cookieStore.get("admin_token");
+    const session = await getSession();
 
-    if (!adminToken) {
+    if (!session) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -36,10 +35,9 @@ export async function GET(request: NextRequest, { params }: Props) {
 
 // PUT - Update campaign link
 export async function PUT(request: NextRequest, { params }: Props) {
-    const cookieStore = await cookies();
-    const adminToken = cookieStore.get("admin_token");
+    const session = await getSession();
 
-    if (!adminToken) {
+    if (!session) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -54,7 +52,7 @@ export async function PUT(request: NextRequest, { params }: Props) {
                 slug: data.slug?.toLowerCase().replace(/[^a-z0-9-]/g, "-"),
                 destinationUrl: data.destinationUrl,
                 description: data.description || null,
-                merchantIdentityId: data.storeId || null,
+                storeId: data.storeId || null,
                 utmSource: data.utmSource || null,
                 utmMedium: data.utmMedium || null,
                 utmCampaign: data.utmCampaign || null,
@@ -72,10 +70,9 @@ export async function PUT(request: NextRequest, { params }: Props) {
 
 // DELETE - Delete campaign link
 export async function DELETE(request: NextRequest, { params }: Props) {
-    const cookieStore = await cookies();
-    const adminToken = cookieStore.get("admin_token");
+    const session = await getSession();
 
-    if (!adminToken) {
+    if (!session) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -92,3 +89,4 @@ export async function DELETE(request: NextRequest, { params }: Props) {
         return NextResponse.json({ error: "Failed to delete link" }, { status: 500 });
     }
 }
+

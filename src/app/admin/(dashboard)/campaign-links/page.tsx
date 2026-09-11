@@ -14,6 +14,7 @@ import {
     AlertCircle
 } from "lucide-react";
 import CopyButton from "@/components/admin/CopyButton";
+import DeleteCampaignLinkButton from "@/components/admin/DeleteCampaignLinkButton";
 
 export const dynamic = "force-dynamic";
 
@@ -156,15 +157,7 @@ export default async function CampaignLinksPage() {
                                                     >
                                                         <Edit className="w-4 h-4 text-violet-600" />
                                                     </Link>
-                                                    <form action={`/api/admin/campaign-links/${link.id}`} method="DELETE">
-                                                        <button
-                                                            type="button"
-                                                            className="p-2 hover:bg-red-100 rounded-lg transition-colors"
-                                                            title="Delete"
-                                                        >
-                                                            <Trash2 className="w-4 h-4 text-red-500" />
-                                                        </button>
-                                                    </form>
+                                                    <DeleteCampaignLinkButton id={link.id} name={link.name} />
                                                 </div>
                                             </td>
                                         </tr>
