@@ -10,12 +10,20 @@ interface Props {
 
 export default async function CampaignRedirectPage({ params }: Props) {
     const { slug } = await params;
+    const cleanSlug = slug.trim();
 
-    // Find the campaign link
-    const campaignLink = await prisma.campaignLink.findUnique({
-        where: { slug },
+    // Find the campaign link (with fallback for leading hyphens like -off-duty-men)
+    let campaignLink = await prisma.campaignLink.findUnique({
+        where: { slug: cleanSlug },
         include: { store: true },
     });
+
+    if (!campaignLink && cleanSlug.startsWith("-")) {
+        campaignLink = await prisma.campaignLink.findUnique({
+            where: { slug: cleanSlug.replace(/^-+/, "") },
+            include: { store: true },
+        });
+    }
 
     // If not found or inactive, show 404
     if (!campaignLink || !campaignLink.isActive) {
@@ -34,7 +42,7 @@ export default async function CampaignRedirectPage({ params }: Props) {
     });
 
     // Build final URL with optional UTM parameters
-    let finalUrl = campaignLink.destinationUrl;
+    let finalUrl = campaignLink.destinationUrl.trim();
     const utmParams: string[] = [];
     if (campaignLink.utmSource) utmParams.push(`utm_source=${campaignLink.utmSource}`);
     if (campaignLink.utmMedium) utmParams.push(`utm_medium=${campaignLink.utmMedium}`);
@@ -151,10 +159,19 @@ export default async function CampaignRedirectPage({ params }: Props) {
 // Generate metadata for SEO
 export async function generateMetadata({ params }: Props) {
     const { slug } = await params;
-    const campaignLink = await prisma.campaignLink.findUnique({
-        where: { slug },
+    const cleanSlug = slug.trim();
+
+    let campaignLink = await prisma.campaignLink.findUnique({
+        where: { slug: cleanSlug },
         include: { store: true },
     });
+
+    if (!campaignLink && cleanSlug.startsWith("-")) {
+        campaignLink = await prisma.campaignLink.findUnique({
+            where: { slug: cleanSlug.replace(/^-+/, "") },
+            include: { store: true },
+        });
+    }
 
     if (!campaignLink) {
         return { title: "Offer Not Found | CouponHub" };
@@ -163,7 +180,6 @@ export async function generateMetadata({ params }: Props) {
     return {
         title: `${campaignLink.name} | CouponHub`,
         description: `Get the best deal on ${campaignLink.store?.name || "our partner store"}. Verified offer with exclusive savings.`,
-        // Not noindex - this is legitimate content now
         openGraph: {
             title: campaignLink.name,
             description: `Exclusive offer from ${campaignLink.store?.name || "partner store"}`,
