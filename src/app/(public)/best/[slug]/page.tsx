@@ -101,8 +101,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const isIndexable = activeStores >= 1 && activeOffers >= 1;
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
 
-    const ogTitle = `Best ${category.name} Coupons & Deals – ${activeOffers} Active Offers`;
-    const ogDescription = `Discover ${activeOffers} currently available ${category.name.toLowerCase()} coupons, promo codes and offers from stores tracked by CouponHub.`;
+    const monthYear = new Intl.DateTimeFormat('en-IN', { month: 'long', year: 'numeric' }).format(new Date());
+    const ogTitle = `Best ${category.name} Coupon Codes India: ${activeOffers} Verified Deals – ${monthYear}`;
+    const ogDescription = `Save with ${activeOffers} verified ${category.name.toLowerCase()} coupon codes and cashback offers for Indian shoppers in ${monthYear}. Hand-tested promo codes from ${activeStores}+ stores — updated daily by CouponHub.`;
     
     const ogImageUrl = `${siteUrl}/api/og?title=${encodeURIComponent(ogTitle)}&description=${encodeURIComponent(ogDescription)}&type=category`;
 

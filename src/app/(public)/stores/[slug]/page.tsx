@@ -51,9 +51,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     if (!store) return { title: "Store Not Found" };
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
-    const monthYear = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(new Date());
-    const ogTitle = store.seoTitle || `${store.name} Coupons, Promo Codes & Deals – ${monthYear}`;
-    const ogDescription = store.seoDescription || `Save with ${store.activeOfferCount || 'active'} verified ${store.name} coupons and promo codes for ${monthYear}. Discover the best discount codes, cashback offers, and deals updated daily by CouponHub.`;
+    const monthYear = new Intl.DateTimeFormat('en-IN', { month: 'long', year: 'numeric' }).format(new Date());
+    const offerLabel = store.activeOfferCount && store.activeOfferCount > 0 ? `${store.activeOfferCount} Verified Deals` : 'Verified Deals';
+    const ogTitle = store.seoTitle || `${store.name} Coupon Code: ${offerLabel} – ${monthYear} | CouponHub`;
+    const cashbackSnippet = store.cashbackRate ? `Earn ${store.cashbackRate} cashback + ` : '';
+    const ogDescription = store.seoDescription || `${cashbackSnippet}save with verified ${store.name} coupon codes and promo codes for ${monthYear}. Hand-tested discount codes updated daily by CouponHub.`;
+
 
     const ogImageUrl = `${siteUrl}/api/og?title=${encodeURIComponent(ogTitle)}&description=${encodeURIComponent(ogDescription)}&type=store${store.logo ? `&logo=${encodeURIComponent(store.logo)}` : ''}`;
 

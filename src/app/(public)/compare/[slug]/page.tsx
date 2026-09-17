@@ -4,26 +4,62 @@ import Link from "next/link";
 import { ArrowLeft, CheckCircle2, ShieldAlert, Star, TrendingUp, HelpCircle, Package, Truck, Wallet, Shield } from "lucide-react";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { Button } from "@/components/ui/Button";
+import { Metadata } from "next";
 
-export const revalidate = 3600;
+// Pre-render the highest-value comparison pairs so Google can index them immediately
+const HIGH_VALUE_PAIRS = [
+  "amazon-vs-flipkart",
+  "myntra-vs-ajio",
+  "zomato-vs-swiggy",
+  "nykaa-beauty-vs-myntra",
+  "croma-retail-vs-reliance-digital",
+  "decathlon-vs-puma",
+  "healthkart-vs-wellbeing-nutrition",
+  "boat-vs-mivi",
+  "campus-shoes-vs-neemans",
+  "tata-cliq-vs-myntra",
+  "jockey-vs-the-man-company",
+  "bella-vita-vs-plum-goodness",
+];
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export const revalidate = 86400; // 24h — compare pages are stable
+
+export async function generateStaticParams() {
+  return HIGH_VALUE_PAIRS.map((slug) => ({ slug }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   if (!slug.includes("-vs-")) return { title: "Compare | CouponHub" };
 
   const [slug1, slug2] = slug.split("-vs-");
-  const store1 = await prisma.store.findUnique({ where: { slug: slug1 } });
-  const store2 = await prisma.store.findUnique({ where: { slug: slug2 } });
+  const [store1, store2] = await Promise.all([
+    prisma.store.findUnique({ where: { slug: slug1 }, select: { name: true, cashbackRate: true, activeOfferCount: true } }),
+    prisma.store.findUnique({ where: { slug: slug2 }, select: { name: true, cashbackRate: true, activeOfferCount: true } }),
+  ]);
 
   if (!store1 || !store2) return { title: "Compare | CouponHub" };
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
+  const title = `${store1.name} vs ${store2.name}: Coupons, Cashback & Offers Compared | CouponHub`;
+  const description = `${store1.name} offers ${store1.cashbackRate || "deals"} cashback (${store1.activeOfferCount} live offers) vs ${store2.name} with ${store2.cashbackRate || "deals"} cashback (${store2.activeOfferCount} live offers). Compare shipping, returns, and best discounts side-by-side.`;
+
   return {
-    title: `${store1.name} vs ${store2.name}: Which is better? | CouponHub`,
-    description: `Compare ${store1.name} and ${store2.name} offers, cashback, shipping policies, returns, and student discounts side-by-side.`,
+    title,
+    description,
+    alternates: { canonical: `${siteUrl}/compare/${slug}` },
+    openGraph: {
+      title,
+      description,
+      url: `${siteUrl}/compare/${slug}`,
+      siteName: "CouponHub",
+      type: "website",
+    },
   };
 }
 
-export default async function ComparePage({ params }: { params: { slug: string } }) {
+
+export default async function ComparePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   
   if (!slug.includes("-vs-")) {
