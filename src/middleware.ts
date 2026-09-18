@@ -55,6 +55,6 @@ export function middleware(request: NextRequest) {
 export const config = {
     // Apply middleware to pages, exclude api/static files
     matcher: [
-        '/((?!api|_next/static|_next/image|favicon.ico|images|.*\\.png|.*\\.jpg|.*\\.svg).*)',
+        '/((?!api|_next/static|_next/image|favicon.ico|images|.*\\.png|.*\\.jpg|.*\\.svg|.*\\.txt).*)',
     ],
 };
