@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
-const INDEXNOW_KEY = process.env.INDEXNOW_KEY;
+const INDEXNOW_KEY = process.env.INDEXNOW_KEY || "6d4c97b00f904f008ab1f87f8990aadc";
+
 
 const INDEXNOW_ENDPOINTS = [
   "https://api.indexnow.org/indexnow",
