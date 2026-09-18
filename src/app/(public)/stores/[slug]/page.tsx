@@ -225,7 +225,7 @@ export default async function StorePage({ params }: PageProps) {
                 </div>
 
                 {/* STAGE 7: Discovery */}
-                <DiscoveryRail competitors={competitors} />
+                <DiscoveryRail competitors={competitors} currentStoreSlug={store.slug} />
                 
             </div>
             

@@ -30,6 +30,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             changeFrequency: "weekly" as const,
             priority: 0.5,
         },
+        {
+            url: `${baseUrl}/blog`,
+            lastModified: new Date(),
+            changeFrequency: "daily" as const,
+            priority: 0.8,
+        },
+        {
+            url: `${baseUrl}/compare`,
+            lastModified: new Date(),
+            changeFrequency: "weekly" as const,
+            priority: 0.7,
+        },
     ];
 
     // 2. Dynamic Store Routes
@@ -192,5 +204,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         }
     }
 
-    return [...staticRoutes, ...storeRoutes, ...bankRoutes, ...categoryRoutes, ...blogRoutes, ...collectionRoutes, ...compareRoutes];
+    // 7. Dynamic Sale Event Routes (Diwali, Prime Day, etc.)
+    const saleEvents = await prisma.saleEvent.findMany({
+        where: { isActive: true },
+        select: { slug: true, updatedAt: true },
+    });
+
+    const eventRoutes = saleEvents.map((evt) => ({
+        url: `${baseUrl}/events/${evt.slug}`,
+        lastModified: evt.updatedAt,
+        changeFrequency: "daily" as const,
+        priority: 0.85,
+    }));
+
+    return [...staticRoutes, ...storeRoutes, ...bankRoutes, ...categoryRoutes, ...blogRoutes, ...collectionRoutes, ...compareRoutes, ...eventRoutes];
 }

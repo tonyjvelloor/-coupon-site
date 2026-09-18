@@ -124,19 +124,24 @@ export class MerchantRepository {
   /**
    * Retrieves competitors for a given store based on shared categories.
    */
-  async getCompetitors(storeId: string, categoryIds: string[], limit: number = 3) {
+  async getCompetitors(storeId: string, categoryIds: string[], limit: number = 6) {
     if (categoryIds.length === 0) return [];
     
     const competitors = await prisma.store.findMany({
       where: {
         id: { not: storeId },
         isActive: true,
+        activeOfferCount: { gt: 0 },
         storeCategories: {
           some: {
             categoryId: { in: categoryIds }
           }
         }
       },
+      // Sort by most active (offers) then cashback to surface highest-value stores
+      orderBy: [
+        { activeOfferCount: 'desc' },
+      ],
       take: limit,
       select: {
         id: true,
@@ -144,6 +149,7 @@ export class MerchantRepository {
         slug: true,
         logo: true,
         cashbackRate: true,
+        activeOfferCount: true,
       }
     });
 
@@ -152,10 +158,11 @@ export class MerchantRepository {
       name: c.name,
       slug: c.slug,
       logo: c.logo,
-      savings: c.cashbackRate ? `${c.cashbackRate} Cashback` : 'Verified Offers',
+      savings: c.cashbackRate ? `${c.cashbackRate} Cashback` : `${c.activeOfferCount} Offers`,
       isBetter: false
     }));
   }
+
   /**
    * Retrieves bank offers for a given store.
    */

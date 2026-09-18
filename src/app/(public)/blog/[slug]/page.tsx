@@ -10,9 +10,9 @@ import NewsletterSignup from "@/components/ui/NewsletterSignup";
 import { AdBannerInArticle, AdBannerSidebar } from "@/components/ui/AdBanner";
 
 interface BlogPostPageProps {
-    params: {
+    params: Promise<{
         slug: string;
-    };
+    }>;
 }
 
 export const revalidate = 86400; // 24 hours ISR
@@ -34,8 +34,9 @@ export async function generateStaticParams() {
 
 // SEO Metadata
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
+    const { slug } = await params;
     const post = await prisma.blogPost.findUnique({
-        where: { slug: params.slug },
+        where: { slug },
         include: { author: { select: { name: true } } }
     });
 
@@ -142,8 +143,9 @@ function SimpleMarkdown({ content }: { content: string }) {
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
+    const { slug } = await params;
     const post = await prisma.blogPost.findUnique({
-        where: { slug: params.slug },
+        where: { slug },
         include: {
             author: { select: { name: true, profileImage: true, bio: true } },
         },
