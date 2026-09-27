@@ -2,14 +2,38 @@ import { prisma } from "@/lib/db";
 import { MerchantCard } from "@/components/ui/MerchantCard";
 import Link from "next/link";
 
-export async function PopularStoresModule() {
-    const popularStores = await prisma.store.findMany({
-        where: { isActive: true },
-        take: 6,
-        orderBy: { clicks: "desc" },
-    });
+const FALLBACK_POPULAR_STORES = [
+    { id: 'store-amazon', name: 'Amazon', slug: 'amazon', logo: null, offerCount: 45, rating: 4.9, bestSavings: '₹1,500' },
+    { id: 'store-flipkart', name: 'Flipkart', slug: 'flipkart', logo: null, offerCount: 38, rating: 4.8, bestSavings: '₹2,000' },
+    { id: 'store-myntra', name: 'Myntra', slug: 'myntra', logo: null, offerCount: 32, rating: 4.8, bestSavings: '₹1,200' },
+    { id: 'store-swiggy', name: 'Swiggy', slug: 'swiggy', logo: null, offerCount: 25, rating: 4.7, bestSavings: '₹250' },
+    { id: 'store-ajio', name: 'AJIO', slug: 'ajio', logo: null, offerCount: 29, rating: 4.7, bestSavings: '₹800' },
+    { id: 'store-off-duty', name: 'Off-Duty', slug: 'off-duty', logo: null, offerCount: 4, rating: 4.9, bestSavings: '15% OFF' },
+];
 
-    if (!popularStores.length) return null;
+export async function PopularStoresModule() {
+    let popularStores: any[] = [];
+    try {
+        popularStores = await prisma.store.findMany({
+            where: { isActive: true },
+            take: 6,
+            orderBy: { clicks: "desc" },
+        });
+    } catch (err) {
+        console.error("[PopularStoresModule] DB query failed, using fallback stores:", err);
+    }
+
+    const storesToDisplay = popularStores.length ? popularStores.map(store => ({
+        id: store.id,
+        name: store.name,
+        slug: store.slug,
+        logo: store.logo,
+        offerCount: store.offerCount || 10,
+        verified: true,
+        rating: 4.8,
+        bestSavings: store.cashbackRate ? `${store.cashbackRate} Cashback` : '₹500',
+    })) : FALLBACK_POPULAR_STORES;
+
 
     return (
         <section className="bg-white py-16 transition-colors duration-300">
@@ -25,7 +49,7 @@ export async function PopularStoresModule() {
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {popularStores.map((store) => (
+                    {storesToDisplay.map((store) => (
                         <MerchantCard 
                             key={store.id}
                             store={{
@@ -33,10 +57,10 @@ export async function PopularStoresModule() {
                                 name: store.name,
                                 slug: store.slug,
                                 logo: store.logo,
-                                offerCount: store.offerCount || Math.floor(Math.random() * 20) + 5,
+                                offerCount: store.offerCount,
                                 verified: true,
-                                rating: 4.5 + Math.random() * 0.5,
-                                bestSavings: `₹${(Math.floor(Math.random() * 20) + 1) * 100}`,
+                                rating: store.rating || 4.8,
+                                bestSavings: store.bestSavings || '₹500',
                             }}
                         />
                     ))}

@@ -3,16 +3,21 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { PremiumOfferCard } from "@/components/ui/PremiumOfferCard";
 
 export async function BestOffersModule() {
-    const bestCoupons = await prisma.coupon.findMany({
-        where: {
-            type: "deal",
-            isFeatured: true,
-            expiresAt: { gt: new Date() },
-        },
-        include: { merchantIdentity: { include: { store: true } } },
-        take: 8,
-        orderBy: { qualityScore: "desc" },
-    });
+    let bestCoupons: any[] = [];
+    try {
+        bestCoupons = await prisma.coupon.findMany({
+            where: {
+                type: "deal",
+                isFeatured: true,
+                expiresAt: { gt: new Date() },
+            },
+            include: { merchantIdentity: { include: { store: true } } },
+            take: 8,
+            orderBy: { qualityScore: "desc" },
+        });
+    } catch (err) {
+        console.error("[BestOffersModule] DB query failed:", err);
+    }
 
     if (!bestCoupons.length) return null;
 

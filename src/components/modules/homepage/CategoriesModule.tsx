@@ -15,14 +15,31 @@ const getIconForCategory = (slug: string) => {
     }
 };
 
-export async function CategoriesModule() {
-    const categories = await prisma.category.findMany({
-        where: { isActive: true },
-        take: 8,
-        orderBy: { displayOrder: "asc" },
-    });
+const FALLBACK_CATEGORIES = [
+    { id: 'cat-fashion', name: 'Fashion', slug: 'fashion' },
+    { id: 'cat-electronics', name: 'Electronics', slug: 'electronics' },
+    { id: 'cat-travel', name: 'Travel', slug: 'travel' },
+    { id: 'cat-food', name: 'Food & Dining', slug: 'food-dining' },
+    { id: 'cat-beauty', name: 'Health & Beauty', slug: 'health-beauty' },
+    { id: 'cat-home', name: 'Home & Kitchen', slug: 'home-kitchen' },
+    { id: 'cat-sports', name: 'Sports', slug: 'sports' },
+    { id: 'cat-entertainment', name: 'Entertainment', slug: 'entertainment' },
+];
 
-    if (!categories.length) return null;
+export async function CategoriesModule() {
+    let categories: any[] = [];
+    try {
+        categories = await prisma.category.findMany({
+            where: { isActive: true },
+            take: 8,
+            orderBy: { displayOrder: "asc" },
+        });
+    } catch (err) {
+        console.error("[CategoriesModule] DB query failed, using fallback:", err);
+        categories = FALLBACK_CATEGORIES;
+    }
+
+    if (!categories.length) categories = FALLBACK_CATEGORIES;
 
     return (
         <section className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-20 transition-colors duration-300">
