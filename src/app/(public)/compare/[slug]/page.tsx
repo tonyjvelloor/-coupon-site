@@ -110,6 +110,7 @@ export default async function ComparePage({ params }: { params: Promise<{ slug: 
 
   const store1Score = getEvidenceScore(store1);
   const store2Score = getEvidenceScore(store2);
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
@@ -247,6 +248,69 @@ export default async function ComparePage({ params }: { params: Promise<{ slug: 
         </p>
       </div>
 
+      {/* Structured Data: Comparison Breadcrumbs & FAQ */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              {
+                "@type": "ListItem",
+                position: 1,
+                name: "Home",
+                item: siteUrl,
+              },
+              {
+                "@type": "ListItem",
+                position: 2,
+                name: "Knowledge",
+                item: `${siteUrl}/knowledge`,
+              },
+              {
+                "@type": "ListItem",
+                position: 3,
+                name: "Compare",
+                item: `${siteUrl}/compare`,
+              },
+              {
+                "@type": "ListItem",
+                position: 4,
+                name: `${store1.name} vs ${store2.name}`,
+                item: `${siteUrl}/compare/${slug}`,
+              },
+            ],
+          }),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: [
+              {
+                "@type": "Question",
+                name: `Which is better, ${store1.name} or ${store2.name}?`,
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: `${store1.name} has ${store1.activeOfferCount || 0} active offers and verified deals, while ${store2.name} has ${store2.activeOfferCount || 0} active offers. Both platforms have verified shipping, return policies, and promo codes tracked on CouponHub.`,
+                },
+              },
+              {
+                "@type": "Question",
+                name: `Does ${store1.name} or ${store2.name} offer better cashback in India?`,
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: `${store1.name} offers ${store1.cashbackRate || "exclusive deals"} on CouponHub, whereas ${store2.name} offers ${store2.cashbackRate || "exclusive deals"}. Users can also combine bank cards for instant discounts.`,
+                },
+              },
+            ],
+          }),
+        }}
+      />
     </div>
   );
 }

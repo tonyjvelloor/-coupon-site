@@ -24,6 +24,20 @@ export async function GET() {
         take: 30,
     });
 
+    const [events, blogPosts] = await Promise.all([
+        prisma.saleEvent.findMany({
+            where: { isActive: true },
+            select: { title: true, slug: true },
+            orderBy: { date: "asc" },
+        }),
+        prisma.blogPost.findMany({
+            where: { isPublished: true },
+            select: { title: true, slug: true },
+            orderBy: { publishedAt: "desc" },
+            take: 10,
+        }),
+    ]);
+
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
 
     const content = `# CouponHub India - Commerce Intelligence & Verified Deals
@@ -48,6 +62,9 @@ All coupon codes and offers on CouponHub undergo daily automated and manual huma
 - **Store Directory**: [${siteUrl}/stores](${siteUrl}/stores) - Complete A-Z index of all partner stores.
 - **Store Offer Pages**: \`${siteUrl}/stores/[slug]\` - Live coupons, bank offers, return/shipping policies, and how-to-apply guides.
 - **Category Clusters**: \`${siteUrl}/best/[category-slug]-coupons\` - Aggregated deals for specific categories.
+- **Comparison Engine**: \`${siteUrl}/compare/[store1]-vs-[store2]\` - Side-by-side merchant policy, cashback, and offer comparison.
+- **Festive Sales**: \`${siteUrl}/events/[event-slug]\` - Real-time sale event discounts and coupons.
+- **Editorial Guides**: \`${siteUrl}/blog/[slug]\` - In-depth savings and discount stacking guides.
 - **Sitemap**: [${siteUrl}/sitemap.xml](${siteUrl}/sitemap.xml) - Complete XML index for search engines and crawlers.
 
 ## 4. Top Indian Stores Directory
@@ -55,6 +72,12 @@ ${topStores.map(store => `- [${store.name} Coupons & Deals](${siteUrl}/stores/${
 
 ## 5. Major Category Clusters
 ${categories.map(category => `- [Best ${category.name} Coupons in India](${siteUrl}/best/${category.slug}-coupons)`).join("\n")}
+
+## 6. Major Festive Sales & Events
+${events.map(event => `- [${event.title}](${siteUrl}/events/${event.slug})`).join("\n")}
+
+## 7. Editorial Guides & Discount Playbooks
+${blogPosts.map(post => `- [${post.title}](${siteUrl}/blog/${post.slug})`).join("\n")}
 `;
 
     return new NextResponse(content, {

@@ -31,17 +31,34 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     if (!event) return { title: "Event Not Found" };
 
-    const ogTitle = event.seoTitle || `${event.title} Offers & Coupons | CouponHub`;
-    const ogDescription = event.description || `Find the best deals and biggest price drops for ${event.title}.`;
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
+    const ogTitle = event.seoTitle || `${event.title} Offers, Deals & Promo Codes | CouponHub`;
+    const ogDescription = event.description || `Find the best verified deals, promo codes, and biggest price drops for ${event.title}. Updated daily.`;
 
     return {
         title: ogTitle,
         description: ogDescription,
+        alternates: {
+            canonical: `${siteUrl}/events/${slug}`,
+        },
+        openGraph: {
+            title: ogTitle,
+            description: ogDescription,
+            url: `${siteUrl}/events/${slug}`,
+            siteName: "CouponHub",
+            type: "website",
+        },
+        twitter: {
+            card: "summary_large_image",
+            title: ogTitle,
+            description: ogDescription,
+        },
     };
 }
 
 export default async function EventPage({ params }: PageProps) {
     const { slug } = await params;
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
 
     const event = await prisma.saleEvent.findUnique({
         where: { slug, isActive: true },
@@ -108,7 +125,7 @@ export default async function EventPage({ params }: PageProps) {
                     {event.store && (
                         <div className="flex items-center justify-center gap-2">
                             <span className="text-slate-400">Exclusive event by:</span>
-                            <Link href={`/store/${event.store.slug}`} className="text-white font-bold underline decoration-orange-500 underline-offset-4">
+                            <Link href={`/stores/${event.store.slug}`} className="text-white font-bold underline decoration-orange-500 underline-offset-4">
                                 {event.store.name}
                             </Link>
                         </div>
@@ -157,6 +174,72 @@ export default async function EventPage({ params }: PageProps) {
                     )}
                 </section>
             </div>
+
+            {/* Structured Data: Event and Breadcrumbs */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "Event",
+                        name: event.title,
+                        description: event.description || event.subtitle || `${event.title} deals and discounts in India.`,
+                        startDate: event.date.toISOString(),
+                        eventStatus: "https://schema.org/EventScheduled",
+                        eventAttendanceMode: "https://schema.org/OnlineEventAttendanceMode",
+                        location: {
+                            "@type": "VirtualLocation",
+                            url: `${siteUrl}/events/${event.slug}`,
+                        },
+                        organizer: event.store ? {
+                            "@type": "Organization",
+                            name: event.store.name,
+                            url: `${siteUrl}/stores/${event.store.slug}`,
+                        } : {
+                            "@type": "Organization",
+                            name: "CouponHub India",
+                            url: siteUrl,
+                        },
+                        offers: deals.slice(0, 10).map((deal) => ({
+                            "@type": "Offer",
+                            name: deal.title,
+                            description: deal.description || deal.title,
+                            price: "0",
+                            priceCurrency: "INR",
+                            url: `${siteUrl}/events/${event.slug}`,
+                        })),
+                    }),
+                }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "BreadcrumbList",
+                        itemListElement: [
+                            {
+                                "@type": "ListItem",
+                                position: 1,
+                                name: "Home",
+                                item: siteUrl,
+                            },
+                            {
+                                "@type": "ListItem",
+                                position: 2,
+                                name: "Events",
+                                item: `${siteUrl}/events`,
+                            },
+                            {
+                                "@type": "ListItem",
+                                position: 3,
+                                name: event.title,
+                                item: `${siteUrl}/events/${event.slug}`,
+                            },
+                        ],
+                    }),
+                }}
+            />
         </div>
     );
 }
