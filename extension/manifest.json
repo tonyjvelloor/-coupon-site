@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "CouponHub - Auto Apply Coupons",
+  "version": "1.0.0",
+  "description": "Automatically find and apply the best coupon codes and cashback offers at checkout.",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "CouponHub"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "css": ["content/content.css"],
+      "js": ["content/content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

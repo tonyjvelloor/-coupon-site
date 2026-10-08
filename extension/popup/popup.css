@@ -1,0 +1,108 @@
+body {
+  width: 320px;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: #f9fafb;
+  color: #111827;
+}
+
+.header {
+  background: #4f46e5;
+  color: white;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: -0.5px;
+}
+
+.status {
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(255,255,255,0.2);
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+.content {
+  padding: 16px;
+  min-height: 200px;
+}
+
+.merchant-info {
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.merchant-name {
+  font-size: 20px;
+  font-weight: 800;
+  margin: 0 0 4px 0;
+}
+
+.merchant-cashback {
+  color: #10b981;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.deal-card {
+  background: white;
+  border: 1px dashed #d1d5db;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.deal-title {
+  font-size: 13px;
+  font-weight: 600;
+  flex: 1;
+}
+
+.deal-btn {
+  background: #111827;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.deal-btn:hover {
+  background: #4f46e5;
+}
+
+.no-deals {
+  text-align: center;
+  color: #6b7280;
+  padding: 32px 0;
+}
+
+.footer {
+  background: #f3f4f6;
+  padding: 12px;
+  text-align: center;
+  border-top: 1px solid #e5e7eb;
+}
+
+.footer a {
+  color: #4f46e5;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+}
