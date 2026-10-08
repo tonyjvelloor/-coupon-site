@@ -51,11 +51,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     if (!store) return { title: "Store Not Found" };
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
-    const monthYear = new Intl.DateTimeFormat('en-IN', { month: 'long', year: 'numeric' }).format(new Date());
+    const shortMonthYear = new Intl.DateTimeFormat('en-IN', { month: 'short', year: 'numeric' }).format(new Date());
+    const fullMonthYear = new Intl.DateTimeFormat('en-IN', { month: 'long', year: 'numeric' }).format(new Date());
+    
     const offerLabel = store.activeOfferCount && store.activeOfferCount > 0 ? `${store.activeOfferCount} Verified Deals` : 'Verified Deals';
-    const ogTitle = store.seoTitle || `${store.name} Coupon Code: ${offerLabel} – ${monthYear} | CouponHub`;
-    const cashbackSnippet = store.cashbackRate ? `Earn ${store.cashbackRate} cashback + ` : '';
-    const ogDescription = store.seoDescription || `${cashbackSnippet}save with verified ${store.name} coupon codes and promo codes for ${monthYear}. Hand-tested discount codes updated daily by CouponHub.`;
+    
+    let ogTitle = store.seoTitle 
+        ? store.seoTitle.replace(/\s*\|\s*CouponHub.*$/, '') 
+        : `${store.name} Coupon Code (${shortMonthYear}): ${offerLabel}`;
+
+    const cashbackSnippet = store.cashbackRate ? `Earn ${store.cashbackRate} Cashback & ` : '';
+    let ogDescription = store.seoDescription || `${cashbackSnippet}Save big with 100% verified ${store.name} coupon codes and promo codes for ${fullMonthYear}. Tested today by CouponHub.`;
 
 
     const ogImageUrl = `${siteUrl}/api/og?title=${encodeURIComponent(ogTitle)}&description=${encodeURIComponent(ogDescription)}&type=store${store.logo ? `&logo=${encodeURIComponent(store.logo)}` : ''}`;

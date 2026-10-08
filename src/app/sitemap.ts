@@ -62,12 +62,36 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         },
     });
 
-    const storeRoutes: MetadataRoute.Sitemap = stores.map((store) => ({
-        url: `${baseUrl}/stores/${store.slug}`,
-        lastModified: store.updatedAt,
-        changeFrequency: "daily" as const,
-        priority: 0.9,
-    }));
+    const storeRoutes: MetadataRoute.Sitemap = [];
+    
+    stores.forEach((store) => {
+        // Root store page
+        storeRoutes.push({
+            url: `${baseUrl}/stores/${store.slug}`,
+            lastModified: store.updatedAt,
+            changeFrequency: "daily" as const,
+            priority: 0.9,
+        });
+
+        // Dynamic Sub-pages (Only index if content exists to prevent thin content penalties)
+        const hasContent = (type: string) => store.storeContents.some(c => c.type === type);
+        
+        if (hasContent('BUYING_GUIDE')) {
+            storeRoutes.push({ url: `${baseUrl}/stores/${store.slug}/buying-guide`, lastModified: store.updatedAt, changeFrequency: "weekly", priority: 0.6 });
+        }
+        if (hasContent('FAQ')) {
+            storeRoutes.push({ url: `${baseUrl}/stores/${store.slug}/faq`, lastModified: store.updatedAt, changeFrequency: "weekly", priority: 0.6 });
+        }
+        if (hasContent('RETURNS')) {
+            storeRoutes.push({ url: `${baseUrl}/stores/${store.slug}/returns`, lastModified: store.updatedAt, changeFrequency: "weekly", priority: 0.5 });
+        }
+        if (hasContent('SHIPPING')) {
+            storeRoutes.push({ url: `${baseUrl}/stores/${store.slug}/shipping`, lastModified: store.updatedAt, changeFrequency: "weekly", priority: 0.5 });
+        }
+        if (hasContent('STUDENT')) {
+            storeRoutes.push({ url: `${baseUrl}/stores/${store.slug}/student-discount`, lastModified: store.updatedAt, changeFrequency: "monthly", priority: 0.7 });
+        }
+    });
 
     // 3. Dynamic Bank Routes (India Bank & Card SEO)
     const banks = await prisma.bank.findMany({
@@ -95,6 +119,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                 priority: 0.8,
             })),
     ];
+    
+    // 3.5 Dynamic Bank x Store Routes
+    const bankOffers = await prisma.bankOffer.findMany({
+        where: { isActive: true, storeId: { not: null } },
+        include: { bank: true, store: true }
+    });
+
+    bankOffers.forEach((offer) => {
+        if (offer.store) {
+            bankRoutes.push({
+                url: `${baseUrl}/banks/${offer.bank.slug}/${offer.store.slug}`,
+                lastModified: offer.updatedAt,
+                changeFrequency: "weekly",
+                priority: 0.7,
+            });
+        }
+    });
 
     // 3. Dynamic Category Routes (Programmatic SEO with Quality Gates)
     // Only index categories that have enough inventory to be valuable to users
