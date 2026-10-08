@@ -1105,3 +1105,4 @@ model ShoppingTip {
   @@index([isActive])
   @@index([category])
 }
+

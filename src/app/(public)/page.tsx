@@ -13,6 +13,7 @@ const UpcomingSalesModule = dynamic(() => import("@/components/modules/homepage/
 const ShoppingTipsModule = dynamic(() => import("@/components/modules/homepage/ShoppingTipsModule").then(mod => mod.ShoppingTipsModule), { ssr: true });
 const RecentlyUpdatedModule = dynamic(() => import("@/components/modules/homepage/RecentlyUpdatedModule").then(mod => mod.RecentlyUpdatedModule), { ssr: true });
 const CategoriesModule = dynamic(() => import("@/components/modules/homepage/CategoriesModule").then(mod => mod.CategoriesModule), { ssr: true });
+const NewsletterModule = dynamic(() => import("@/components/modules/homepage/NewsletterModule").then(mod => mod.NewsletterModule), { ssr: true });
 
 export const revalidate = 3600; // Enable edge caching to save DB compute
 
@@ -67,6 +68,8 @@ export default async function Home() {
                 {/* 5. Today's Biggest Savings */}
                 <BestOffersModule />
 
+                {/* 6. Newsletter Capture Engine */}
+                <NewsletterModule />
             </div>
         </div>
     );
