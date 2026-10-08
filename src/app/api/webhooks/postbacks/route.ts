@@ -46,24 +46,35 @@ export async function GET(request: Request) {
     });
 
     // 2. Try to attribute revenue to a specific Store/Coupon if we have a clickId
-    // In a real system, you would look up the ClickEvent by clickId and update the related Store
     if (clickId && !postback.processed && commissionAmount > 0) {
-      // Placeholder: If clickId is structured like "storeId_couponId_userId"
-      const [storeId] = clickId.split('_');
+      // Look up the exact outbound click using the subid
+      const outbound = await prisma.outboundEvent.findUnique({
+        where: { subid: clickId }
+      });
       
-      if (storeId) {
-        // Increment the store's revenue intrinsically
+      if (outbound && outbound.merchantId) {
+        const storeId = outbound.merchantId;
+        
+        // Increment the store's revenue
         await prisma.store.update({
           where: { id: storeId },
           data: { revenue: { increment: commissionAmount } }
         });
+        
+        // If a specific coupon was used, increment its revenue too
+        if (outbound.couponId) {
+            await prisma.coupon.update({
+                where: { id: outbound.couponId },
+                data: { revenue: { increment: commissionAmount } }
+            });
+        }
         
         await prisma.affiliatePostback.update({
           where: { id: postback.id },
           data: { processed: true, status: 'APPROVED' }
         });
         
-        log.info({ storeId, commissionAmount }, 'Attributed revenue to store');
+        log.info({ storeId, couponId: outbound.couponId, commissionAmount }, 'Attributed revenue to store/coupon');
       }
     }
 

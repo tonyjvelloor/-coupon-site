@@ -22,8 +22,14 @@ const footerLinks = {
         { name: "How It Works", href: "/how-it-works" },
         { name: "Contact Us", href: "/contact" },
         { name: "Privacy Policy", href: "/privacy" },
-        { name: "Terms & Conditions", href: "/terms" },
     ],
+    popular: [
+        { name: "HDFC Credit Card Offers", href: "/banks/hdfc-bank" },
+        { name: "SBI Card Discounts", href: "/banks/sbi-card" },
+        { name: "First Order Coupons", href: "/offers/new-user-coupons" },
+        { name: "Free Shipping Codes", href: "/offers/free-shipping-codes" },
+        { name: "Buy 1 Get 1 Free", href: "/offers/bogo-deals" },
+    ]
 };
 
 export default function Footer() {
@@ -33,7 +39,7 @@ export default function Footer() {
         <>
             <NewsletterSignup />
             <footer className="bg-inverse-surface text-inverse-on-surface py-16 mt-20 transition-colors duration-300">
-                <div className="px-margin-mobile md:px-margin-desktop grid grid-cols-1 md:grid-cols-4 gap-12 max-w-container-max mx-auto">
+                <div className="px-margin-mobile md:px-margin-desktop grid grid-cols-1 md:grid-cols-5 gap-12 max-w-container-max mx-auto">
                     <div className="col-span-1 md:col-span-1">
                         <div className="font-headline-lg font-bold text-white mb-6 tracking-tight">couponhub</div>
                         <p className="text-surface-variant font-body-md text-body-md mb-8 opacity-80">Your ultimate destination for verified coupons, exclusive deals, and maximum cashback.</p>
@@ -65,6 +71,18 @@ export default function Footer() {
                         <h4 className="font-title-md font-bold text-white mb-6">Top Categories</h4>
                         <ul className="space-y-4 text-surface-variant font-body-md text-body-md opacity-80">
                             {footerLinks.categories.map((link) => (
+                                <li key={link.href}>
+                                    <Link href={link.href} className="hover:text-secondary-fixed transition-colors">
+                                        {link.name}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 className="font-title-md font-bold text-white mb-6">Popular Offers</h4>
+                        <ul className="space-y-4 text-surface-variant font-body-md text-body-md opacity-80">
+                            {footerLinks.popular.map((link) => (
                                 <li key={link.href}>
                                     <Link href={link.href} className="hover:text-secondary-fixed transition-colors">
                                         {link.name}

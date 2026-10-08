@@ -6,7 +6,11 @@ export const EXPERIMENTS = {
         variants: ["control", "variant_b"],
         weights: [0.5, 0.5] // 50/50 split
     },
-    // Future experiments can be added here
+    HOME_HERO_LAYOUT: {
+        id: "exp_home_hero_layout_v1",
+        variants: ["control", "deals_in_hero"],
+        weights: [0.5, 0.5]
+    }
 };
 
 export type ExperimentId = keyof typeof EXPERIMENTS;

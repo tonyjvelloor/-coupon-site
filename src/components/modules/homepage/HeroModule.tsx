@@ -5,8 +5,17 @@ import Link from "next/link";
 import { SearchBox } from "@/components/ui/SearchBox";
 import { Sparkles, ArrowRight } from "lucide-react";
 
-export function HeroModule({ variant = "control" }: { variant?: string }) {
-  const isVariantB = variant === "variant_b";
+export function HeroModule({ 
+  copyVariant = "control", 
+  layoutVariant = "control", 
+  topDeals = [] 
+}: { 
+  copyVariant?: string; 
+  layoutVariant?: string; 
+  topDeals?: any[]; 
+}) {
+  const isVariantB = copyVariant === "variant_b";
+  const showDeals = layoutVariant === "deals_in_hero" && topDeals.length > 0;
 
   return (
     <div className="relative w-full overflow-hidden">
@@ -50,21 +59,58 @@ export function HeroModule({ variant = "control" }: { variant?: string }) {
           </div>
         </div>
 
-        {/* Quick Filter Pills / Trending */}
-        <div className="flex flex-wrap items-center justify-center gap-space-xs font-body-sm text-body-sm text-text-muted">
-          <span className="font-semibold text-on-surface flex items-center gap-1">
-            <span className="material-symbols-outlined text-deal-amber text-[16px]">local_fire_department</span> Trending:
-          </span>
-          {["Amazon", "Flipkart", "Myntra", "Swiggy", "AJIO", "Nykaa"].map(store => (
-            <Link 
-              key={store}
-              href={`/stores/${store.toLowerCase()}`}
-              className="trending-chip px-space-sm py-1 rounded-full bg-surface-card text-on-surface shadow-sm hover:bg-brand-indigo-light hover:text-primary transition-all"
-            >
-              {store}
-            </Link>
-          ))}
-        </div>
+        {/* Layout Variant B: Deals in Hero */}
+        {showDeals ? (
+          <div className="mt-8 max-w-4xl mx-auto">
+            <p className="text-sm font-semibold text-slate-500 mb-4 uppercase tracking-wider">🔥 Trending Deals Right Now</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
+              {topDeals.map(deal => (
+                <Link 
+                  key={deal.id} 
+                  href={`/out?url=${encodeURIComponent(deal.affiliateUrl)}&couponId=${deal.id}&storeId=${deal.merchantIdentity.store.id}&source=hero_variant`}
+                  target="_blank"
+                  className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 hover:shadow-md hover:border-brand-indigo/30 transition-all flex flex-col justify-between group"
+                >
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-6 h-6 rounded-md bg-slate-100 flex items-center justify-center overflow-hidden shrink-0">
+                        {deal.merchantIdentity.store.logo ? (
+                          <img src={deal.merchantIdentity.store.logo} alt={deal.merchantIdentity.store.name} className="w-full h-full object-contain" />
+                        ) : (
+                          <span className="text-[10px] font-bold text-slate-400">{deal.merchantIdentity.store.name.charAt(0)}</span>
+                        )}
+                      </div>
+                      <span className="text-xs font-medium text-slate-500 truncate">{deal.merchantIdentity.store.name}</span>
+                    </div>
+                    <h3 className="font-bold text-slate-900 text-sm line-clamp-2 leading-tight group-hover:text-brand-indigo transition-colors">{deal.title}</h3>
+                  </div>
+                  <div className="mt-3 flex items-center justify-between">
+                    <span className="text-xs font-bold text-verified-emerald bg-emerald-50 px-2 py-1 rounded-md">{deal.code ? "CODE" : "DEAL"}</span>
+                    <span className="text-xs text-brand-indigo font-semibold flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                      Get Deal <ArrowRight className="w-3 h-3" />
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        ) : (
+          /* Control Layout: Quick Filter Pills / Trending */
+          <div className="flex flex-wrap items-center justify-center gap-space-xs font-body-sm text-body-sm text-text-muted">
+            <span className="font-semibold text-on-surface flex items-center gap-1">
+              <span className="material-symbols-outlined text-deal-amber text-[16px]">local_fire_department</span> Trending:
+            </span>
+            {["Amazon", "Flipkart", "Myntra", "Swiggy", "AJIO", "Nykaa"].map(store => (
+              <Link 
+                key={store}
+                href={`/stores/${store.toLowerCase()}`}
+                className="trending-chip px-space-sm py-1 rounded-full bg-surface-card text-on-surface shadow-sm hover:bg-brand-indigo-light hover:text-primary transition-all"
+              >
+                {store}
+              </Link>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );
