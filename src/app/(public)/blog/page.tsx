@@ -1,23 +1,17 @@
-import { prisma } from "@/lib/db";
+import { getAllBlogPosts } from "@/lib/blog-data";
 import Link from "next/link";
-import { Calendar, User, ArrowRight } from "lucide-react";
+import { Calendar, User, ArrowRight, Sparkles } from "lucide-react";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Blog - Latest Deals & Saving Tips | CouponHub",
-    description: "Discover the best ways to save money, shopping guides, and exclusive deal analysis on the CouponHub blog.",
+    title: "Blog - Latest Deals, Diwali Offers & Saving Tips | CouponHub",
+    description: "Discover the best ways to save money, Diwali 2026 shopping guides, and verified promo code analysis on the CouponHub blog.",
 };
 
-export const revalidate = 86400; // Revalidate every 24 hours
+export const revalidate = 3600; // Revalidate hourly during festive season
 
 export default async function BlogListingPage() {
-    const posts = await prisma.blogPost.findMany({
-        where: { isPublished: true },
-        orderBy: { publishedAt: "desc" },
-        include: {
-            author: { select: { name: true } },
-        },
-    });
+    const posts = await getAllBlogPosts();
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
 
@@ -71,6 +65,15 @@ export default async function BlogListingPage() {
                                             </div>
                                         )}
                                     </div>
+
+                                    {post.slug.includes("diwali") && (
+                                        <div className="mb-2">
+                                            <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 border border-amber-200/80 text-amber-900 text-xs font-bold px-2.5 py-0.5">
+                                                <Sparkles className="w-3 h-3 text-amber-600" />
+                                                Diwali 2026 Guide
+                                            </span>
+                                        </div>
+                                    )}
 
                                     <Link href={`/blog/${post.slug}`} className="group block mb-3">
                                         <h2 className="text-xl font-bold text-gray-900 group-hover:text-violet-600 transition-colors line-clamp-2">

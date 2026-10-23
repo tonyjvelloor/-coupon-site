@@ -1,33 +1,32 @@
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { TimelineWidget, TimelineEvent } from "@/components/ui/TimelineWidget";
-import { prisma } from "@/lib/db";
-import { formatDistanceToNowStrict, format } from "date-fns";
+import { getAllSaleEvents } from "@/lib/events-data";
+import { format } from "date-fns";
 
 export async function UpcomingSalesModule() {
-    const sales = await prisma.saleEvent.findMany({
-        where: { isActive: true },
-        orderBy: { date: 'asc' },
-        take: 5
-    });
+    let sales: any[] = [];
+    try {
+        sales = await getAllSaleEvents();
+    } catch (e) {
+        // Fallback
+    }
 
-    // Fallback to mocks if DB is empty for demo purposes
     const upcomingSales: TimelineEvent[] = sales.length > 0 ? sales.map(s => {
-        const isPast = s.date.getTime() < Date.now();
-        const diffDays = (s.date.getTime() - Date.now()) / (1000 * 60 * 60 * 24);
-        const isActive = !isPast && diffDays < 5; // Active if it's within the next 5 days
+        const isDiwali = s.slug.includes("diwali") || s.slug.includes("indian-festival");
+        const sDate = s.date instanceof Date ? s.date : new Date(s.date);
         
         return { 
             id: s.id, 
             title: s.title, 
-            subtitle: s.subtitle || format(s.date, 'MMMM do'), 
-            icon: s.icon, 
-            isActive 
+            subtitle: s.subtitle || format(sDate, 'MMMM do'), 
+            icon: s.icon || (isDiwali ? 'celebration' : 'event'), 
+            isActive: isDiwali || false
         };
     }) : [
-        { id: 'e1', title: 'Prime Day', subtitle: '3 days away', icon: 'local_fire_department', isActive: true },
-        { id: 'e2', title: 'Big Billion Days', subtitle: 'September', icon: 'event' },
-        { id: 'e3', title: 'Great Indian Festival', subtitle: 'October', icon: 'celebration' },
-        { id: 'e4', title: 'Diwali Sale', subtitle: 'October', icon: 'festival' },
+        { id: 'e1', title: 'Diwali Sale 2026', subtitle: 'Live Now', icon: 'celebration', isActive: true },
+        { id: 'e2', title: 'Amazon Great Indian Festival', subtitle: 'Live Now', icon: 'local_fire_department', isActive: true },
+        { id: 'e3', title: 'Flipkart Big Billion Days', subtitle: 'Live Now', icon: 'shopping_bag', isActive: true },
+        { id: 'e4', title: 'Myntra End of Reason Sale', subtitle: 'Coming in December', icon: 'style' },
     ];
 
     return (

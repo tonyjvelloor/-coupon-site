@@ -1,7 +1,8 @@
-import { prisma } from "@/lib/db";
+import { getBlogPostBySlug, getAllBlogSlugs } from "@/lib/blog-data";
+import { BlogContentRenderer } from "@/components/blog/BlogContentRenderer";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { Calendar, User, ArrowLeft, Share2 } from "lucide-react";
+import { Calendar, User, ArrowLeft, Share2, Sparkles } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
@@ -15,17 +16,12 @@ interface BlogPostPageProps {
     }>;
 }
 
-export const revalidate = 86400; // 24 hours ISR
+export const revalidate = 3600; // 1 hour ISR
 
 export async function generateStaticParams() {
     try {
-        const posts = await prisma.blogPost.findMany({
-            where: { isPublished: true },
-            select: { slug: true },
-        });
-        return posts.map((post) => ({
-            slug: post.slug,
-        }));
+        const slugs = await getAllBlogSlugs();
+        return slugs.map((slug) => ({ slug }));
     } catch (error) {
         console.warn("Failed to generate static params for blog:", error);
         return [];
@@ -35,10 +31,7 @@ export async function generateStaticParams() {
 // SEO Metadata
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
     const { slug } = await params;
-    const post = await prisma.blogPost.findUnique({
-        where: { slug },
-        include: { author: { select: { name: true } } }
-    });
+    const post = await getBlogPostBySlug(slug);
 
     if (!post || !post.isPublished) {
         return {
@@ -48,7 +41,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
     const ogTitle = post.seoTitle || post.title;
-    const ogDescription = post.seoDescription || post.content.substring(0, 160);
+    const ogDescription = post.seoDescription || post.excerpt || post.content.substring(0, 160);
 
     return {
         title: ogTitle,
@@ -58,6 +51,28 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
             canonical: `${siteUrl}/blog/${post.slug}`,
         },
         openGraph: {
+            title: ogTitle,
+            description: ogDescription,
+            type: "article",
+            publishedTime: post.publishedAt instanceof Date ? post.publishedAt.toISOString() : new Date(post.publishedAt).toISOString(),
+            authors: post.author?.name ? [post.author.name] : undefined,
+            images: [
+                {
+                    url: post.coverImage || `${siteUrl}/api/og?title=${encodeURIComponent(post.title)}&description=${encodeURIComponent(ogDescription.substring(0, 100))}&type=blog`,
+                    width: 1200,
+                    height: 630,
+                    alt: ogTitle,
+                },
+            ],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: ogTitle,
+            description: ogDescription,
+            images: [post.coverImage || `${siteUrl}/api/og?title=${encodeURIComponent(post.title)}&description=${encodeURIComponent(ogDescription.substring(0, 100))}&type=blog`],
+        }
+    };
+}
             title: ogTitle,
             description: ogDescription,
             type: "article",
@@ -81,81 +96,16 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
     };
 }
 
-// Simple Markdown-ish Renderer
-function SimpleMarkdown({ content }: { content: string }) {
-    return (
-        <div className="prose prose-lg prose-violet max-w-none text-gray-700 leading-relaxed">
-            {content.split("\n").map((line, index) => {
-                const trimmed = line.trim();
-
-                // Headers
-                if (trimmed.startsWith("# ")) {
-                    return <h1 key={index} className="text-3xl font-bold text-gray-900 mt-8 mb-4">{trimmed.substring(2)}</h1>;
-                }
-                if (trimmed.startsWith("## ")) {
-                    return <h2 key={index} className="text-2xl font-bold text-gray-900 mt-8 mb-4">{trimmed.substring(3)}</h2>;
-                }
-                if (trimmed.startsWith("### ")) {
-                    return <h3 key={index} className="text-xl font-bold text-gray-900 mt-6 mb-3">{trimmed.substring(4)}</h3>;
-                }
-
-                // Blockquotes
-                if (trimmed.startsWith("> ")) {
-                    return (
-                        <blockquote key={index} className="border-l-4 border-violet-500 pl-4 py-1 my-6 italic text-gray-600 bg-gray-50 rounded-r-lg">
-                            {trimmed.substring(2)}
-                        </blockquote>
-                    );
-                }
-
-                // List items
-                if (trimmed.startsWith("- ")) {
-                    return <li key={index} className="ml-4 list-disc mb-2">{trimmed.substring(2)}</li>;
-                }
-                if (/^\d+\.\s/.test(trimmed)) {
-                    // Match numbered lists like "1. "
-                    const text = trimmed.replace(/^\d+\.\s/, "");
-                    // Add basic bold parsing to list items
-                    const boldParsed = text.split("**").map((part, i) => (i % 2 === 1 ? <strong key={i} className="text-gray-900">{part}</strong> : part));
-                    return <li key={index} className="ml-4 list-decimal mb-3">{boldParsed}</li>;
-                }
-
-                // Bold text in paragraphs (very simple parser)
-                const parts = line.split("**");
-                if (parts.length > 1) {
-                    return (
-                        <p key={index} className="mb-4">
-                            {parts.map((part, i) => (
-                                i % 2 === 1 ? <strong key={i} className="text-gray-900">{part}</strong> : part
-                            ))}
-                        </p>
-                    )
-                }
-
-                // Empty lines
-                if (!trimmed) return <br key={index} />;
-
-                // Regular paragraphs
-                return <p key={index} className="mb-4">{line}</p>;
-            })}
-        </div>
-    );
-}
-
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
     const { slug } = await params;
-    const post = await prisma.blogPost.findUnique({
-        where: { slug },
-        include: {
-            author: { select: { name: true, profileImage: true, bio: true } },
-        },
-    });
+    const post = await getBlogPostBySlug(slug);
 
     if (!post || !post.isPublished) {
         notFound();
     }
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
+    const postPublishedDate = post.publishedAt instanceof Date ? post.publishedAt : new Date(post.publishedAt);
     
     // JSON-LD Structured Data Schema for SEO
     const jsonLd = {
@@ -166,11 +116,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             "@id": `${siteUrl}/blog/${post.slug}`
         },
         headline: post.seoTitle || post.title,
-        description: post.seoDescription || post.content.substring(0, 160),
+        description: post.seoDescription || post.excerpt || post.content.substring(0, 160),
         image: post.coverImage ? [post.coverImage] : undefined,
         author: {
             "@type": "Person",
-            name: post.author?.name || "CouponHub Editor",
+            name: post.author?.name || "CouponHub Deal Experts",
         },
         publisher: {
             "@type": "Organization",
@@ -180,8 +130,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 url: `${siteUrl}/logo.png`
             }
         },
-        datePublished: post.publishedAt?.toISOString() || post.createdAt.toISOString(),
-        dateModified: post.updatedAt.toISOString(),
+        datePublished: postPublishedDate.toISOString(),
+        dateModified: postPublishedDate.toISOString(),
     };
 
     return (
@@ -246,7 +196,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 <div className="flex flex-col lg:flex-row gap-12">
                     {/* Main Content */}
                     <div className="lg:w-3/4">
-                        <SimpleMarkdown content={post.content} />
+                        <BlogContentRenderer content={post.content} />
 
                         {/* In-article ad */}
                         <AdBannerInArticle />

@@ -1,5 +1,7 @@
 import { MetadataRoute } from "next";
 import { prisma } from "@/lib/db";
+import { getAllBlogPosts } from "@/lib/blog-data";
+import { getAllSaleEvents } from "@/lib/events-data";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
@@ -186,17 +188,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
 
     // 4. Dynamic Blog Routes
-    const blogPosts = await prisma.blogPost.findMany({
-        where: { isPublished: true },
-        select: { slug: true, updatedAt: true },
-    });
+    let blogPosts: any[] = [];
+    try {
+        blogPosts = await getAllBlogPosts();
+    } catch (e) {
+        // Fallback handled in helper
+    }
 
-    const blogRoutes = blogPosts.map((post) => ({
-        url: `${baseUrl}/blog/${post.slug}`,
-        lastModified: post.updatedAt,
-        changeFrequency: "weekly" as const,
-        priority: 0.6,
-    }));
+    const blogRoutes = blogPosts.map((post) => {
+        const isDiwali = post.slug.includes("diwali") || post.slug.includes("festival");
+        return {
+            url: `${baseUrl}/blog/${post.slug}`,
+            lastModified: post.publishedAt || new Date(),
+            changeFrequency: isDiwali ? ("daily" as const) : ("weekly" as const),
+            priority: isDiwali ? 0.9 : 0.7,
+        };
+    });
 
     // 5. Dynamic Collection Routes (Programmatic SEO)
     const collections = await prisma.collection.findMany({
@@ -246,17 +253,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
 
     // 7. Dynamic Sale Event Routes (Diwali, Prime Day, etc.)
-    const saleEvents = await prisma.saleEvent.findMany({
-        where: { isActive: true },
-        select: { slug: true, updatedAt: true },
-    });
+    let saleEvents: any[] = [];
+    try {
+        saleEvents = await getAllSaleEvents();
+    } catch (e) {
+        // Fallback handled in helper
+    }
 
-    const eventRoutes = saleEvents.map((evt) => ({
-        url: `${baseUrl}/events/${evt.slug}`,
-        lastModified: evt.updatedAt,
-        changeFrequency: "daily" as const,
-        priority: 0.85,
-    }));
+    const eventRoutes = saleEvents.map((evt) => {
+        const isDiwali = evt.slug.includes("diwali") || evt.slug.includes("indian-festival");
+        return {
+            url: `${baseUrl}/events/${evt.slug}`,
+            lastModified: evt.date || new Date(),
+            changeFrequency: isDiwali ? ("daily" as const) : ("weekly" as const),
+            priority: isDiwali ? 0.95 : 0.85,
+        };
+    });
 
     return [...staticRoutes, ...storeRoutes, ...bankRoutes, ...categoryRoutes, ...blogRoutes, ...collectionRoutes, ...compareRoutes, ...eventRoutes];
 }

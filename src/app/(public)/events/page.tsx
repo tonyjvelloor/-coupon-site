@@ -1,21 +1,18 @@
-import { prisma } from "@/lib/db";
+import { getAllSaleEvents } from "@/lib/events-data";
 import { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 
 export const metadata: Metadata = {
-    title: "Upcoming Shopping Events & Sales - CouponHub",
+    title: "Upcoming Shopping Events & Diwali Sales 2026 - CouponHub",
     description:
-        "Track upcoming sales events like Prime Day, Black Friday, and Diwali. Never miss a huge discount again.",
+        "Track upcoming sales events like Diwali Sale 2026, Great Indian Festival, and Big Billion Days. Verified coupon codes and bank offers.",
 };
 
 export const revalidate = 3600;
 
 export default async function EventsIndexPage() {
-    const events = await prisma.saleEvent.findMany({
-        where: { isActive: true },
-        orderBy: { date: "asc" },
-    });
+    const events = await getAllSaleEvents();
 
     return (
         <div className="bg-background min-h-screen">

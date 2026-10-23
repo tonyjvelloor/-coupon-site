@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { getSaleEventBySlug, getAllSaleEvents } from "@/lib/events-data";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -13,10 +14,7 @@ export const revalidate = 900;
 
 export async function generateStaticParams() {
     try {
-        const events = await prisma.saleEvent.findMany({
-            where: { isActive: true },
-            select: { slug: true },
-        });
+        const events = await getAllSaleEvents();
         return events.map((e) => ({ slug: e.slug }));
     } catch (error) {
         return [];
@@ -25,9 +23,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { slug } = await params;
-    const event = await prisma.saleEvent.findUnique({
-        where: { slug, isActive: true },
-    });
+    const event = await getSaleEventBySlug(slug);
 
     if (!event) return { title: "Event Not Found" };
 
@@ -60,12 +56,7 @@ export default async function EventPage({ params }: PageProps) {
     const { slug } = await params;
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
 
-    const event = await prisma.saleEvent.findUnique({
-        where: { slug, isActive: true },
-        include: {
-            store: true,
-        },
-    });
+    const event = await getSaleEventBySlug(slug);
 
     if (!event) {
         notFound();
@@ -73,24 +64,25 @@ export default async function EventPage({ params }: PageProps) {
 
     const isPast = new Date(event.date) < new Date();
     
-    // In a real app, we would fetch coupons linked to this SaleEvent or tagged with it.
-    // For now, we'll just fetch some global featured coupons if it's a global event,
-    // or store-specific coupons if it's a store event.
-    let deals = [];
-    if (event.storeId) {
-        deals = await prisma.coupon.findMany({
-            where: { merchantIdentity: { canonicalStoreId: event.storeId }, isVerified: true },
-            orderBy: { createdAt: "desc" },
-            take: 12,
-            include: { merchantIdentity: { include: { store: true } } }
-        });
-    } else {
-        deals = await prisma.coupon.findMany({
-            where: { isFeatured: true, isVerified: true },
-            orderBy: { createdAt: "desc" },
-            take: 12,
-            include: { merchantIdentity: { include: { store: true } } }
-        });
+    let deals: any[] = [];
+    try {
+        if ((event as any).storeId) {
+            deals = await prisma.coupon.findMany({
+                where: { merchantIdentity: { canonicalStoreId: (event as any).storeId }, isVerified: true },
+                orderBy: { createdAt: "desc" },
+                take: 12,
+                include: { merchantIdentity: { include: { store: true } } }
+            });
+        } else {
+            deals = await prisma.coupon.findMany({
+                where: { isFeatured: true, isVerified: true },
+                orderBy: { createdAt: "desc" },
+                take: 12,
+                include: { merchantIdentity: { include: { store: true } } }
+            });
+        }
+    } catch (err) {
+        console.warn("[events/[slug]] Database deals lookup failed, using fallback deals");
     }
 
     return (

@@ -6,6 +6,7 @@ import { getExperimentVariant } from "@/lib/ab-testing";
 import { HeroModule } from "@/components/modules/homepage/HeroModule";
 import { TrustMarkersModule } from "@/components/modules/homepage/TrustMarkersModule";
 import { PopularStoresModule } from "@/components/modules/homepage/PopularStoresModule";
+import { DiwaliFestiveBanner } from "@/components/modules/homepage/DiwaliFestiveBanner";
 const PersonalizedFeedModule = dynamic(() => import("@/components/modules/homepage/PersonalizedFeedModule").then(mod => mod.PersonalizedFeedModule), { ssr: true });
 const BestOffersModule = dynamic(() => import("@/components/modules/homepage/BestOffersModule").then(mod => mod.BestOffersModule), { ssr: true });
 const SavingsModule = dynamic(() => import("@/components/modules/homepage/SavingsModule").then(mod => mod.SavingsModule), { ssr: true });
@@ -18,8 +19,8 @@ const NewsletterModule = dynamic(() => import("@/components/modules/homepage/New
 export const revalidate = 3600; // Enable edge caching to save DB compute
 
 export const metadata: Metadata = {
-    title: "CouponHub | Save more every time you shop online",
-    description: "Find verified coupons, cashback offers, payment discounts, and shopping tips for thousands of stores.",
+    title: "CouponHub | Save More with Verified Diwali Coupons & Promo Codes",
+    description: "Find verified Diwali 2026 coupons, festive cashback offers, payment discounts, and shopping tips for Amazon, Flipkart, Ajio, Tata CLiQ & 100+ stores.",
     alternates: {
         canonical: process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store",
     },
@@ -56,11 +57,21 @@ export default async function Home() {
             {/* 2. Confidence Proof */}
             <TrustMarkersModule />
 
+            {/* 2.5 DIWALI FESTIVE SPOTLIGHT */}
+            <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop pt-4 pb-2">
+                <DiwaliFestiveBanner />
+            </div>
+
             {/* MAIN CONTENT - MODULAR ORCHESTRATION */}
-            <div className="space-y-4 py-8">
+            <div className="space-y-6 py-6">
                 
                 {/* 3. Start Shopping (Merchant Grid) */}
                 <PopularStoresModule />
+
+                {/* 3.5 Upcoming Festive Sales Timeline */}
+                <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+                    <UpcomingSalesModule />
+                </div>
 
                 {/* 4. Trending Right Now (Categories) */}
                 <CategoriesModule />
