@@ -27,11 +27,16 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { slug } = await params;
-    const bank = await prisma.bank.findUnique({
-        where: { slug, isActive: true },
-    });
+    let bank: any = null;
+    try {
+        bank = await prisma.bank.findUnique({
+            where: { slug, isActive: true },
+        });
+    } catch (e) {
+        // Fallback
+    }
 
-    if (!bank) return { title: "Bank Not Found" };
+    if (!bank) return { title: "Bank Offers & Coupons | CouponHub" };
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
     const monthYear = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(new Date());

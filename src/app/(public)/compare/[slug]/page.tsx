@@ -33,12 +33,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!slug.includes("-vs-")) return { title: "Compare | CouponHub" };
 
   const [slug1, slug2] = slug.split("-vs-");
-  const [store1, store2] = await Promise.all([
-    prisma.store.findUnique({ where: { slug: slug1 }, select: { name: true, cashbackRate: true, activeOfferCount: true } }),
-    prisma.store.findUnique({ where: { slug: slug2 }, select: { name: true, cashbackRate: true, activeOfferCount: true } }),
-  ]);
+  let store1: any = null;
+  let store2: any = null;
+  try {
+    [store1, store2] = await Promise.all([
+      prisma.store.findUnique({ where: { slug: slug1 }, select: { name: true, cashbackRate: true, activeOfferCount: true } }),
+      prisma.store.findUnique({ where: { slug: slug2 }, select: { name: true, cashbackRate: true, activeOfferCount: true } }),
+    ]);
+  } catch (e) {
+    // Fallback
+  }
 
-  if (!store1 || !store2) return { title: "Compare | CouponHub" };
+  if (!store1 || !store2) return { title: "Compare Brands & Coupons | CouponHub" };
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
   const title = `${store1.name} vs ${store2.name}: Coupons, Cashback & Offers Compared | CouponHub`;

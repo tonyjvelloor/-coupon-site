@@ -46,9 +46,14 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { slug } = await params;
-    const store = await merchantService.getMerchantBySlug(slug);
+    let store: any = null;
+    try {
+        store = await merchantService.getMerchantBySlug(slug);
+    } catch (e) {
+        // Fallback
+    }
 
-    if (!store) return { title: "Store Not Found" };
+    if (!store) return { title: "Store Coupon Codes & Deals | CouponHub" };
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
     const shortMonthYear = new Intl.DateTimeFormat('en-IN', { month: 'short', year: 'numeric' }).format(new Date());

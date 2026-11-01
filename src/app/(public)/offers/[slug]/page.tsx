@@ -32,11 +32,16 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { slug } = await params;
-    const collection = await prisma.collection.findUnique({
-        where: { slug },
-    });
+    let collection: any = null;
+    try {
+        collection = await prisma.collection.findUnique({
+            where: { slug },
+        });
+    } catch (e) {
+        // Fallback
+    }
 
-    if (!collection) return { title: "Collection Not Found" };
+    if (!collection) return { title: "Featured Deals & Offers | CouponHub" };
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
     const ogTitle = collection.seoTitle || `${collection.name} Coupons & Offers`;

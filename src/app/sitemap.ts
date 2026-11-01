@@ -47,64 +47,58 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ];
 
     // 2. Dynamic Store Routes
-    const stores = await prisma.store.findMany({
-        where: { 
-            isActive: true,
-            activeOfferCount: { gt: 0 }
-        },
-        select: { 
-            slug: true, 
-            updatedAt: true,
-            storeContents: {
-                select: {
-                    type: true,
-                    updatedAt: true
-                }
-            }
-        },
-    });
-
     const storeRoutes: MetadataRoute.Sitemap = [];
-    
-    stores.forEach((store) => {
-        // Root store page
-        storeRoutes.push({
-            url: `${baseUrl}/stores/${store.slug}`,
-            lastModified: store.updatedAt,
-            changeFrequency: "daily" as const,
-            priority: 0.9,
+    try {
+        const stores = await prisma.store.findMany({
+            where: { 
+                isActive: true,
+                activeOfferCount: { gt: 0 }
+            },
+            select: { 
+                slug: true, 
+                updatedAt: true,
+                storeContents: {
+                    select: {
+                        type: true,
+                        updatedAt: true
+                    }
+                }
+            },
         });
-
-        // Dynamic Sub-pages (Only index if content exists to prevent thin content penalties)
-        const hasContent = (type: string) => store.storeContents.some(c => c.type === type);
         
-        if (hasContent('BUYING_GUIDE')) {
-            storeRoutes.push({ url: `${baseUrl}/stores/${store.slug}/buying-guide`, lastModified: store.updatedAt, changeFrequency: "weekly", priority: 0.6 });
-        }
-        if (hasContent('FAQ')) {
-            storeRoutes.push({ url: `${baseUrl}/stores/${store.slug}/faq`, lastModified: store.updatedAt, changeFrequency: "weekly", priority: 0.6 });
-        }
-        if (hasContent('RETURNS')) {
-            storeRoutes.push({ url: `${baseUrl}/stores/${store.slug}/returns`, lastModified: store.updatedAt, changeFrequency: "weekly", priority: 0.5 });
-        }
-        if (hasContent('SHIPPING')) {
-            storeRoutes.push({ url: `${baseUrl}/stores/${store.slug}/shipping`, lastModified: store.updatedAt, changeFrequency: "weekly", priority: 0.5 });
-        }
-        if (hasContent('STUDENT')) {
-            storeRoutes.push({ url: `${baseUrl}/stores/${store.slug}/student-discount`, lastModified: store.updatedAt, changeFrequency: "monthly", priority: 0.7 });
-        }
-    });
+        stores.forEach((store) => {
+            // Root store page
+            storeRoutes.push({
+                url: `${baseUrl}/stores/${store.slug}`,
+                lastModified: store.updatedAt,
+                changeFrequency: "daily" as const,
+                priority: 0.9,
+            });
+
+            // Dynamic Sub-pages (Only index if content exists to prevent thin content penalties)
+            const hasContent = (type: string) => store.storeContents.some(c => c.type === type);
+            
+            if (hasContent('BUYING_GUIDE')) {
+                storeRoutes.push({ url: `${baseUrl}/stores/${store.slug}/buying-guide`, lastModified: store.updatedAt, changeFrequency: "weekly", priority: 0.6 });
+            }
+            if (hasContent('FAQ')) {
+                storeRoutes.push({ url: `${baseUrl}/stores/${store.slug}/faq`, lastModified: store.updatedAt, changeFrequency: "weekly", priority: 0.6 });
+            }
+            if (hasContent('RETURNS')) {
+                storeRoutes.push({ url: `${baseUrl}/stores/${store.slug}/returns`, lastModified: store.updatedAt, changeFrequency: "weekly", priority: 0.5 });
+            }
+            if (hasContent('SHIPPING')) {
+                storeRoutes.push({ url: `${baseUrl}/stores/${store.slug}/shipping`, lastModified: store.updatedAt, changeFrequency: "weekly", priority: 0.5 });
+            }
+            if (hasContent('STUDENT')) {
+                storeRoutes.push({ url: `${baseUrl}/stores/${store.slug}/student-discount`, lastModified: store.updatedAt, changeFrequency: "monthly", priority: 0.7 });
+            }
+        });
+    } catch (e) {
+        console.warn("[sitemap] Failed to fetch stores:", e);
+    }
 
     // 3. Dynamic Bank Routes (India Bank & Card SEO)
-    const banks = await prisma.bank.findMany({
-        where: { isActive: true },
-        select: {
-            slug: true,
-            updatedAt: true,
-            _count: { select: { bankOffers: { where: { isActive: true } } } },
-        },
-    });
-
     const bankRoutes: MetadataRoute.Sitemap = [
         {
             url: `${baseUrl}/banks`,
@@ -112,80 +106,97 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             changeFrequency: "daily" as const,
             priority: 0.8,
         },
-        ...banks
-            .filter((b) => b._count.bankOffers > 0)
-            .map((bank) => ({
-                url: `${baseUrl}/banks/${bank.slug}`,
-                lastModified: bank.updatedAt,
-                changeFrequency: "daily" as const,
-                priority: 0.8,
-            })),
     ];
-    
-    // 3.5 Dynamic Bank x Store Routes
-    const bankOffers = await prisma.bankOffer.findMany({
-        where: { isActive: true, storeId: { not: null } },
-        include: { bank: true, store: true }
-    });
+    try {
+        const banks = await prisma.bank.findMany({
+            where: { isActive: true },
+            select: {
+                slug: true,
+                updatedAt: true,
+                _count: { select: { bankOffers: { where: { isActive: true } } } },
+            },
+        });
 
-    bankOffers.forEach((offer) => {
-        if (offer.store) {
-            bankRoutes.push({
-                url: `${baseUrl}/banks/${offer.bank.slug}/${offer.store.slug}`,
-                lastModified: offer.updatedAt,
-                changeFrequency: "weekly",
-                priority: 0.7,
+        banks
+            .filter((b) => b._count.bankOffers > 0)
+            .forEach((bank) => {
+                bankRoutes.push({
+                    url: `${baseUrl}/banks/${bank.slug}`,
+                    lastModified: bank.updatedAt,
+                    changeFrequency: "daily" as const,
+                    priority: 0.8,
+                });
             });
-        }
-    });
+        
+        // 3.5 Dynamic Bank x Store Routes
+        const bankOffers = await prisma.bankOffer.findMany({
+            where: { isActive: true, storeId: { not: null } },
+            include: { bank: true, store: true }
+        });
+
+        bankOffers.forEach((offer) => {
+            if (offer.store) {
+                bankRoutes.push({
+                    url: `${baseUrl}/banks/${offer.bank.slug}/${offer.store.slug}`,
+                    lastModified: offer.updatedAt,
+                    changeFrequency: "weekly",
+                    priority: 0.7,
+                });
+            }
+        });
+    } catch (e) {
+        console.warn("[sitemap] Failed to fetch bank routes:", e);
+    }
 
     // 3. Dynamic Category Routes (Programmatic SEO with Quality Gates)
-    // Only index categories that have enough inventory to be valuable to users
-    const categories = await prisma.category.findMany({
-        where: { isActive: true },
-        select: { 
-            slug: true, 
-            updatedAt: true,
-            storeCategories: {
-                select: {
-                    store: {
-                        select: {
-                            merchantIdentity: {
-                                select: {
-                                    coupons: {
-                                        where: { OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] },
-                                        select: { id: true }
+    const categoryRoutes: MetadataRoute.Sitemap = [];
+    try {
+        const categories = await prisma.category.findMany({
+            where: { isActive: true },
+            select: { 
+                slug: true, 
+                updatedAt: true,
+                storeCategories: {
+                    select: {
+                        store: {
+                            select: {
+                                merchantIdentity: {
+                                    select: {
+                                        coupons: {
+                                            where: { OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] },
+                                            select: { id: true }
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
-            }
-        },
-    });
+            },
+        });
 
-    const categoryRoutes: MetadataRoute.Sitemap = [];
-    
-    categories.forEach((category) => {
-        const activeStores = category.storeCategories.length;
-        let activeOffers = 0;
-        category.storeCategories.forEach(sc => {
-            if (sc.store.merchantIdentity) {
-                activeOffers += sc.store.merchantIdentity.coupons.length;
+        categories.forEach((category) => {
+            const activeStores = category.storeCategories.length;
+            let activeOffers = 0;
+            category.storeCategories.forEach(sc => {
+                if (sc.store.merchantIdentity) {
+                    activeOffers += sc.store.merchantIdentity.coupons.length;
+                }
+            });
+            
+            // SEO State Machine: Indexable Threshold
+            if (activeStores >= 1 && activeOffers >= 1) {
+                categoryRoutes.push({
+                    url: `${baseUrl}/best/${category.slug}-coupons`,
+                    lastModified: category.updatedAt,
+                    changeFrequency: "daily" as const,
+                    priority: 0.8,
+                });
             }
         });
-        
-        // SEO State Machine: Indexable Threshold
-        if (activeStores >= 1 && activeOffers >= 1) {
-            categoryRoutes.push({
-                url: `${baseUrl}/best/${category.slug}-coupons`,
-                lastModified: category.updatedAt,
-                changeFrequency: "daily" as const,
-                priority: 0.8,
-            });
-        }
-    });
+    } catch (e) {
+        console.warn("[sitemap] Failed to fetch category routes:", e);
+    }
 
     // 4. Dynamic Blog Routes
     let blogPosts: any[] = [];
@@ -206,50 +217,60 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
 
     // 5. Dynamic Collection Routes (Programmatic SEO)
-    const collections = await prisma.collection.findMany({
-        where: { isIndexable: true },
-        select: { slug: true, updatedAt: true },
-    });
+    const collectionRoutes: MetadataRoute.Sitemap = [];
+    try {
+        const collections = await prisma.collection.findMany({
+            where: { isIndexable: true },
+            select: { slug: true, updatedAt: true },
+        });
 
-    const collectionRoutes = collections.map((col) => ({
-        url: `${baseUrl}/offers/${col.slug}`,
-        lastModified: col.updatedAt,
-        changeFrequency: "daily" as const,
-        priority: 0.8,
-    }));
+        collections.forEach((col) => {
+            collectionRoutes.push({
+                url: `${baseUrl}/offers/${col.slug}`,
+                lastModified: col.updatedAt,
+                changeFrequency: "daily" as const,
+                priority: 0.8,
+            });
+        });
+    } catch (e) {
+        console.warn("[sitemap] Failed to fetch collection routes:", e);
+    }
 
     // 6. Dynamic Compare Routes (Programmatic SEO: Store vs Store)
-    const topStores = await prisma.store.findMany({
-        where: { isActive: true, activeOfferCount: { gt: 10 } },
-        select: { slug: true, updatedAt: true, storeCategories: { select: { categoryId: true } } },
-        orderBy: { activeOfferCount: 'desc' },
-        take: 50 // Limit to top 50 stores to prevent quadratic explosion (50 * 50 = ~1,225 pairs max)
-    });
-
     const compareRoutes: MetadataRoute.Sitemap = [];
-    
-    for (let i = 0; i < topStores.length; i++) {
-        for (let j = i + 1; j < topStores.length; j++) {
-            const storeA = topStores[i];
-            const storeB = topStores[j];
-            // Only generate comparison if they share a category
-            const sharesCategory = storeA.storeCategories.some(c1 => 
-                storeB.storeCategories.some(c2 => c1.categoryId === c2.categoryId)
-            );
-            if (sharesCategory) {
-                // Ensure alphabetical order to avoid duplicate reverse pages
-                const [slug1, slug2] = [storeA.slug, storeB.slug].sort();
-                // Use the most recent update time
-                const lastModified = storeA.updatedAt > storeB.updatedAt ? storeA.updatedAt : storeB.updatedAt;
-                
-                compareRoutes.push({
-                    url: `${baseUrl}/compare/${slug1}-vs-${slug2}`,
-                    lastModified,
-                    changeFrequency: "weekly" as const,
-                    priority: 0.7,
-                });
+    try {
+        const topStores = await prisma.store.findMany({
+            where: { isActive: true, activeOfferCount: { gt: 10 } },
+            select: { slug: true, updatedAt: true, storeCategories: { select: { categoryId: true } } },
+            orderBy: { activeOfferCount: 'desc' },
+            take: 50 // Limit to top 50 stores to prevent quadratic explosion (50 * 50 = ~1,225 pairs max)
+        });
+
+        for (let i = 0; i < topStores.length; i++) {
+            for (let j = i + 1; j < topStores.length; j++) {
+                const storeA = topStores[i];
+                const storeB = topStores[j];
+                // Only generate comparison if they share a category
+                const sharesCategory = storeA.storeCategories.some(c1 => 
+                    storeB.storeCategories.some(c2 => c1.categoryId === c2.categoryId)
+                );
+                if (sharesCategory) {
+                    // Ensure alphabetical order to avoid duplicate reverse pages
+                    const [slug1, slug2] = [storeA.slug, storeB.slug].sort();
+                    // Use the most recent update time
+                    const lastModified = storeA.updatedAt > storeB.updatedAt ? storeA.updatedAt : storeB.updatedAt;
+                    
+                    compareRoutes.push({
+                        url: `${baseUrl}/compare/${slug1}-vs-${slug2}`,
+                        lastModified,
+                        changeFrequency: "weekly" as const,
+                        priority: 0.7,
+                    });
+                }
             }
         }
+    } catch (e) {
+        console.warn("[sitemap] Failed to fetch compare routes:", e);
     }
 
     // 7. Dynamic Sale Event Routes (Diwali, Prime Day, etc.)

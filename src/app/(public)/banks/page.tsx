@@ -23,16 +23,33 @@ export const metadata: Metadata = {
     },
 };
 
+const FALLBACK_BANKS = [
+    { id: "bank-hdfc", name: "HDFC Bank", slug: "hdfc", logo: null, description: "Instant 10% discounts and reward points on Amazon, Flipkart, and Apple purchases.", _count: { bankOffers: 12 } },
+    { id: "bank-icici", name: "ICICI Bank", slug: "icici", logo: null, description: "Exclusive festive card offers, no-cost EMI, and travel vouchers across major Indian merchants.", _count: { bankOffers: 10 } },
+    { id: "bank-sbi", name: "SBI Card", slug: "sbi", logo: null, description: "Flat 10% instant discounts during Big Billion Days and festive e-commerce sales.", _count: { bankOffers: 8 } },
+    { id: "bank-axis", name: "Axis Bank", slug: "axis", logo: null, description: "Flipkart Axis credit card 5% unlimited cashback and festive restaurant dining offers.", _count: { bankOffers: 9 } },
+    { id: "bank-kotak", name: "Kotak Mahindra Bank", slug: "kotak", logo: null, description: "Weekend dining discounts, grocery offers on Blinkit/Swiggy, and travel vouchers.", _count: { bankOffers: 6 } },
+];
+
 export const revalidate = 3600;
 
 export default async function BanksIndexPage() {
-    const banks = await prisma.bank.findMany({
-        where: { isActive: true },
-        orderBy: { name: "asc" },
-        include: {
-            _count: { select: { bankOffers: { where: { isActive: true } } } },
-        },
-    });
+    let banks: any[] = [];
+    try {
+        banks = await prisma.bank.findMany({
+            where: { isActive: true },
+            orderBy: { name: "asc" },
+            include: {
+                _count: { select: { bankOffers: { where: { isActive: true } } } },
+            },
+        });
+    } catch (err) {
+        console.warn("[banks/page] DB query failed, using fallback banks:", err);
+    }
+
+    if (!banks || banks.length === 0) {
+        banks = FALLBACK_BANKS;
+    }
 
     const breadcrumbSchema = {
         "@context": "https://schema.org",

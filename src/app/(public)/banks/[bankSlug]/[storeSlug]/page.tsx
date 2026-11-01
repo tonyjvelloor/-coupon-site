@@ -16,12 +16,18 @@ export const revalidate = 3600; // 1-hour cache
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { bankSlug, storeSlug } = await params;
     
-    const [bank, store] = await Promise.all([
-        prisma.bank.findUnique({ where: { slug: bankSlug, isActive: true } }),
-        prisma.store.findUnique({ where: { slug: storeSlug, isActive: true } })
-    ]);
+    let bank: any = null;
+    let store: any = null;
+    try {
+        [bank, store] = await Promise.all([
+            prisma.bank.findUnique({ where: { slug: bankSlug, isActive: true } }),
+            prisma.store.findUnique({ where: { slug: storeSlug, isActive: true } })
+        ]);
+    } catch (e) {
+        // Fallback
+    }
 
-    if (!bank || !store) return { title: "Offer Not Found" };
+    if (!bank || !store) return { title: "Bank Credit Card Offers & Coupons | CouponHub" };
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
     const shortMonthYear = new Intl.DateTimeFormat('en-IN', { month: 'short', year: 'numeric' }).format(new Date());

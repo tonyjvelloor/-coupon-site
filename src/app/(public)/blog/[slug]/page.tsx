@@ -73,28 +73,6 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
         }
     };
 }
-            title: ogTitle,
-            description: ogDescription,
-            type: "article",
-            publishedTime: post.publishedAt?.toISOString(),
-            authors: post.author?.name ? [post.author.name] : undefined,
-            images: [
-                {
-                    url: post.coverImage || `${siteUrl}/api/og?title=${encodeURIComponent(post.title)}&description=${encodeURIComponent(ogDescription.substring(0, 100))}&type=blog`,
-                    width: 1200,
-                    height: 630,
-                    alt: ogTitle,
-                },
-            ],
-        },
-        twitter: {
-            card: 'summary_large_image',
-            title: ogTitle,
-            description: ogDescription,
-            images: [post.coverImage || `${siteUrl}/api/og?title=${encodeURIComponent(post.title)}&description=${encodeURIComponent(ogDescription.substring(0, 100))}&type=blog`],
-        }
-    };
-}
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
     const { slug } = await params;

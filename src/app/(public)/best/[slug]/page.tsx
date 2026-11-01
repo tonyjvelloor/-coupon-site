@@ -66,38 +66,47 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const { slug } = await params;
     const dbSlug = slug.replace('-coupons', '');
     
-    const category = await prisma.category.findUnique({
-        where: { slug: dbSlug, isActive: true },
-        include: {
-            storeCategories: {
-                select: {
-                    store: {
-                        select: {
-                            merchantIdentity: {
-                                select: { id: true }
+    let category: any = null;
+    let activeOffers = 0;
+    let activeStores = 0;
+    try {
+        category = await prisma.category.findUnique({
+            where: { slug: dbSlug, isActive: true },
+            include: {
+                storeCategories: {
+                    select: {
+                        store: {
+                            select: {
+                                merchantIdentity: {
+                                    select: { id: true }
+                                }
                             }
                         }
                     }
                 }
             }
+        });
+
+        if (category) {
+            const storeIdentityIds = category.storeCategories
+                .map((sc: any) => sc.store.merchantIdentity?.id)
+                .filter(Boolean) as string[];
+
+            activeOffers = await prisma.coupon.count({
+                where: {
+                    merchantIdentityId: { in: storeIdentityIds },
+                    deletedAt: null,
+                    OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }]
+                }
+            });
+
+            activeStores = storeIdentityIds.length;
         }
-    });
+    } catch (e) {
+        // Fallback
+    }
 
-    if (!category) return { title: "Category Not Found" };
-
-    const storeIdentityIds = category.storeCategories
-        .map(sc => sc.store.merchantIdentity?.id)
-        .filter(Boolean) as string[];
-
-    const activeOffers = await prisma.coupon.count({
-        where: {
-            merchantIdentityId: { in: storeIdentityIds },
-            deletedAt: null,
-            OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }]
-        }
-    });
-
-    const activeStores = storeIdentityIds.length;
+    if (!category) return { title: "Category Offers & Coupons | CouponHub" };
     const isIndexable = activeStores >= 1 && activeOffers >= 1;
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
 
