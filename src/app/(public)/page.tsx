@@ -7,6 +7,7 @@ import { HeroModule } from "@/components/modules/homepage/HeroModule";
 import { TrustMarkersModule } from "@/components/modules/homepage/TrustMarkersModule";
 import { PopularStoresModule } from "@/components/modules/homepage/PopularStoresModule";
 import { DiwaliFestiveBanner } from "@/components/modules/homepage/DiwaliFestiveBanner";
+import { AdBannerHorizontal } from "@/components/ui/AdBanner";
 const PersonalizedFeedModule = dynamic(() => import("@/components/modules/homepage/PersonalizedFeedModule").then(mod => mod.PersonalizedFeedModule), { ssr: true });
 const BestOffersModule = dynamic(() => import("@/components/modules/homepage/BestOffersModule").then(mod => mod.BestOffersModule), { ssr: true });
 const SavingsModule = dynamic(() => import("@/components/modules/homepage/SavingsModule").then(mod => mod.SavingsModule), { ssr: true });
@@ -75,6 +76,9 @@ export default async function Home() {
 
                 {/* 4. Trending Right Now (Categories) */}
                 <CategoriesModule />
+
+                {/* 4.5 In-feed Compliant Ad Placement */}
+                <AdBannerHorizontal className="my-8" />
 
                 {/* 5. Today's Biggest Savings */}
                 <BestOffersModule />

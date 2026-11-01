@@ -38,11 +38,13 @@ export default function Header() {
                             </span>
                         </Link>
                         
-                        <nav className="hidden lg:flex items-center gap-12">
+                        <nav className="hidden lg:flex items-center gap-8 xl:gap-10">
                             {[
-                                { name: "Deals", href: "/deals" },
                                 { name: "Stores", href: "/stores" },
-                                { name: "Best Offers", href: "/best-offers" }
+                                { name: "Categories", href: "/categories" },
+                                { name: "Best Offers", href: "/best-offers" },
+                                { name: "Bank Deals", href: "/banks" },
+                                { name: "Blog", href: "/blog" }
                             ].map((item) => (
                                 <Link
                                     key={item.name}

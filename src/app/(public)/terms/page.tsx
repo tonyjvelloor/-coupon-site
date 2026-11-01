@@ -33,17 +33,22 @@ export default function TermsPage() {
                         The Service and its original content, features, and functionality are and will remain the exclusive property of TheBrandManiacs and its licensors.
                     </p>
 
-                    <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">4. Limitation of Liability</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">4. Third-Party Advertisements & External Links</h2>
+                    <p>
+                        CouponHub contains third-party advertisements served by partners including <strong>Google AdSense</strong>, as well as affiliate hyperlinks to merchant websites. We do not endorse, warrant, or assume liability for third-party products, services, terms, or transactions conducted with external merchants.
+                    </p>
+
+                    <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">5. Limitation of Liability</h2>
                     <p>
                         In no event shall TheBrandManiacs, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your access to or use of or inability to access or use the Service.
                     </p>
 
-                    <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">5. Changes to Terms</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">6. Changes to Terms</h2>
                     <p>
                         We reserve the right, at our sole discretion, to modify or replace these Terms at any time. We will provide notice of any changes by posting the new Terms on this page.
                     </p>
 
-                    <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">6. Contact Us</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">7. Contact Us</h2>
                     <p>
                         If you have any questions about these Terms, please contact us at: <br />
                         <strong className="text-violet-600">support@thebrandmaniacs.com</strong>

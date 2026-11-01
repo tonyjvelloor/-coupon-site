@@ -10,22 +10,24 @@ const footerLinks = {
         { name: "All Stores", href: "/stores" },
     ],
     categories: [
-        { name: "Fashion", href: "/category/fashion" },
-        { name: "Electronics", href: "/category/electronics" },
-        { name: "Food & Dining", href: "/category/food-dining" },
-        { name: "Travel", href: "/category/travel" },
+        { name: "Fashion Deals", href: "/best/fashion-coupons" },
+        { name: "Electronics Deals", href: "/best/electronics-coupons" },
+        { name: "Food & Dining", href: "/best/food-dining-coupons" },
+        { name: "Travel Offers", href: "/best/travel-coupons" },
         { name: "All Categories", href: "/categories" },
     ],
     company: [
         { name: "About Us", href: "/about" },
-        { name: "Blog", href: "/blog" },
-        { name: "How It Works", href: "/how-it-works" },
+        { name: "Blog & Guides", href: "/blog" },
         { name: "Contact Us", href: "/contact" },
         { name: "Privacy Policy", href: "/privacy" },
+        { name: "Terms & Conditions", href: "/terms" },
+        { name: "Affiliate & Ad Disclosure", href: "/disclosure" },
+        { name: "How We Verify Deals", href: "/how-we-verify" },
     ],
     popular: [
-        { name: "HDFC Credit Card Offers", href: "/banks/hdfc-bank" },
-        { name: "SBI Card Discounts", href: "/banks/sbi-card" },
+        { name: "HDFC Card Offers", href: "/banks/hdfc" },
+        { name: "SBI Card Discounts", href: "/banks/sbi" },
         { name: "First Order Coupons", href: "/offers/new-user-coupons" },
         { name: "Free Shipping Codes", href: "/offers/free-shipping-codes" },
         { name: "Buy 1 Get 1 Free", href: "/offers/bogo-deals" },
@@ -104,9 +106,11 @@ export default function Footer() {
                         </ul>
                     </div>
                 </div>
-                <div className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto mt-16 pt-8 border-t border-surface-variant/20 flex flex-col md:flex-row justify-between items-center gap-4 text-surface-variant font-body-md text-body-md opacity-60">
-                    <p>© {currentYear} couponhub. All rights reserved.</p>
-                    <p>Verified savings updated daily.</p>
+                <div className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto mt-16 pt-8 border-t border-surface-variant/20 flex flex-col md:flex-row justify-between items-center gap-4 text-surface-variant font-body-md text-body-md opacity-70">
+                    <p>© {currentYear} CouponHub. All rights reserved. Operated by TheBrandManiacs.</p>
+                    <p className="text-xs text-center md:text-right">
+                        Advertiser Disclosure: We may earn affiliate commissions and display advertising through partners like Google AdSense.
+                    </p>
                 </div>
             </footer>
         </>

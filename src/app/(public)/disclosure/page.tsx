@@ -30,6 +30,14 @@ export default function DisclosurePage() {
                         As an Amazon Associate, CouponHub earns from qualifying purchases.
                     </p>
 
+                    <h2>Third-Party Advertising & Google AdSense Disclosure</h2>
+                    <p>
+                        In addition to affiliate links, CouponHub displays contextual and interest-based advertisements through <strong>Google AdSense</strong> and authorized advertising partners. These third-party vendors use cookies to serve ads based on your visits to this website and other sites across the Internet. 
+                    </p>
+                    <p>
+                        Advertisements are clearly demarcated from editorial content. Sponsored ad units do not influence the ranking, rating, or selection of coupon codes and deals featured on our platform. To learn more or opt out of personalized advertising, please review our <a href="/privacy" className="text-violet-600 font-semibold underline">Privacy Policy</a>.
+                    </p>
+
                     <h2>Our Commitment</h2>
                     <p>
                         We promise to never let our affiliate relationships influence our editorial content or the deals we choose to feature. We will always present you with the best available savings.
