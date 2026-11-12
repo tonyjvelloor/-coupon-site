@@ -26,6 +26,7 @@ const footerLinks = {
         { name: "How We Verify Deals", href: "/how-we-verify" },
     ],
     popular: [
+        { name: "Savings Tools", href: "/tools" },
         { name: "HDFC Card Offers", href: "/banks/hdfc" },
         { name: "SBI Card Discounts", href: "/banks/sbi" },
         { name: "First Order Coupons", href: "/offers/new-user-coupons" },

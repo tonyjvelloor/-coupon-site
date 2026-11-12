@@ -44,6 +44,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             changeFrequency: "weekly" as const,
             priority: 0.7,
         },
+        {
+            url: `${baseUrl}/tools`,
+            lastModified: new Date(),
+            changeFrequency: "weekly" as const,
+            priority: 0.8,
+        },
+        {
+            url: `${baseUrl}/tools/discount-calculator`,
+            lastModified: new Date(),
+            changeFrequency: "weekly" as const,
+            priority: 0.8,
+        },
     ];
 
     // 2. Dynamic Store Routes
