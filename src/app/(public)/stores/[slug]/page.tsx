@@ -4,6 +4,7 @@ import { categoryService } from "@/lib/services/category.service";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
+import { getCurrentMonthYear, getSiteUrl, refreshSeoDate } from "@/lib/seo-utils";
 
 // Global Shared Components
 import ExitIntentPopup from "@/components/ui/ExitIntentPopup";
@@ -55,18 +56,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     if (!store) return { title: "Store Coupon Codes & Deals | CouponHub" };
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
-    const shortMonthYear = new Intl.DateTimeFormat('en-IN', { month: 'short', year: 'numeric' }).format(new Date());
-    const fullMonthYear = new Intl.DateTimeFormat('en-IN', { month: 'long', year: 'numeric' }).format(new Date());
+    const siteUrl = getSiteUrl();
+    const { shortMonthYear, fullMonthYear } = getCurrentMonthYear();
     
     const offerLabel = store.activeOfferCount && store.activeOfferCount > 0 ? `${store.activeOfferCount} Verified Deals` : 'Verified Deals';
     
-    let ogTitle = store.seoTitle 
+    const rawTitle = store.seoTitle 
         ? store.seoTitle.replace(/\s*\|\s*CouponHub.*$/, '') 
         : `${store.name} Coupon Code (${shortMonthYear}): ${offerLabel}`;
+    const ogTitle = refreshSeoDate(rawTitle);
 
     const cashbackSnippet = store.cashbackRate ? `Earn ${store.cashbackRate} Cashback & ` : '';
-    let ogDescription = store.seoDescription || `${cashbackSnippet}Save big with 100% verified ${store.name} coupon codes and promo codes for ${fullMonthYear}. Tested today by CouponHub.`;
+    const rawDescription = store.seoDescription || `${cashbackSnippet}Save big with 100% verified ${store.name} coupon codes and promo codes for ${fullMonthYear}. Tested today by CouponHub.`;
+    const ogDescription = refreshSeoDate(rawDescription);
 
 
     const ogImageUrl = `${siteUrl}/api/og?title=${encodeURIComponent(ogTitle)}&description=${encodeURIComponent(ogDescription)}&type=store${store.logo ? `&logo=${encodeURIComponent(store.logo)}` : ''}`;

@@ -74,23 +74,16 @@ export default async function ComparePage({ params }: { params: Promise<{ slug: 
 
   const [slug1, slug2] = slug.split("-vs-");
 
-  // Fetch both stores in parallel
-  const [store1, store2] = await Promise.all([
-    prisma.store.findUnique({
-      where: { slug: slug1 },
-      include: {
-        storeContents: true,
-        merchantIdentity: { include: { coupons: { where: { expiresAt: { gt: new Date() } }, take: 3 } } }
-      }
-    }),
-    prisma.store.findUnique({
-      where: { slug: slug2 },
-      include: {
-        storeContents: true,
-        merchantIdentity: { include: { coupons: { where: { expiresAt: { gt: new Date() } }, take: 3 } } }
-      }
-    })
-  ]);
+  // Fetch both stores in a single query to avoid connection-pool contention during build/SSR
+  const stores = await prisma.store.findMany({
+    where: { slug: { in: [slug1, slug2] } },
+    include: {
+      storeContents: true,
+      merchantIdentity: { include: { coupons: { where: { expiresAt: { gt: new Date() } }, take: 3 } } }
+    }
+  });
+  const store1 = stores.find((s) => s.slug === slug1) ?? null;
+  const store2 = stores.find((s) => s.slug === slug2) ?? null;
 
   if (!store1 || !store2) {
     notFound();

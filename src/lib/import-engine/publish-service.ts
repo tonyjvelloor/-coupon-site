@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { NormalizedOffer } from "./types";
 import { MerchantResolver } from "./merchant-resolver";
+import { submitToIndexNow } from "@/lib/indexnow";
 
 export type PublishActorType = "SYSTEM" | "ADMIN" | "API";
 
@@ -35,7 +36,7 @@ export class PublishService {
     
     const offer = importedOffer.normalizedData as unknown as NormalizedOffer;
 
-    return await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       // 1. Ensure Identity exists
       const identity = await tx.merchantIdentity.findUnique({
         where: { id: options.merchantIdentityId },
@@ -188,5 +189,11 @@ export class PublishService {
         isNewCoupon
       };
     });
+
+    if (result.success && result.storeSlug) {
+      void submitToIndexNow([`/stores/${result.storeSlug}`]).catch(() => {});
+    }
+
+    return result;
   }
 }

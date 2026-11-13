@@ -27,6 +27,99 @@ const AUTHOR_COUPONHUB = {
 
 export const FALLBACK_BLOG_POSTS: BlogPostData[] = [
     // -------------------------------------------------------------
+    // 0A. BLACK FRIDAY & CYBER MONDAY INDIA 2026 GUIDE
+    // -------------------------------------------------------------
+    {
+        id: "post-black-friday-india-2026",
+        slug: "black-friday-sale-india-2026-best-deals-coupons",
+        title: "Black Friday Sale India 2026: Best Amazon, Hostinger, Croma & Fashion Coupon Codes",
+        excerpt: "Complete Black Friday & Cyber Monday 2026 India playbook: up to 90% off web hosting & SaaS, electronics deals on Amazon and Croma, plus how to choose between 10% instant card offers and 5% cashback cards.",
+        seoTitle: "Black Friday Sale India 2026: Verified Coupon Codes & Tech Deals | CouponHub",
+        seoDescription: "Shop Black Friday & Cyber Monday 2026 deals in India. Get verified coupon codes for Hostinger, Amazon, Croma, Myntra & Tata CLiQ plus bank discount stacking tips.",
+        keywords: "black friday sale india 2026,black friday coupon codes india,hostinger black friday coupon,cyber monday deals india,amazon black friday india,croma black friday offers",
+        isPublished: true,
+        publishedAt: new Date("2026-11-13T08:00:00.000Z"),
+        author: AUTHOR_COUPONHUB,
+        content: `<h2>Why Black Friday Has Become Huge in India in 2026</h2>
+<p>While Diwali dominates traditional Indian festive shopping, <strong>Black Friday (November 27, 2026)</strong> and <strong>Cyber Monday (November 30, 2026)</strong> now deliver the deepest annual markdowns across <strong>software, web hosting, global fashion brands, and premium electronics</strong>.</p>
+<ul>
+    <li><strong>Web Hosting &amp; SaaS:</strong> Hostinger, VPNs, and cloud tools drop prices by 75% to 90% once a year during Black Friday week.</li>
+    <li><strong>Global Apparel &amp; Sneakers:</strong> Zara, H&amp;M, Adidas, Nike, and international labels on Ajio Luxe and Tata CLiQ Luxury slash prices by 30%–50%.</li>
+    <li><strong>Electronics &amp; Laptops:</strong> Amazon India, Croma, and Flipkart run targeted bank card promotions on laptops, monitors, SSDs, and headphones.</li>
+</ul>
+
+<h2>Top Black Friday 2026 Categories &amp; Verified Deals</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Store / Category</th>
+            <th>Expected Black Friday Offer</th>
+            <th>Where to Claim</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Hostinger India</strong></td>
+            <td>Up to 85%–90% OFF Hosting + Free Domain + Extra Promo Code</td>
+            <td><a href="/stores/hostinger">View Hostinger Coupons</a></td>
+        </tr>
+        <tr>
+            <td><strong>Amazon India</strong></td>
+            <td>Lightning Deals on Laptops, Audio &amp; Accessories + HDFC/ICICI Card Off</td>
+            <td><a href="/stores/amazon">View Amazon India Deals</a></td>
+        </tr>
+        <tr>
+            <td><strong>Croma</strong></td>
+            <td>Extra 10% Instant Bank Discount on TVs, Wearables &amp; Appliances</td>
+            <td><a href="/stores/croma">View Croma Coupons</a></td>
+        </tr>
+        <tr>
+            <td><strong>Myntra &amp; AJIO</strong></td>
+            <td>Flat 40%–70% OFF Winterwear + Extra ₹400–₹500 Cart Vouchers</td>
+            <td><a href="/compare/myntra-vs-ajio">Compare Myntra vs AJIO Deals</a></td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Instant Bank Offer vs. 5% Cashback Card: Which Wins on Black Friday?</h2>
+<p>Before swiping at checkout, remember that most 10% instant bank discounts cap out at ₹1,500–₹2,000. For high-ticket laptop or TV carts above ₹40,000, an uncapped or ₹5,000-capped 5% cashback card can actually save you more — especially if the instant offer pushes you onto No-Cost EMI with 18% GST on interest.</p>
+<p>Test your exact cart amount in seconds using our free <a href="/tools/card-vs-cashback-calculator">Bank Discount vs. Cashback Card Calculator</a> or stack multiple vouchers with our <a href="/tools/discount-calculator">Discount Stacking Calculator</a>.</p>`
+    },
+    // -------------------------------------------------------------
+    // 0B. NYKAA PINK FRIDAY & MYNTRA EORS 2026 GUIDE
+    // -------------------------------------------------------------
+    {
+        id: "post-nykaa-pink-friday-eors-2026",
+        slug: "nykaa-pink-friday-myntra-eors-2026-guide",
+        title: "Nykaa Pink Friday & Myntra EORS 2026: Verified Coupon Codes & Stacking Hacks",
+        excerpt: "Your step-by-step playbook for Nykaa Pink Friday (Nov 2026) and Myntra End of Reason Sale (Dec 2026): free full-size gifts, hidden cart vouchers, Insider points, and bank card stacking.",
+        seoTitle: "Nykaa Pink Friday & Myntra EORS 2026: Working Coupon Codes | CouponHub",
+        seoDescription: "Save up to 75% in the Nykaa Pink Friday Sale and Myntra End of Reason Sale 2026. Get tested coupon codes, freebie stacking tips, and HDFC/ICICI card offers.",
+        keywords: "nykaa pink friday sale 2026,nykaa coupon code,myntra eors 2026,myntra end of reason sale coupons,beauty deals india,fashion coupon codes 2026",
+        isPublished: true,
+        publishedAt: new Date("2026-11-12T10:00:00.000Z"),
+        author: AUTHOR_COUPONHUB,
+        content: `<h2>Two Massive Year-End Sales Back-to-Back</h2>
+<p>Right after mid-November, two of India's highest-converting lifestyle shopping events take center stage: <strong>Nykaa Pink Friday Sale (late November)</strong> and <strong>Myntra End of Reason Sale / EORS (early December)</strong>.</p>
+<p>Unlike regular weekend promos, both sales allow aggressive multi-layer stacking across brand markdowns, free full-size gifts, loyalty points, and bank instant discounts.</p>
+
+<h2>How to Maximize Savings During Nykaa Pink Friday 2026</h2>
+<ol>
+    <li><strong>Target Brand Freebie Thresholds:</strong> Brands like Plum, Minimalist, Cetaphil, MAC, and Nykaa Cosmetics bundle full-size free gifts once your brand subtotal crosses ₹999 or ₹1,499.</li>
+    <li><strong>Apply Cart-Level Promo Codes:</strong> Check live tested vouchers on our <a href="/stores/nykaa">Nykaa Verified Coupons page</a> and <a href="/best/beauty-coupons">Best Beauty Deals hub</a> before paying.</li>
+    <li><strong>Use Bank Card Day Windows:</strong> HDFC and ICICI bank cards typically run flat ₹200–₹350 instant discounts on minimum carts of ₹1,500–₹2,500 during early access hours.</li>
+</ol>
+
+<h2>Myntra End of Reason Sale (EORS) 2026 Stacking Checklist</h2>
+<ul>
+    <li><strong>Early Access VIP Slots:</strong> Myntra Insiders unlock deals 24 hours early before top sizes sell out in sneakers and winter jackets.</li>
+    <li><strong>Insider SuperCoins / Points Conversion:</strong> Convert Myntra Insider points into ₹100–₹500 discount vouchers — these stack <em>on top of</em> platform coupons.</li>
+    <li><strong>Compare Against AJIO:</strong> Always cross-check identical sneaker and ethnic SKUs using our <a href="/compare/myntra-vs-ajio">Myntra vs AJIO Comparison</a> and grab extra codes on <a href="/stores/myntra">Myntra Coupons</a> or <a href="/stores/ajio">AJIO Coupons</a>.</li>
+</ul>
+
+<p>Track all upcoming festive and seasonal drop dates on the <a href="/events">CouponHub Sale Events Calendar</a>.</p>`
+    },
+    // -------------------------------------------------------------
     // 1. DIWALI 2026 MEGA GUIDE (Indian Brands Focus)
     // -------------------------------------------------------------
     {
@@ -398,6 +491,7 @@ export const FALLBACK_BLOG_POSTS: BlogPostData[] = [
  * Fetch all published blog posts. Tries Prisma first, falls back to static registry.
  */
 export async function getAllBlogPosts(): Promise<BlogPostData[]> {
+    let dbPosts: BlogPostData[] = [];
     try {
         const posts = await prisma.blogPost.findMany({
             where: { isPublished: true },
@@ -408,7 +502,7 @@ export async function getAllBlogPosts(): Promise<BlogPostData[]> {
         });
 
         if (posts && posts.length > 0) {
-            return posts.map(p => ({
+            dbPosts = posts.map(p => ({
                 id: p.id,
                 title: p.title,
                 slug: p.slug,
@@ -431,7 +525,14 @@ export async function getAllBlogPosts(): Promise<BlogPostData[]> {
         console.warn("[blog-data] Database unavailable, falling back to static registry:", (e as any)?.message || e);
     }
 
-    return FALLBACK_BLOG_POSTS;
+    // Merge DB posts with curated editorial posts (deduplicated by slug, DB takes priority)
+    const seenSlugs = new Set(dbPosts.map((p) => p.slug));
+    const merged = [
+        ...dbPosts,
+        ...FALLBACK_BLOG_POSTS.filter((p) => !seenSlugs.has(p.slug)),
+    ];
+    merged.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+    return merged;
 }
 
 /**
@@ -478,16 +579,17 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPostData | nu
  * Return all slugs for static site generation.
  */
 export async function getAllBlogSlugs(): Promise<string[]> {
+    let dbSlugs: string[] = [];
     try {
         const posts = await prisma.blogPost.findMany({
             where: { isPublished: true },
             select: { slug: true }
         });
         if (posts && posts.length > 0) {
-            return posts.map(p => p.slug);
+            dbSlugs = posts.map(p => p.slug);
         }
     } catch (e) {
         // Silently fall back to static list
     }
-    return FALLBACK_BLOG_POSTS.map(p => p.slug);
+    return Array.from(new Set([...dbSlugs, ...FALLBACK_BLOG_POSTS.map(p => p.slug)]));
 }

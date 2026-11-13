@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { submitToIndexNow } from "@/lib/indexnow";
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -112,6 +113,10 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
                     create: { storeId: id, type: item.type, content: item.content }
                 });
             }
+        }
+
+        if (store.isActive) {
+            void submitToIndexNow([`/stores/${store.slug}`]).catch(() => {});
         }
 
         return NextResponse.json(store);

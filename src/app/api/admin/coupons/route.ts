@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { submitToIndexNow } from "@/lib/indexnow";
 
 // GET all coupons
 export async function GET() {
@@ -63,6 +64,9 @@ export async function POST(request: NextRequest) {
                     where: { id: identity.store.id },
                     data: { offerCount: { increment: 1 } },
                 });
+                if (identity.store.slug) {
+                    void submitToIndexNow([`/stores/${identity.store.slug}`]).catch(() => {});
+                }
             }
         }
 

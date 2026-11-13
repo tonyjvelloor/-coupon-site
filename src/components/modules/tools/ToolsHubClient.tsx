@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Calculator, Percent, Sparkles, Copy, Check, ExternalLink, Code2, Tag, ShieldCheck, Flame } from "lucide-react";
+import { Calculator, CreditCard, Sparkles, Copy, Check, ExternalLink, Code2, Tag, ShieldCheck, Flame } from "lucide-react";
 
 interface EmbedPreset {
   id: string;
@@ -47,6 +47,14 @@ const PRESETS: EmbedPreset[] = [
     color: "4F46E5",
   },
   {
+    id: "card-calculator",
+    name: "Card Discount vs Cashback Tool",
+    targetUrl: "https://www.couponhub.store/tools/card-vs-cashback-calculator",
+    badgeLabel: "Card vs Cashback Calculator",
+    badgeText: "Compare Bank Offers",
+    color: "0EA5E9",
+  },
+  {
     id: "banks",
     name: "Credit Card Instant Discounts",
     targetUrl: "https://www.couponhub.store/banks",
@@ -80,7 +88,7 @@ export function ToolsHubClient() {
   return (
     <div className="space-y-16">
       {/* Featured Tools Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Tool 1: Discount Calculator */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
           <div>
@@ -91,10 +99,10 @@ export function ToolsHubClient() {
               <Sparkles className="w-3.5 h-3.5" /> High Precision & Stacking
             </div>
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">
-              Discount & Stacking Calculator
+              Discount &amp; Stacking Calculator
             </h2>
             <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-6">
-              Calculate your exact cart total after applying flat discount coupons, percentage promo codes, and 10% bank card instant discounts. Supports multi-offer stacking.
+              Calculate your exact cart total after applying flat discount coupons, percentage promo codes, and 10% bank card instant discounts.
             </p>
           </div>
           <Link
@@ -105,7 +113,31 @@ export function ToolsHubClient() {
           </Link>
         </div>
 
-        {/* Tool 2: Webmaster & Syndication Embeds */}
+        {/* Tool 2: Credit Card Instant Discount vs Cashback Calculator */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
+          <div>
+            <div className="w-14 h-14 rounded-xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 flex items-center justify-center mb-6 group-hover:scale-105 transition-transform">
+              <CreditCard className="w-7 h-7" />
+            </div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 mb-3">
+              <Sparkles className="w-3.5 h-3.5" /> Includes No-Cost EMI GST
+            </div>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">
+              Card Discount vs. Cashback
+            </h2>
+            <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-6">
+              Compare capped 10% instant bank discounts (HDFC, SBI, ICICI) against 5% cashback cards — including hidden 18% EMI GST costs.
+            </p>
+          </div>
+          <Link
+            href="/tools/card-vs-cashback-calculator"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-brand-emerald hover:bg-emerald-600 text-white font-semibold transition-all shadow-sm hover:shadow active:scale-[0.99]"
+          >
+            Compare Cards <ExternalLink className="w-4 h-4" />
+          </Link>
+        </div>
+
+        {/* Tool 3: Webmaster & Syndication Embeds */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
           <div>
             <div className="w-14 h-14 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 flex items-center justify-center mb-6 group-hover:scale-105 transition-transform">

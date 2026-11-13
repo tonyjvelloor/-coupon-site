@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
+import { getSiteUrl, isStoreSubpageIndexable } from "@/lib/seo-utils";
 
 export const revalidate = 3600;
 
@@ -12,16 +13,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const { slug } = await params;
     const store = await prisma.store.findUnique({
         where: { slug, isActive: true },
+        include: { storeContents: { where: { type: "SHIPPING" } } },
     });
 
     if (!store) return { title: "Store Not Found" };
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
+    const siteUrl = getSiteUrl();
     const ogTitle = `${store.name} Shipping Policy & Free Shipping Codes`;
+    const shippingContent = store.storeContents[0]?.content;
+    const isIndexable = isStoreSubpageIndexable(store.activeOfferCount, shippingContent);
     
     return {
         title: ogTitle,
         description: `Everything you need to know about ${store.name} shipping policies, delivery times, and free shipping promo codes.`,
+        robots: { index: isIndexable, follow: true },
         alternates: {
             canonical: `${siteUrl}/stores/${store.slug}/shipping`,
         }

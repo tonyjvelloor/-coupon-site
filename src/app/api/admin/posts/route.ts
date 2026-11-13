@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { submitToIndexNow } from "@/lib/indexnow";
 
 export async function POST(request: NextRequest) {
     const session = await getSession();
@@ -44,6 +45,10 @@ export async function POST(request: NextRequest) {
                 authorId: session.id,
             },
         });
+
+        if (post.isPublished) {
+            void submitToIndexNow([`/blog/${post.slug}`, "/blog"]).catch(() => {});
+        }
 
         return NextResponse.json(post);
     } catch (error) {

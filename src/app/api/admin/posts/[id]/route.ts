@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { submitToIndexNow } from "@/lib/indexnow";
 
 export async function GET(
     request: NextRequest,
@@ -40,11 +41,12 @@ export async function PUT(
     }
 
     try {
+        const { id } = await params;
         const body = await request.json();
         const { title, slug, content, seoTitle, seoDescription, keywords, isPublished } = body;
 
         const existingPost = await prisma.blogPost.findUnique({
-            where: { id: params.id }
+            where: { id }
         });
 
         if (!existingPost) {
@@ -68,11 +70,14 @@ export async function PUT(
             data.publishedAt = new Date();
         }
 
-        const { id } = await params;
         const post = await prisma.blogPost.update({
             where: { id },
             data,
         });
+
+        if (post.isPublished) {
+            void submitToIndexNow([`/blog/${post.slug}`, "/blog"]).catch(() => {});
+        }
 
         return NextResponse.json(post);
     } catch (error) {

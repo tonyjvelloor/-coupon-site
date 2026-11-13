@@ -3,7 +3,16 @@ import type { NextRequest } from 'next/server';
 import { EXPERIMENTS } from './lib/ab-testing';
 import { v4 as uuidv4 } from 'uuid';
 
+const BOT_USER_AGENT_RE =
+    /(googlebot|bingbot|mediapartners-google|adsbot-google|duckduckbot|slurp|applebot|yandexbot|baiduspider|facebookexternalhit|twitterbot|linkedinbot|gptbot|oai-searchbot|perplexitybot|claudebot|anthropic-ai)/i;
+
 export function middleware(request: NextRequest) {
+    // Skip A/B cookie injection for search, ads, and AI crawlers so edge caching stays clean
+    const userAgent = request.headers.get('user-agent') || '';
+    if (BOT_USER_AGENT_RE.test(userAgent)) {
+        return NextResponse.next();
+    }
+
     const response = NextResponse.next();
     
     // 1. Assign or read device ID
@@ -18,7 +27,7 @@ export function middleware(request: NextRequest) {
     }
 
     // 2. Assign A/B test groups for active experiments if not already assigned
-    for (const [key, experiment] of Object.entries(EXPERIMENTS)) {
+    for (const [, experiment] of Object.entries(EXPERIMENTS)) {
         const cookieName = `ch_exp_${experiment.id}`;
         if (!request.cookies.has(cookieName)) {
             // Assign based on deterministic hash of deviceId + experiment.id
@@ -53,8 +62,8 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-    // Apply middleware to pages, exclude api/static files
+    // Apply middleware to HTML pages only; exclude APIs, static assets, sitemaps, feeds, and verification files
     matcher: [
-        '/((?!api|_next/static|_next/image|favicon.ico|images|.*\\.png|.*\\.jpg|.*\\.svg|.*\\.txt).*)',
+        '/((?!api|_next/static|_next/image|favicon.ico|images|.*\\.(?:png|jpg|jpeg|webp|gif|svg|ico|txt|xml|webmanifest|css|js)).*)',
     ],
 };

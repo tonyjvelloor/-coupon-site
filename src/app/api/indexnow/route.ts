@@ -1,24 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
-const INDEXNOW_KEY = process.env.INDEXNOW_KEY || "6d4c97b00f904f008ab1f87f8990aadc";
-
-
-const INDEXNOW_ENDPOINTS = [
-  "https://api.indexnow.org/indexnow",
-  "https://www.bing.com/indexnow",
-];
+import { submitToIndexNow } from "@/lib/indexnow";
 
 /**
  * POST /api/indexnow  Body: { urls: string[] }
  * GET  /api/indexnow?url=/stores/off-duty
- * Submits URLs to Google/Bing for fast indexing via IndexNow protocol.
+ * Submits URLs to Bing/IndexNow endpoints for fast indexing.
  */
 export async function POST(req: NextRequest) {
-  if (!INDEXNOW_KEY) {
-    return NextResponse.json({ ok: false, reason: "INDEXNOW_KEY not configured" });
-  }
-
   let urls: string[] = [];
   try {
     const body = await req.json();
@@ -31,44 +19,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, reason: "No URLs provided" }, { status: 400 });
   }
 
-  const absoluteUrls = urls.map((u) =>
-    u.startsWith("http") ? u : `${SITE_URL}${u.startsWith("/") ? "" : "/"}${u}`
-  );
-
-  const payload = {
-    host: new URL(SITE_URL).hostname,
-    key: INDEXNOW_KEY,
-    keyLocation: `${SITE_URL}/${INDEXNOW_KEY}.txt`,
-    urlList: absoluteUrls,
-  };
-
-  const results: Record<string, number> = {};
-  await Promise.allSettled(
-    INDEXNOW_ENDPOINTS.map(async (endpoint) => {
-      try {
-        const res = await fetch(endpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json; charset=utf-8" },
-          body: JSON.stringify(payload),
-        });
-        results[endpoint] = res.status;
-      } catch {
-        results[endpoint] = 0;
-      }
-    })
-  );
-
-  console.log(`[IndexNow] Submitted ${absoluteUrls.length} URLs:`, results);
-  return NextResponse.json({ ok: true, submitted: absoluteUrls.length, urls: absoluteUrls, results });
+  const result = await submitToIndexNow(urls);
+  return NextResponse.json(result);
 }
 
 export async function GET(req: NextRequest) {
   const url = req.nextUrl.searchParams.get("url");
-  if (!url) return NextResponse.json({ ok: false, reason: "?url= param required" }, { status: 400 });
-  const forwarded = new NextRequest(req.url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ urls: [url] }),
-  });
-  return POST(forwarded);
+  if (!url) {
+    return NextResponse.json({ ok: false, reason: "?url= param required" }, { status: 400 });
+  }
+
+  const result = await submitToIndexNow([url]);
+  return NextResponse.json(result);
 }

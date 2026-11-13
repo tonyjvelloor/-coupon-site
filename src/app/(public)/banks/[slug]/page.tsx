@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { getCurrentMonthYear, getSiteUrl, refreshSeoDate } from "@/lib/seo-utils";
 import Image from "next/image";
 import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
@@ -38,10 +39,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     if (!bank) return { title: "Bank Offers & Coupons | CouponHub" };
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
-    const monthYear = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(new Date());
-    const ogTitle = bank.seoTitle || `${bank.name} Credit Card Offers & Coupons – ${monthYear} | CouponHub`;
-    const ogDescription = bank.description || `Maximize your savings with verified ${bank.name} credit and debit card offers for ${monthYear}. Discover instant discounts, cashback deals, and promotional vouchers.`;
+    const siteUrl = getSiteUrl();
+    const { fullMonthYear } = getCurrentMonthYear();
+    const ogTitle = refreshSeoDate(bank.seoTitle || `${bank.name} Credit Card Offers & Coupons – ${fullMonthYear} | CouponHub`);
+    const ogDescription = refreshSeoDate(bank.description || `Maximize your savings with verified ${bank.name} credit and debit card offers for ${fullMonthYear}. Discover instant discounts, cashback deals, and promotional vouchers.`);
 
     return {
         title: ogTitle,

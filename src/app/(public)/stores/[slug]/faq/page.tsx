@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { notFound, redirect } from "next/navigation";
 import { Metadata } from "next";
 import { contentSplitService } from "@/lib/services/content-split.service";
+import { getSiteUrl, MIN_STORE_OFFERS_FOR_SUBPAGES } from "@/lib/seo-utils";
 
 export const revalidate = 3600;
 
@@ -13,16 +14,22 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const { slug } = await params;
     const store = await prisma.store.findUnique({
         where: { slug, isActive: true },
+        include: { storeContents: { where: { type: "FAQ" } } },
     });
 
     if (!store) return { title: "Store Not Found" };
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
+    const siteUrl = getSiteUrl();
     const ogTitle = `${store.name} FAQ & Common Questions`;
+    const faqContent = store.storeContents[0]?.content;
+    const isIndexable =
+        (store.activeOfferCount ?? 0) >= MIN_STORE_OFFERS_FOR_SUBPAGES &&
+        contentSplitService.shouldSplitFaq(faqContent);
     
     return {
         title: ogTitle,
         description: `Frequently asked questions about ${store.name} coupons, shipping, and returns.`,
+        robots: { index: isIndexable, follow: true },
         alternates: {
             canonical: `${siteUrl}/stores/${store.slug}/faq`,
         }

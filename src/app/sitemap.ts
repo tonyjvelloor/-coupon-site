@@ -2,9 +2,11 @@ import { MetadataRoute } from "next";
 import { prisma } from "@/lib/db";
 import { getAllBlogPosts } from "@/lib/blog-data";
 import { getAllSaleEvents } from "@/lib/events-data";
+import { contentSplitService } from "@/lib/services/content-split.service";
+import { getSiteUrl, isStoreSubpageIndexable, MIN_STORE_OFFERS_FOR_SUBPAGES } from "@/lib/seo-utils";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
+    const baseUrl = getSiteUrl();
 
     // 1. Static Routes
     const staticRoutes = [
@@ -56,6 +58,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             changeFrequency: "weekly" as const,
             priority: 0.8,
         },
+        {
+            url: `${baseUrl}/tools/card-vs-cashback-calculator`,
+            lastModified: new Date(),
+            changeFrequency: "weekly" as const,
+            priority: 0.85,
+        },
     ];
 
     // 2. Dynamic Store Routes
@@ -69,9 +77,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             select: { 
                 slug: true, 
                 updatedAt: true,
+                activeOfferCount: true,
                 storeContents: {
                     select: {
                         type: true,
+                        content: true,
                         updatedAt: true
                     }
                 }
@@ -84,25 +94,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                 url: `${baseUrl}/stores/${store.slug}`,
                 lastModified: store.updatedAt,
                 changeFrequency: "daily" as const,
-                priority: 0.9,
+                priority: store.activeOfferCount >= MIN_STORE_OFFERS_FOR_SUBPAGES ? 0.9 : 0.75,
             });
 
-            // Dynamic Sub-pages (Only index if content exists to prevent thin content penalties)
-            const hasContent = (type: string) => store.storeContents.some(c => c.type === type);
-            
-            if (hasContent('BUYING_GUIDE')) {
+            // Only include deep subpages for stores with real demand to preserve crawl budget
+            // and match actual page split thresholds (avoiding 307 redirects in sitemap)
+            if (store.activeOfferCount < MIN_STORE_OFFERS_FOR_SUBPAGES) {
+                return;
+            }
+
+            const getContent = (type: string) => store.storeContents.find(c => c.type === type)?.content;
+
+            if (contentSplitService.shouldSplitGuide(getContent('BUYING_GUIDE'))) {
                 storeRoutes.push({ url: `${baseUrl}/stores/${store.slug}/buying-guide`, lastModified: store.updatedAt, changeFrequency: "weekly", priority: 0.6 });
             }
-            if (hasContent('FAQ')) {
+            if (contentSplitService.shouldSplitFaq(getContent('FAQ'))) {
                 storeRoutes.push({ url: `${baseUrl}/stores/${store.slug}/faq`, lastModified: store.updatedAt, changeFrequency: "weekly", priority: 0.6 });
             }
-            if (hasContent('RETURNS')) {
+            if (isStoreSubpageIndexable(store.activeOfferCount, getContent('RETURNS'))) {
                 storeRoutes.push({ url: `${baseUrl}/stores/${store.slug}/returns`, lastModified: store.updatedAt, changeFrequency: "weekly", priority: 0.5 });
             }
-            if (hasContent('SHIPPING')) {
+            if (isStoreSubpageIndexable(store.activeOfferCount, getContent('SHIPPING'))) {
                 storeRoutes.push({ url: `${baseUrl}/stores/${store.slug}/shipping`, lastModified: store.updatedAt, changeFrequency: "weekly", priority: 0.5 });
             }
-            if (hasContent('STUDENT')) {
+            if (isStoreSubpageIndexable(store.activeOfferCount, getContent('STUDENT'), 50)) {
                 storeRoutes.push({ url: `${baseUrl}/stores/${store.slug}/student-discount`, lastModified: store.updatedAt, changeFrequency: "monthly", priority: 0.7 });
             }
         });
@@ -219,12 +234,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
 
     const blogRoutes = blogPosts.map((post) => {
-        const isDiwali = post.slug.includes("diwali") || post.slug.includes("festival");
+        const isSeasonal = /diwali|festival|black-friday|pink-friday|cyber-monday|eors/.test(post.slug);
         return {
             url: `${baseUrl}/blog/${post.slug}`,
             lastModified: post.publishedAt || new Date(),
-            changeFrequency: isDiwali ? ("daily" as const) : ("weekly" as const),
-            priority: isDiwali ? 0.9 : 0.7,
+            changeFrequency: isSeasonal ? ("daily" as const) : ("weekly" as const),
+            priority: isSeasonal ? 0.9 : 0.7,
         };
     });
 
@@ -254,8 +269,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         const topStores = await prisma.store.findMany({
             where: { isActive: true, activeOfferCount: { gt: 10 } },
             select: { slug: true, updatedAt: true, storeCategories: { select: { categoryId: true } } },
-            orderBy: { activeOfferCount: 'desc' },
-            take: 50 // Limit to top 50 stores to prevent quadratic explosion (50 * 50 = ~1,225 pairs max)
+            orderBy: [{ clicks: 'desc' }, { activeOfferCount: 'desc' }],
+            take: 25 // Focus on highest-demand store comparisons to keep crawl budget tight
         });
 
         for (let i = 0; i < topStores.length; i++) {
@@ -294,12 +309,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
 
     const eventRoutes = saleEvents.map((evt) => {
-        const isDiwali = evt.slug.includes("diwali") || evt.slug.includes("indian-festival");
+        const isHotSeasonal = /diwali|indian-festival|black-friday|pink-friday|cyber-monday|end-of-reason/.test(evt.slug);
         return {
             url: `${baseUrl}/events/${evt.slug}`,
             lastModified: evt.date || new Date(),
-            changeFrequency: isDiwali ? ("daily" as const) : ("weekly" as const),
-            priority: isDiwali ? 0.95 : 0.85,
+            changeFrequency: isHotSeasonal ? ("daily" as const) : ("weekly" as const),
+            priority: isHotSeasonal ? 0.95 : 0.85,
         };
     });
 

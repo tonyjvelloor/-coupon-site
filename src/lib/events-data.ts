@@ -19,6 +19,46 @@ export interface SaleEventData {
 
 export const FALLBACK_SALE_EVENTS: SaleEventData[] = [
     {
+        id: "event-nykaa-pink-friday-2026",
+        slug: "nykaa-pink-friday-sale-2026",
+        title: "Nykaa Pink Friday Sale 2026",
+        subtitle: "India's Biggest Beauty, Skincare & Luxe Fragrance Sale",
+        description: "Nykaa Pink Friday Sale 2026 brings up to 50%–60% off on top skincare, makeup, haircare, and luxury fragrances plus free full-size brand gifts and extra instant bank discounts on HDFC and ICICI cards.",
+        seoTitle: "Nykaa Pink Friday Sale 2026: Best Coupon Codes, Free Gifts & Bank Offers | CouponHub",
+        date: new Date("2026-11-20T00:00:00.000Z"),
+        icon: "favorite",
+        isActive: true,
+        store: {
+            name: "Nykaa",
+            slug: "nykaa",
+            logo: "/images/stores/nykaa.png"
+        }
+    },
+    {
+        id: "event-black-friday-india-2026",
+        slug: "black-friday-sale-india-2026",
+        title: "Black Friday Sale India 2026",
+        subtitle: "Global Tech, Web Hosting, Fashion & Luxury Drops",
+        description: "Shop India's biggest Black Friday 2026 deals across Hostinger (up to 90% off), Amazon, Croma, Myntra, Ajio, and Tata CLiQ Luxury. Stack verified Black Friday coupon codes with credit card instant discounts and cashback.",
+        seoTitle: "Black Friday Sale India 2026: Verified Coupon Codes & Tech Deals | CouponHub",
+        date: new Date("2026-11-27T00:00:00.000Z"),
+        icon: "local_fire_department",
+        isActive: true,
+        store: null
+    },
+    {
+        id: "event-cyber-monday-india-2026",
+        slug: "cyber-monday-deals-india-2026",
+        title: "Cyber Monday Deals India 2026",
+        subtitle: "Final 24-Hour SaaS, Cloud Hosting & Laptop Clearances",
+        description: "Missed Black Friday? Cyber Monday 2026 unlocks final markdowns on laptops, monitors, VPNs, WordPress hosting, and developer subscriptions. Verify working promo codes and compare bank card discounts on CouponHub.",
+        seoTitle: "Cyber Monday Deals India 2026: Software, Hosting & Electronics Coupons | CouponHub",
+        date: new Date("2026-11-30T00:00:00.000Z"),
+        icon: "bolt",
+        isActive: true,
+        store: null
+    },
+    {
         id: "event-diwali-2026",
         slug: "diwali-sale-2026",
         title: "Diwali Sale 2026",
@@ -97,6 +137,7 @@ export async function getSaleEventBySlug(slug: string): Promise<SaleEventData | 
 }
 
 export async function getAllSaleEvents(): Promise<SaleEventData[]> {
+    let dbEvents: SaleEventData[] = [];
     try {
         const events = await prisma.saleEvent.findMany({
             where: { isActive: true },
@@ -104,11 +145,18 @@ export async function getAllSaleEvents(): Promise<SaleEventData[]> {
             include: { store: { select: { name: true, slug: true, logo: true } } },
         });
         if (events && events.length > 0) {
-            return events as any;
+            dbEvents = events as any;
         }
     } catch (e) {
         console.warn("[events-data] DB query failed, using static fallback");
     }
 
-    return FALLBACK_SALE_EVENTS;
+    // Merge DB events with curated static events (deduplicated by slug, DB takes priority)
+    const seenSlugs = new Set(dbEvents.map((e) => e.slug));
+    const merged = [
+        ...dbEvents,
+        ...FALLBACK_SALE_EVENTS.filter((e) => !seenSlugs.has(e.slug)),
+    ];
+    merged.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    return merged;
 }
