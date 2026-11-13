@@ -1,18 +1,20 @@
-import { Mail, MapPin, Clock } from "lucide-react";
+import { Mail, MapPin, Clock, ShieldCheck } from "lucide-react";
+import Link from "next/link";
+import { ContactFormClient } from "@/components/modules/shared/ContactFormClient";
 
 export const metadata = {
-    title: "Contact Us | CouponHub by TheBrandManiacs",
-    description: "Get in touch with TheBrandManiacs team. We are here to help you with any questions about CouponHub.",
+    title: "Contact Us | CouponHub",
+    description: "Contact the CouponHub editorial and support team for expired coupon reports, merchant partnerships, editorial corrections, or privacy inquiries.",
 };
 
 export default function ContactPage() {
     return (
-        <div className="bg-white min-h-screen pb-12">
+        <div className="bg-white min-h-screen pb-16">
             <div className="bg-violet-900 py-16 lg:py-24">
                 <div className="max-w-4xl mx-auto px-4 text-center text-white">
                     <h1 className="text-4xl lg:text-5xl font-bold mb-6">Contact Us</h1>
                     <p className="text-xl text-violet-200">
-                        Have questions or suggestions? We'd love to hear from you.
+                        Report an expired promo code, request an editorial correction, or reach out for merchant partnerships.
                     </p>
                 </div>
             </div>
@@ -29,10 +31,15 @@ export default function ContactPage() {
                                         <Mail className="w-6 h-6 text-violet-600" />
                                     </div>
                                     <div>
-                                        <h3 className="font-semibold text-gray-900 mb-1">Email Support</h3>
-                                        <p className="text-gray-600 mb-2">Our team is here to help.</p>
-                                        <a href="mailto:support@thebrandmaniacs.com" className="text-violet-700 font-medium hover:text-violet-900">
-                                            support@thebrandmaniacs.com
+                                        <h3 className="font-semibold text-gray-900 mb-1">Editorial & User Support</h3>
+                                        <p className="text-gray-600 mb-1.5 text-sm">
+                                            For broken deal reports, privacy requests, or general questions:
+                                        </p>
+                                        <a href="mailto:support@couponhub.store" className="text-violet-700 font-semibold hover:text-violet-900 block">
+                                            support@couponhub.store
+                                        </a>
+                                        <a href="mailto:partnerships@couponhub.store" className="text-violet-700 font-medium hover:text-violet-900 text-sm block mt-1">
+                                            partnerships@couponhub.store (Merchant Partnerships)
                                         </a>
                                     </div>
                                 </div>
@@ -42,11 +49,11 @@ export default function ContactPage() {
                                         <MapPin className="w-6 h-6 text-violet-600" />
                                     </div>
                                     <div>
-                                        <h3 className="font-semibold text-gray-900 mb-1">Office Address</h3>
-                                        <p className="text-gray-600">
-                                            TheBrandManiacs HQ<br />
-                                            Operating Globally<br />
-                                            with Local Support
+                                        <h3 className="font-semibold text-gray-900 mb-1">Publisher & Operations</h3>
+                                        <p className="text-gray-600 text-sm leading-relaxed">
+                                            CouponHub (Operated by TheBrandManiacs)<br />
+                                            Bengaluru, Karnataka, India<br />
+                                            Editorial coverage focused on Indian e-commerce &amp; banking deals.
                                         </p>
                                     </div>
                                 </div>
@@ -56,42 +63,36 @@ export default function ContactPage() {
                                         <Clock className="w-6 h-6 text-violet-600" />
                                     </div>
                                     <div>
-                                        <h3 className="font-semibold text-gray-900 mb-1">Working Hours</h3>
-                                        <p className="text-gray-600">
-                                            Mon-Fri: 9:00 AM - 6:00 PM<br />
-                                            Sat-Sun: Closed
+                                        <h3 className="font-semibold text-gray-900 mb-1">Support Hours</h3>
+                                        <p className="text-gray-600 text-sm">
+                                            Monday – Friday: 9:30 AM – 6:30 PM IST<br />
+                                            Typical response time: 1–2 business days
                                         </p>
+                                    </div>
+                                </div>
+
+                                <div className="pt-4 border-t border-violet-200/70">
+                                    <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-2">
+                                        <ShieldCheck className="w-4 h-4 text-violet-600" />
+                                        Transparency &amp; Policies
+                                    </div>
+                                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-violet-700 font-medium">
+                                        <Link href="/editorial-policy" className="hover:underline">Editorial Policy</Link>
+                                        <Link href="/how-we-verify" className="hover:underline">Verification Process</Link>
+                                        <Link href="/disclosure" className="hover:underline">Affiliate &amp; Ad Disclosure</Link>
+                                        <Link href="/privacy" className="hover:underline">Privacy Policy</Link>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Contact Form (Visual) */}
+                        {/* Interactive Contact Form */}
                         <div className="p-8 lg:p-12">
-                            <h2 className="text-2xl font-bold text-gray-900 mb-6">Send us a Message</h2>
-                            <form className="space-y-6">
-                                <div className="grid md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">First Name</label>
-                                        <input type="text" className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-violet-500 focus:border-transparent outline-none" placeholder="John" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
-                                        <input type="text" className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-violet-500 focus:border-transparent outline-none" placeholder="Doe" />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                                    <input type="email" className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-violet-500 focus:border-transparent outline-none" placeholder="john@example.com" />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
-                                    <textarea rows={4} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-violet-500 focus:border-transparent outline-none" placeholder="How can we help you?"></textarea>
-                                </div>
-                                <button type="button" className="w-full bg-violet-600 text-white py-4 rounded-xl font-bold hover:bg-violet-700 transition-colors shadow-lg shadow-violet-200">
-                                    Send Message
-                                </button>
-                            </form>
+                            <h2 className="text-2xl font-bold text-gray-900 mb-2">Send us a Message</h2>
+                            <p className="text-sm text-gray-500 mb-6">
+                                Have feedback on an offer or want to update merchant details? Use the form below.
+                            </p>
+                            <ContactFormClient />
                         </div>
                     </div>
                 </div>

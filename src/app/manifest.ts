@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "CouponHub - Verified Coupons & Cashback Deals",
     short_name: "CouponHub",
-    description: "Browse verified promo codes, cashback rates, and daily glitch deals for 250+ stores in India.",
+    description: "Browse verified promo codes, seasonal deals, and bank card offers across top online stores in India.",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",

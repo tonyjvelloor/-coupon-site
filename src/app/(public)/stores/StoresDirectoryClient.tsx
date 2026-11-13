@@ -76,13 +76,13 @@ export default function StoresDirectoryClient({ stores, categories }: StoresDire
                     <div className="max-w-4xl">
                         <div className="inline-flex items-center gap-2 bg-brand-indigo-light text-primary px-space-sm py-1 rounded-full font-label-badge text-label-badge mb-space-sm">
                             <span className="material-symbols-outlined text-[15px]">storefront</span>
-                            INDIA'S BIGGEST SAVINGS ECOSYSTEM
+                            VERIFIED INDIAN &amp; GLOBAL MERCHANTS
                         </div>
                         <h1 className="font-headline-lg text-headline-lg text-on-surface mb-space-xs tracking-tight">
-                            Explore All {stores.length}+ Verified Partner Stores &amp; Cashback Offers
+                            Explore {stores.length} Active Partner Stores &amp; Verified Offers
                         </h1>
                         <p className="font-body-lg text-body-lg text-text-muted mb-space-xl">
-                            Browse India's top shopping destinations. Get tested coupon codes, exclusive cashback up to 25%, and glitch deals updated every morning by our deal curation team.
+                            Browse active online shopping destinations in India. Compare verified promo codes, seasonal markdowns, and bank card offers updated daily.
                         </p>
                     </div>
 

@@ -42,8 +42,8 @@ export function HeroModule({
 
         <p className="font-body-lg text-body-lg text-text-muted max-w-2xl mx-auto mb-space-xl">
           {isVariantB 
-            ? "Don't waste time with expired codes. Search for any store, product, or category and instantly unlock working coupons, verified cashback, and exclusive glitch deals."
-            : "Search for any store, product, or category and instantly unlock working coupons, cashback, and the smartest ways to save."}
+            ? "Skip expired codes. Search any Indian store, category, or bank card to unlock verified coupons, seasonal sale guides, and stacking tips."
+            : "Search any store, product category, or bank card to unlock verified coupon codes, seasonal sale guides, and practical ways to save."}
         </p>
 
         {/* Primary Floating Search Container */}

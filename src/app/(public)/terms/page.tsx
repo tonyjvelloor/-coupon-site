@@ -11,7 +11,7 @@ export default function TermsPage() {
 
                 <div className="prose prose-lg max-w-none text-gray-600">
                     <p className="lead text-xl text-gray-900 font-medium mb-8">
-                        Last Updated: {new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}
+                        Last Updated: November 13, 2026
                     </p>
 
                     <p>
@@ -50,8 +50,9 @@ export default function TermsPage() {
 
                     <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">7. Contact Us</h2>
                     <p>
-                        If you have any questions about these Terms, please contact us at: <br />
-                        <strong className="text-violet-600">support@thebrandmaniacs.com</strong>
+                        If you have any questions about these Terms, please contact us at{" "}
+                        <a href="mailto:support@couponhub.store" className="font-semibold text-violet-600 hover:underline">support@couponhub.store</a>{" "}
+                        or via our <a href="/contact" className="font-semibold text-violet-600 hover:underline">Contact page</a>.
                     </p>
                 </div>
             </div>

@@ -15,9 +15,9 @@ export async function PopularStoresModule() {
     let popularStores: any[] = [];
     try {
         popularStores = await prisma.store.findMany({
-            where: { isActive: true },
+            where: { isActive: true, activeOfferCount: { gt: 0 } },
             take: 6,
-            orderBy: { clicks: "desc" },
+            orderBy: [{ clicks: "desc" }, { activeOfferCount: "desc" }],
         });
     } catch (err) {
         console.error("[PopularStoresModule] DB query failed, using fallback stores:", err);
@@ -28,10 +28,10 @@ export async function PopularStoresModule() {
         name: store.name,
         slug: store.slug,
         logo: store.logo,
-        offerCount: store.offerCount || 10,
+        offerCount: store.activeOfferCount || 1,
         verified: true,
         rating: 4.8,
-        bestSavings: store.cashbackRate ? `${store.cashbackRate} Cashback` : '₹500',
+        bestSavings: store.cashbackRate ? `${store.cashbackRate} Cashback` : 'Verified Deals',
     })) : FALLBACK_POPULAR_STORES;
 
 

@@ -1,82 +1,58 @@
-import { Star, CheckCircle, Quote } from "lucide-react";
+import Link from "next/link";
+import { ShieldCheck, CheckCircle2, FileText, Clock, Scale } from "lucide-react";
 
 interface TrustWidgetProps {
     platform?: "trustpilot" | "google" | "mixed";
 }
 
-export default function TrustWidget({ platform = "mixed" }: TrustWidgetProps) {
-    const reviews = [
+export default function TrustWidget({ platform: _platform = "mixed" }: TrustWidgetProps) {
+    const pillars = [
         {
-            name: "Sarah Jenkins",
-            rating: 5,
-            date: "2 days ago",
-            text: "Honestly the only coupon site I use now. Their Amazon flash deals are actually real and the codes always work.",
-            platform: "google",
-            avatar: "SJ"
+            title: "Direct Merchant & Network Feeds",
+            description: "Offers are sourced from official brand campaigns, verified affiliate partner feeds, and bank promotional terms.",
+            icon: FileText,
         },
         {
-            name: "Michael Chen",
-            rating: 5,
-            date: "1 week ago",
-            text: "Saved $120 on my new laptop yesterday. The AI crawler found a stackable discount I didn't even know existed!",
-            platform: "trustpilot",
-            avatar: "MC"
+            title: "Routine Expiration Sweeps",
+            description: "Coupons carry explicit expiry windows and active/inactive statuses so expired campaigns are retired promptly.",
+            icon: Clock,
         },
         {
-            name: "Emma Davis",
-            rating: 5,
-            date: "3 weeks ago",
-            text: "Love the clean interface without all the spammy popups of other sites. The 'Verified Today' tags are a lifesaver.",
-            platform: "google",
-            avatar: "ED"
-        }
+            title: "Editorial Independence",
+            description: "Merchants cannot pay to display broken codes or override editorial savings guides and side-by-side comparisons.",
+            icon: Scale,
+        },
     ];
 
     return (
         <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-200 dark:border-gray-800 p-8 shadow-sm">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-10 pb-8 border-b border-gray-100 dark:border-gray-800">
-                <div className="text-center md:text-left">
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Excellent</h3>
-                    <div className="flex items-center justify-center md:justify-start gap-1 mb-2">
-                        {[1, 2, 3, 4, 5].map((s) => (
-                            <div key={s} className="w-8 h-8 bg-[#00b67a] rounded-sm flex items-center justify-center">
-                                <Star className="w-5 h-5 text-white fill-current" />
-                            </div>
-                        ))}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-6 border-b border-gray-100 dark:border-gray-800">
+                <div>
+                    <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1 rounded-full mb-3">
+                        <ShieldCheck className="w-4 h-4" />
+                        Editorial Standards
                     </div>
-                    <p className="text-sm text-gray-500 font-medium">
-                        Based on <strong className="text-gray-900 dark:text-gray-300">2,481 reviews</strong>
-                    </p>
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white">How CouponHub Curates Deals</h3>
                 </div>
 
-                <div className="flex items-center gap-4 bg-gray-50 dark:bg-gray-800 px-6 py-4 rounded-2xl border border-gray-100 dark:border-gray-700">
-                    <CheckCircle className="w-8 h-8 text-[#00b67a]" />
-                    <div>
-                        <p className="font-bold text-gray-900 dark:text-white">100% Verified Codes</p>
-                        <p className="text-sm text-gray-500">Checked daily by our AI</p>
-                    </div>
-                </div>
+                <Link
+                    href="/how-we-verify"
+                    className="inline-flex items-center gap-2 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-900 dark:text-white transition-colors shrink-0"
+                >
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    Read Verification Guide
+                </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {reviews.map((review, i) => (
-                    <div key={i} className="flex flex-col">
-                        <div className="flex items-center gap-1 mb-3">
-                            {[1, 2, 3, 4, 5].map((s) => (
-                                <Star key={s} className={`w-4 h-4 ${review.platform === 'trustpilot' ? 'text-[#00b67a] fill-[#00b67a]' : 'text-yellow-400 fill-yellow-400'}`} />
-                            ))}
+            <div className="grid grid-cols-1 gap-5">
+                {pillars.map((pillar) => (
+                    <div key={pillar.title} className="flex items-start gap-4 p-4 rounded-2xl bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-800">
+                        <div className="w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 flex items-center justify-center shrink-0">
+                            <pillar.icon className="w-5 h-5" />
                         </div>
-                        <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4 flex-1">
-                            "{review.text}"
-                        </p>
-                        <div className="flex items-center justify-between mt-auto">
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-full bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 flex items-center justify-center text-xs font-bold font-mono">
-                                    {review.avatar}
-                                </div>
-                                <span className="font-semibold text-sm text-gray-900 dark:text-gray-200">{review.name}</span>
-                            </div>
-                            <span className="text-xs text-gray-400 font-medium">{review.date}</span>
+                        <div>
+                            <h4 className="font-bold text-gray-900 dark:text-white text-base mb-1">{pillar.title}</h4>
+                            <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">{pillar.description}</p>
                         </div>
                     </div>
                 ))}

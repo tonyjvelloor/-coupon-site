@@ -191,7 +191,7 @@ export default async function KnowledgeHubPage() {
             {/* Newsletter CTA */}
             <div className="gradient-primary rounded-2xl p-6 text-white">
               <h3 className="text-lg font-bold mb-2">Never Miss a Loophole</h3>
-              <p className="text-sm text-white/80 mb-4">Join 50,000+ smart shoppers getting our weekly strategy email.</p>
+              <p className="text-sm text-white/80 mb-4">Get our weekly editorial roundup of verified deals, bank offers, and sale calendars.</p>
               <form className="space-y-2">
                 <input type="email" placeholder="Email address" className="w-full px-4 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 text-sm" />
                 <button type="button" className="w-full px-4 py-2.5 bg-white text-primary font-bold rounded-lg text-sm hover:bg-surface-50 transition-colors shadow-lg">

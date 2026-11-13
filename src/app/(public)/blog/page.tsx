@@ -4,8 +4,8 @@ import { Calendar, User, ArrowRight, Sparkles } from "lucide-react";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Blog - Latest Deals, Diwali Offers & Saving Tips | CouponHub",
-    description: "Discover the best ways to save money, Diwali 2026 shopping guides, and verified promo code analysis on the CouponHub blog.",
+    title: "Blog - Shopping Guides, Seasonal Sales & Saving Tips | CouponHub",
+    description: "Discover smart shopping guides, Black Friday & festive sale calendars, bank card stacking breakdowns, and verified promo code strategies on the CouponHub blog.",
 };
 
 export const revalidate = 3600; // Revalidate hourly during festive season

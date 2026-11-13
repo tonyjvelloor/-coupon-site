@@ -4,10 +4,20 @@ import { ExternalLink, Sparkles, Clock, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
-export const metadata: Metadata = {
-    title: "Viral Tech & Deal News | CouponHub",
-    description: "Automated, AI-verified tracking of the most viral tech product launches, price drops, and extreme deals across the web.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+    let count = 0;
+    try {
+        count = await prisma.newsArticle.count({ where: { isVerified: true } });
+    } catch {
+        count = 0;
+    }
+
+    return {
+        title: "Deal News & Price Drops | CouponHub",
+        description: "Latest verified product launches, seasonal price drops, and shopping news curated by CouponHub.",
+        robots: count > 0 ? { index: true, follow: true } : { index: false, follow: true },
+    };
+}
 
 export default async function NewsListingPage() {
     // Fetch all verified news articles

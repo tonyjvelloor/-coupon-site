@@ -7,7 +7,6 @@ import { formatDistanceToNow } from "date-fns";
 import { getCurrentMonthYear, getSiteUrl, refreshSeoDate } from "@/lib/seo-utils";
 
 // Global Shared Components
-import ExitIntentPopup from "@/components/ui/ExitIntentPopup";
 import { RecentStoreTracker } from "@/components/ui/RecentStoreTracker";
 import { StickyStoreAssistant } from "@/components/ui/StickyStoreAssistant";
 import { ScrollTracker } from "@/components/ui/ScrollTracker";
@@ -202,7 +201,6 @@ export default async function StorePage({ params }: PageProps) {
         <div className="bg-background min-h-screen pb-24 relative">
             <ScrollTracker />
             <RecentStoreTracker storeSlug={store.slug} />
-            <ExitIntentPopup />
             <StickyStoreAssistant storeSlug={store.slug} storeName={store.name} />
 
             {/* STAGE 1: Immediate Answer (Hero) */}

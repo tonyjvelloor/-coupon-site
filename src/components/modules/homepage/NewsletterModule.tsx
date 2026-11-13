@@ -46,11 +46,11 @@ export function NewsletterModule() {
           </div>
 
           <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4 tracking-tight">
-            Don't let another glitch deal expire.
+            Never miss a major sale or verified code.
           </h2>
           
           <p className="text-brand-indigo-light text-lg mb-8 max-w-lg mx-auto leading-relaxed">
-            Join 14,000+ smart shoppers. We'll email you the top 5 highest-saving coupons every Friday. No spam, ever.
+            Receive our weekly digest of top verified store offers, bank card deals, and seasonal buying guides every Friday.
           </p>
 
           <form ref={formRef} action={formAction} className="relative max-w-md mx-auto">

@@ -65,7 +65,7 @@ export default function NewsletterSignup() {
                                 Never Miss a <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-fuchsia-600">Great Deal</span> Again
                             </h2>
                             <p className="text-gray-600 dark:text-gray-400 text-lg">
-                                Join 50,000+ smart shoppers who get our hand-picked, exclusive coupon codes delivered straight to their inbox every Friday.
+                                Get our hand-picked weekly roundup of verified coupon codes, bank card offers, and seasonal sale alerts delivered straight to your inbox every Friday.
                             </p>
                         </div>
 

@@ -18,13 +18,24 @@ export function ConsentManager() {
         marketing: false,
     });
 
+    const applyGtagConsent = (prefs: ConsentPreferences) => {
+        if (typeof window !== "undefined" && typeof (window as any).gtag === "function") {
+            (window as any).gtag("consent", "update", {
+                ad_storage: prefs.marketing ? "granted" : "denied",
+                ad_user_data: prefs.marketing ? "granted" : "denied",
+                ad_personalization: prefs.marketing ? "granted" : "denied",
+                analytics_storage: prefs.analytics ? "granted" : "denied",
+            });
+        }
+    };
+
     useEffect(() => {
         const storedConsent = localStorage.getItem("couponhub-consent");
         if (storedConsent) {
             try {
                 const parsed = JSON.parse(storedConsent);
                 setPreferences(parsed);
-                // Dispatch event so layout.tsx can react and load scripts if needed
+                applyGtagConsent(parsed);
                 window.dispatchEvent(new CustomEvent("consentUpdated", { detail: parsed }));
             } catch (e) {
                 setIsVisible(true);
@@ -32,11 +43,19 @@ export function ConsentManager() {
         } else {
             setIsVisible(true);
         }
+
+        const handleOpenPreferences = () => {
+            setShowDetails(true);
+            setIsVisible(true);
+        };
+        window.addEventListener("openCookiePreferences", handleOpenPreferences);
+        return () => window.removeEventListener("openCookiePreferences", handleOpenPreferences);
     }, []);
 
     const handleSave = (newPreferences: ConsentPreferences) => {
         setPreferences(newPreferences);
         localStorage.setItem("couponhub-consent", JSON.stringify(newPreferences));
+        applyGtagConsent(newPreferences);
         window.dispatchEvent(new CustomEvent("consentUpdated", { detail: newPreferences }));
         setIsVisible(false);
     };
@@ -52,7 +71,7 @@ export function ConsentManager() {
     if (!isVisible) return null;
 
     return (
-        <div className="fixed inset-x-0 bottom-0 z-[100] p-4 md:p-6 pointer-events-none flex justify-center">
+        <div className="fixed inset-x-0 bottom-16 md:bottom-0 z-[100] p-4 md:p-6 pointer-events-none flex justify-center">
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-6 w-full max-w-2xl pointer-events-auto animate-in slide-in-from-bottom-10">
                 {!showDetails ? (
                     <div className="flex flex-col gap-4">

@@ -128,10 +128,10 @@ export default function PrivacyPage() {
                     </p>
                     <div className="p-5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-1 text-sm">
                         <p><strong>CouponHub Privacy Office</strong></p>
-                        <p>Operated by TheBrandManiacs</p>
-                        <p>Email: <a href="mailto:support@thebrandmaniacs.com" className="text-brand-indigo font-bold">support@thebrandmaniacs.com</a></p>
+                        <p>Operated by TheBrandManiacs (Bengaluru, India)</p>
+                        <p>Support &amp; Privacy Email: <a href="mailto:support@couponhub.store" className="text-brand-indigo font-bold">support@couponhub.store</a></p>
                         <p>General Inquiries: <a href="mailto:contact@couponhub.store" className="text-brand-indigo font-bold">contact@couponhub.store</a></p>
-                        <p>Website: <a href="https://www.couponhub.store" className="text-brand-indigo font-bold">https://www.couponhub.store</a></p>
+                        <p>Contact Form: <a href="/contact" className="text-brand-indigo font-bold">https://www.couponhub.store/contact</a></p>
                     </div>
                 </div>
             </div>

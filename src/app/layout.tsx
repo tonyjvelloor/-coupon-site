@@ -1,5 +1,3 @@
-import { WhatsAppBanner } from "@/components/ui/WhatsAppBanner";
-
 import type { Metadata } from "next";
 import { Inter, Outfit, Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
@@ -73,7 +71,8 @@ import { CouponModalProvider } from "@/components/providers/CouponModalProvider"
 import { ConsentManager } from "@/components/ui/ConsentManager";
 import { AnalyticsProvider } from "@/components/providers/AnalyticsProvider";
 import { GlobalSearchProvider } from "@/components/providers/GlobalSearchProvider";
-import { MobileBottomNav } from "@/components/ui/MobileBottomNav";
+
+const adsenseClientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-2697580332564903";
 
 export default function RootLayout({
   children,
@@ -88,12 +87,39 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
         <link rel="dns-prefetch" href="https://cdn0.cuelinks.com" />
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-        <meta name="google-adsense-account" content={process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-2697580332564903"} />
-        <Script
-          id="google-adsense"
-          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-2697580332564903"}`}
+        <meta name="google-adsense-account" content={adsenseClientId} />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              window.gtag = window.gtag || gtag;
+              try {
+                var saved = localStorage.getItem('couponhub-consent');
+                var parsed = saved ? JSON.parse(saved) : null;
+                gtag('consent', 'default', {
+                  ad_storage: parsed && parsed.marketing ? 'granted' : 'denied',
+                  ad_user_data: parsed && parsed.marketing ? 'granted' : 'denied',
+                  ad_personalization: parsed && parsed.marketing ? 'granted' : 'denied',
+                  analytics_storage: parsed && parsed.analytics ? 'granted' : 'denied',
+                  wait_for_update: 500
+                });
+              } catch (e) {
+                gtag('consent', 'default', {
+                  ad_storage: 'denied',
+                  ad_user_data: 'denied',
+                  ad_personalization: 'denied',
+                  analytics_storage: 'denied',
+                  wait_for_update: 500
+                });
+              }
+            `,
+          }}
+        />
+        <script
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClientId}`}
           crossOrigin="anonymous"
-          strategy="afterInteractive"
         />
       </head>
       <body
@@ -121,9 +147,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange>
           <GlobalSearchProvider>
             <CouponModalProvider>
-              <WhatsAppBanner />
               {children}
-              <MobileBottomNav />
             </CouponModalProvider>
           </GlobalSearchProvider>
         </ThemeProvider>
@@ -154,17 +178,12 @@ export default function RootLayout({
               "@type": "Organization",
               name: "CouponHub",
               url: siteUrl,
-              logo: `${siteUrl}/logo.png`,
-              sameAs: [
-                "https://facebook.com/couponhub",
-                "https://twitter.com/couponhub",
-                "https://instagram.com/couponhub"
-              ],
+              logo: `${siteUrl}/logo.jpg`,
               contactPoint: {
                 "@type": "ContactPoint",
-                telephone: "+1-800-555-0199",
-                contactType: "customer service",
+                contactType: "customer support",
                 email: "support@couponhub.store",
+                url: `${siteUrl}/contact`,
                 availableLanguage: ["English"]
               }
             })

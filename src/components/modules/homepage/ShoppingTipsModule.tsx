@@ -10,10 +10,10 @@ export async function ShoppingTipsModule() {
     });
 
     const tips = dbTips.length > 0 ? dbTips : [
-        { id: 't1', title: 'Use HDFC cards on Amazon', description: 'Get an instant 10% discount during major sales by keeping an HDFC card ready.', icon: 'credit_card', category: 'Bank Offers', href: '/guides/hdfc-amazon' },
-        { id: 't2', title: 'Activate cashback before checkout', description: 'Always click through CouponHub to ensure your session is tracked for cashback.', icon: 'touch_app', category: 'Cashback', href: '/guides/cashback-tracking' },
-        { id: 't3', title: 'Compare cashback providers', description: 'Rates change daily. Always check the store page to see who offers the most.', icon: 'compare_arrows', category: 'Strategy', href: '/guides/compare-cashback' },
-        { id: 't4', title: 'Check student discounts', description: 'UNiDAYS and StudentBeans offer stackable 10-15% discounts at major fashion retailers.', icon: 'school', category: 'Discounts', href: '/guides/student-discounts' },
+        { id: 't1', title: 'Stack bank card offers on Amazon', description: 'Check HDFC, ICICI, and SBI instant discount caps before checking out on electronics or appliances.', icon: 'credit_card', category: 'Bank Offers', href: '/banks/hdfc' },
+        { id: 't2', title: 'How CouponHub verifies codes', description: 'See how our editorial process screens promo codes, minimum spend rules, and expiration dates.', icon: 'verified', category: 'Methodology', href: '/how-we-verify' },
+        { id: 't3', title: 'Compare instant discount vs. cashback', description: 'Use our interactive calculator to factor in 18% GST on No-Cost EMI interest and processing fees.', icon: 'compare_arrows', category: 'Tools', href: '/tools/card-vs-cashback-calculator' },
+        { id: 't4', title: 'Track seasonal sale calendars', description: 'Plan big-ticket buys around Black Friday, Cyber Monday, Myntra EORS, and festive sale windows.', icon: 'event', category: 'Guides', href: '/blog' },
     ];
 
     return (

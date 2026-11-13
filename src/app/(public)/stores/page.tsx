@@ -6,9 +6,9 @@ import StoresDirectoryClient from "./StoresDirectoryClient";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-    title: "All Stores Directory - Verified Partner Stores & Cashback Offers",
+    title: "All Stores Directory - Verified Partner Stores & Coupon Codes",
     description:
-        "Browse India's top shopping destinations. Get tested coupon codes, exclusive cashback up to 25%, and glitch deals updated every morning.",
+        "Browse top Indian and global online shopping destinations. Compare verified promo codes, seasonal markdowns, and bank card offers updated daily.",
 };
 
 async function getStoresData() {
@@ -69,11 +69,11 @@ export default async function StoresPage() {
                     <div className="flex items-center gap-space-md">
                         <span className="inline-flex items-center gap-1 font-label-badge text-label-badge bg-verified-emerald-bg text-verified-emerald px-space-xs py-0.5 rounded-full">
                             <span className="material-symbols-outlined text-[14px]">bolt</span>
-                            <span>{stores.length}+ Merchants Tested Today</span>
+                            <span>{stores.length} Active Stores</span>
                         </span>
                         <span className="hidden md:inline-flex items-center gap-1 text-text-muted">
                             <span className="material-symbols-outlined text-[16px] text-primary">verified_user</span>
-                            Guaranteed UPI Cashback Tracked
+                            Editorial &amp; Feed Verified Offers
                         </span>
                     </div>
                 </div>
@@ -100,55 +100,53 @@ export default async function StoresPage() {
                         </div>
                         <div className="bg-surface-page p-space-lg rounded-2xl flex flex-col items-start">
                             <div className="w-12 h-12 rounded-xl bg-brand-indigo-light text-primary flex items-center justify-center mb-space-sm">
-                                <span className="material-symbols-outlined text-[26px]">payments</span>
+                                <span className="material-symbols-outlined text-[26px]">credit_card</span>
                             </div>
-                            <h3 className="font-headline-sm text-headline-sm text-on-surface mb-1">Direct Bank / UPI</h3>
-                            <p className="font-body-sm text-body-sm text-text-muted">Your cashback tracks automatically and transfers straight into your GPay, PhonePe, or Savings Bank.</p>
+                            <h3 className="font-headline-sm text-headline-sm text-on-surface mb-1">Bank &amp; Card Stacking</h3>
+                            <p className="font-body-sm text-body-sm text-text-muted">Combine merchant coupon codes with HDFC, ICICI, SBI, and Axis Bank instant discount offers when eligible.</p>
                         </div>
                         <div className="bg-surface-page p-space-lg rounded-2xl flex flex-col items-start">
                             <div className="w-12 h-12 rounded-xl bg-hot-coral-bg text-hot-coral flex items-center justify-center mb-space-sm">
-                                <span className="material-symbols-outlined text-[26px]">layers</span>
+                                <span className="material-symbols-outlined text-[26px]">calculate</span>
                             </div>
-                            <h3 className="font-headline-sm text-headline-sm text-on-surface mb-1">Double Savings Hack</h3>
-                            <p className="font-body-sm text-body-sm text-text-muted">Stack coupon discount promo codes on the merchant cart AND receive CouponHub extra cashback on top.</p>
+                            <h3 className="font-headline-sm text-headline-sm text-on-surface mb-1">Net Savings Calculators</h3>
+                            <p className="font-body-sm text-body-sm text-text-muted">Verify true checkout savings including capped discounts, minimum spends, and No-Cost EMI GST fees.</p>
                         </div>
                         <div className="bg-surface-page p-space-lg rounded-2xl flex flex-col items-start">
                             <div className="w-12 h-12 rounded-xl bg-deal-amber-bg text-deal-amber flex items-center justify-center mb-space-sm">
                                 <span className="material-symbols-outlined text-[26px]">lock_open</span>
                             </div>
-                            <h3 className="font-headline-sm text-headline-sm text-on-surface mb-1">Zero Hidden Fees</h3>
-                            <p className="font-body-sm text-body-sm text-text-muted">No premium paywalls. 100% free forever for all consumers with instant browser auto-apply benefits.</p>
+                            <h3 className="font-headline-sm text-headline-sm text-on-surface mb-1">Free &amp; Transparent</h3>
+                            <p className="font-body-sm text-body-sm text-text-muted">No paywalls or account lock-ins. All codes, offer terms, and editorial guides are openly accessible.</p>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* Glitch & WhatsApp VIP Community Banner */}
+            {/* Savings Tools & Guides Banner */}
             <section className="w-full bg-secondary text-on-secondary py-space-xl">
                 <div className="max-w-max-width mx-auto px-gutter-desktop">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-space-lg">
                         <div className="max-w-xl">
                             <div className="inline-flex items-center gap-1.5 bg-secondary-container text-on-secondary-container px-2.5 py-0.5 rounded-full font-label-badge text-label-badge mb-space-xs">
-                                <span className="material-symbols-outlined text-[16px]">electric_bolt</span>
-                                PRICE GLITCH ALERTS
+                                <span className="material-symbols-outlined text-[16px]">savings</span>
+                                SMART CHECKOUT MATH
                             </div>
                             <h3 className="font-headline-lg text-headline-lg font-extrabold mb-space-xs text-on-secondary">
-                                Never Miss 90% Off Glitch Deals Again!
+                                Compare Instant Bank Discounts vs. Card Cashback
                             </h3>
                             <p className="font-body-md text-body-md opacity-90 text-on-secondary">
-                                Join 45,000+ smart deal hunters who get 0-minute alerts before flash pricing errors get corrected.
+                                Before picking a payment method on Amazon, Flipkart, or Nykaa, run your cart total through our Card vs. Cashback Calculator.
                             </p>
                         </div>
                         <div className="flex flex-col sm:flex-row items-center gap-space-sm w-full md:w-auto">
-                            <a 
-                                href="https://wa.me" 
-                                target="_blank" 
-                                rel="noopener"
+                            <Link
+                                href="/tools/card-vs-cashback-calculator"
                                 className="w-full sm:w-auto inline-flex items-center justify-center gap-space-xs bg-secondary-container hover:bg-secondary-fixed text-on-secondary-container font-headline-sm text-headline-sm px-space-xl py-space-sm rounded-xl font-bold transition-all shadow-md"
                             >
-                                <span className="material-symbols-outlined text-[22px]">chat</span>
-                                <span>Join VIP WhatsApp</span>
-                            </a>
+                                <span className="material-symbols-outlined text-[22px]">calculate</span>
+                                <span>Open Calculator</span>
+                            </Link>
                         </div>
                     </div>
                 </div>

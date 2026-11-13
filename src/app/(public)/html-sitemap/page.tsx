@@ -1,20 +1,25 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { Metadata } from "next";
+import { getAllBlogPosts } from "@/lib/blog-data";
 
 export const revalidate = 86400; // 24 hours ISR
 
 export const metadata: Metadata = {
     title: "HTML Sitemap - Explore All Stores, Categories, & Offers",
-    description: "Navigate CouponHub easily. Find all our stores, categories, curated collections, and blog posts in one place.",
+    description: "Navigate CouponHub easily. Find all active partner stores, categories, curated collections, and editorial guides in one place.",
 };
 
 export default async function SitemapPage() {
     const [stores, categories, collections, posts] = await Promise.all([
-        prisma.store.findMany({ where: { isActive: true }, select: { name: true, slug: true }, orderBy: { name: 'asc' } }),
+        prisma.store.findMany({
+            where: { isActive: true, activeOfferCount: { gt: 0 } },
+            select: { name: true, slug: true },
+            orderBy: { name: 'asc' }
+        }),
         prisma.category.findMany({ where: { isActive: true }, select: { name: true, slug: true }, orderBy: { name: 'asc' } }),
         prisma.collection.findMany({ where: { isIndexable: true }, select: { name: true, slug: true }, orderBy: { priority: 'desc' } }),
-        prisma.blogPost.findMany({ where: { isPublished: true }, select: { title: true, slug: true }, orderBy: { createdAt: 'desc' } })
+        getAllBlogPosts()
     ]);
 
     return (
