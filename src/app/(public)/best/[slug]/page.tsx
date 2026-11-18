@@ -106,7 +106,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         // Fallback
     }
 
-    if (!category) return { title: "Category Offers & Coupons | CouponHub" };
+    if (!category) return { title: "Category Offers & Coupons" };
     const isIndexable = activeStores >= 1 && activeOffers >= 1;
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
 

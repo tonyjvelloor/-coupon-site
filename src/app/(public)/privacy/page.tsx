@@ -1,6 +1,9 @@
+import { getSiteUrl } from "@/lib/seo-utils";
+
 export const metadata = {
-    title: "Privacy Policy | CouponHub",
+    title: "Privacy Policy",
     description: "Privacy Policy and Cookie Notice for CouponHub, including Google AdSense and third-party advertising disclosures.",
+    alternates: { canonical: `${getSiteUrl()}/privacy` },
 };
 
 export default function PrivacyPage() {

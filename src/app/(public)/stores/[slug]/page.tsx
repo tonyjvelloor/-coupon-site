@@ -4,7 +4,7 @@ import { categoryService } from "@/lib/services/category.service";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
-import { getCurrentMonthYear, getSiteUrl, refreshSeoDate } from "@/lib/seo-utils";
+import { getCurrentMonthYear, getSiteUrl, refreshSeoDate, cleanSeoTitle } from "@/lib/seo-utils";
 
 // Global Shared Components
 import { RecentStoreTracker } from "@/components/ui/RecentStoreTracker";
@@ -53,7 +53,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         // Fallback
     }
 
-    if (!store) return { title: "Store Coupon Codes & Deals | CouponHub" };
+    if (!store) return { title: "Store Coupon Codes & Deals" };
 
     const siteUrl = getSiteUrl();
     const { shortMonthYear, fullMonthYear } = getCurrentMonthYear();
@@ -61,9 +61,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const offerLabel = store.activeOfferCount && store.activeOfferCount > 0 ? `${store.activeOfferCount} Verified Deals` : 'Verified Deals';
     
     const rawTitle = store.seoTitle 
-        ? store.seoTitle.replace(/\s*\|\s*CouponHub.*$/, '') 
+        ? store.seoTitle 
         : `${store.name} Coupon Code (${shortMonthYear}): ${offerLabel}`;
-    const ogTitle = refreshSeoDate(rawTitle);
+    const ogTitle = cleanSeoTitle(rawTitle);
 
     const cashbackSnippet = store.cashbackRate ? `Earn ${store.cashbackRate} Cashback & ` : '';
     const rawDescription = store.seoDescription || `${cashbackSnippet}Save big with 100% verified ${store.name} coupon codes and promo codes for ${fullMonthYear}. Tested today by CouponHub.`;
@@ -204,7 +204,7 @@ export default async function StorePage({ params }: PageProps) {
             <StickyStoreAssistant storeSlug={store.slug} storeName={store.name} />
 
             {/* STAGE 1: Immediate Answer (Hero) */}
-            <StoreHero store={store} activeCoupons={activeCoupons} bestDeal={bestDeal} />
+            <StoreHero store={store} activeCoupons={activeCoupons} bestDeal={bestDeal} lastCheckedText={lastCheckedText} />
 
             <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 space-y-12">
                 

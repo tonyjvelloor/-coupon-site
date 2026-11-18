@@ -3,9 +3,12 @@ import Link from "next/link";
 import { Calendar, User, ArrowRight, Sparkles } from "lucide-react";
 import { Metadata } from "next";
 
+import { getSiteUrl } from "@/lib/seo-utils";
+
 export const metadata: Metadata = {
-    title: "Blog - Shopping Guides, Seasonal Sales & Saving Tips | CouponHub",
+    title: "Blog - Shopping Guides, Seasonal Sales & Saving Tips",
     description: "Discover smart shopping guides, Black Friday & festive sale calendars, bank card stacking breakdowns, and verified promo code strategies on the CouponHub blog.",
+    alternates: { canonical: `${getSiteUrl()}/blog` },
 };
 
 export const revalidate = 3600; // Revalidate hourly during festive season

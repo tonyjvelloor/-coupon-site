@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
     }
 
     return {
-        title: "Deal News & Price Drops | CouponHub",
+        title: "Deal News & Price Drops",
         description: "Latest verified product launches, seasonal price drops, and shopping news curated by CouponHub.",
         robots: count > 0 ? { index: true, follow: true } : { index: false, follow: true },
     };

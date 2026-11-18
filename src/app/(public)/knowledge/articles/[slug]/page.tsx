@@ -3,29 +3,35 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Clock, Share2 } from "lucide-react";
+import { cleanSeoTitle, getSiteUrl } from "@/lib/seo-utils";
 
 export const revalidate = 3600;
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   const article = await prisma.blogPost.findUnique({
-    where: { slug: params.slug },
+    where: { slug },
     select: { title: true, excerpt: true, seoTitle: true, seoDescription: true, coverImage: true }
   });
 
   if (!article) return { title: "Article Not Found" };
 
   return {
-    title: article.seoTitle || `${article.title} | CouponHub`,
+    title: cleanSeoTitle(article.seoTitle || article.title),
     description: article.seoDescription || article.excerpt,
+    alternates: {
+      canonical: `${getSiteUrl()}/blog/${slug}`,
+    },
     openGraph: {
       images: article.coverImage ? [article.coverImage] : [],
     }
   };
 }
 
-export default async function ArticlePage({ params }: { params: { slug: string } }) {
+export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   const article = await prisma.blogPost.findUnique({
-    where: { slug: params.slug },
+    where: { slug },
     include: { author: true }
   });
 

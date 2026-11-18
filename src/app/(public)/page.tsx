@@ -1,6 +1,5 @@
 import { Metadata } from "next";
 import dynamic from 'next/dynamic';
-import { getExperimentVariant } from "@/lib/ab-testing";
 
 // Modular Homepage Composition Layer
 import { HeroModule } from "@/components/modules/homepage/HeroModule";
@@ -27,29 +26,15 @@ export const metadata: Metadata = {
 // Dynamic Imports for heavy below-the-fold components
 // (Newsletter moved to Footer)
 
-import { prisma } from "@/lib/db";
-
 export default async function Home() {
-    const heroCopyVariant = await getExperimentVariant("HOME_HERO_COPY");
-    const heroLayoutVariant = await getExperimentVariant("HOME_HERO_LAYOUT");
-    
-    let heroDeals: any[] = [];
-    if (heroLayoutVariant === "deals_in_hero") {
-        heroDeals = await prisma.coupon.findMany({
-            where: { isFeatured: true, expiresAt: { gt: new Date() } },
-            take: 3,
-            include: { merchantIdentity: { include: { store: true } } }
-        });
-    }
-
     return (
         <div className="min-h-screen pb-24">
             
             {/* 1. HERO SECTION (Search & Trending Searches) */}
             <HeroModule 
-                copyVariant={heroCopyVariant} 
-                layoutVariant={heroLayoutVariant} 
-                topDeals={heroDeals} 
+                copyVariant="control" 
+                layoutVariant="control" 
+                topDeals={[]} 
             />
 
             {/* 2. Confidence Proof */}

@@ -2,9 +2,12 @@ import { Mail, MapPin, Clock, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { ContactFormClient } from "@/components/modules/shared/ContactFormClient";
 
+import { getSiteUrl } from "@/lib/seo-utils";
+
 export const metadata = {
-    title: "Contact Us | CouponHub",
+    title: "Contact Us",
     description: "Contact the CouponHub editorial and support team for expired coupon reports, merchant partnerships, editorial corrections, or privacy inquiries.",
+    alternates: { canonical: `${getSiteUrl()}/contact` },
 };
 
 export default function ContactPage() {

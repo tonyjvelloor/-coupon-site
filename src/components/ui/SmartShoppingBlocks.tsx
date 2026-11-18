@@ -26,8 +26,8 @@ export function SmartShoppingBlocks({ storeName, storeSlug, bestDeal, contents =
     ];
 
     const slug = storeSlug || storeName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    const expectedSavings = bestDeal?.discountValue || "Up to 50% Off";
-    const nextMajorSale = sale || "Diwali & Festive Season";
+    const expectedSavings = bestDeal?.discountValue || "Verified Store Deals";
+    const nextMajorSale = sale || "Black Friday, Pink Friday & Seasonal Sales";
 
     return (
         <section className="mt-12 space-y-6">

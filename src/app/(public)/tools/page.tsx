@@ -6,7 +6,7 @@ import { ToolsHubClient } from "@/components/modules/tools/ToolsHubClient";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
 
 export const metadata: Metadata = {
-    title: "Free Shopping Tools & Discount Calculators | CouponHub India",
+    title: "Free Shopping Tools & Discount Calculators",
     description: "Explore free shopping tools by CouponHub India. Calculate stacked discounts, bank card savings, and access embeddable verified deal widgets for creators.",
     alternates: {
         canonical: `${siteUrl}/tools`,

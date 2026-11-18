@@ -1,9 +1,12 @@
 import { Metadata } from "next";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 
+import { getSiteUrl } from "@/lib/seo-utils";
+
 export const metadata: Metadata = {
-    title: "Affiliate Disclosure | CouponHub",
-    description: "Read our affiliate disclosure to understand how CouponHub is funded and our relationship with merchants.",
+    title: "Affiliate & Advertising Disclosure",
+    description: "Read our affiliate and advertising disclosure to understand how CouponHub is funded and our relationship with merchants.",
+    alternates: { canonical: `${getSiteUrl()}/disclosure` },
 };
 
 export default function DisclosurePage() {

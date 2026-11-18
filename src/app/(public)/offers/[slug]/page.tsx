@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getSiteUrl, refreshSeoDate } from "@/lib/seo-utils";
+import { getSiteUrl, refreshSeoDate, cleanSeoTitle } from "@/lib/seo-utils";
 import Link from "next/link";
 import { ChevronRight, Home } from "lucide-react";
 import { PremiumOfferCard } from "@/components/ui/PremiumOfferCard";
@@ -42,10 +42,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         // Fallback
     }
 
-    if (!collection) return { title: "Featured Deals & Offers | CouponHub" };
+    if (!collection) return { title: "Featured Deals & Offers" };
 
     const siteUrl = getSiteUrl();
-    const ogTitle = refreshSeoDate(collection.seoTitle || `${collection.name} Coupons & Offers`);
+    const ogTitle = cleanSeoTitle(collection.seoTitle || `${collection.name} Coupons & Offers`);
     const ogDescription = refreshSeoDate(collection.seoDescription || `Discover the best ${collection.name} coupons and deals today.`);
 
     return {

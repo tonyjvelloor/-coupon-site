@@ -5,8 +5,8 @@ import { merchantService } from "@/lib/services/merchant.service";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-    title: "Shopping Calendar 2026 | Upcoming Sales & Events | CouponHub",
-    description: "Plan your purchases around India's biggest sales. Never miss Prime Day, Big Billion Days, Great Indian Festival, and more.",
+    title: "Shopping Calendar 2026 | Upcoming Sales & Events",
+    description: "Plan your purchases around India's biggest sales. Never miss Prime Day, Big Billion Days, Great Indian Festival, Black Friday, and EORS.",
     alternates: {
         canonical: `${process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store"}/calendar`,
     }

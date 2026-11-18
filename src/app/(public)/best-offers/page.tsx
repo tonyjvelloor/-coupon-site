@@ -2,9 +2,12 @@ import { couponService } from "@/lib/services/coupon.service";
 import { PremiumOfferCard } from "@/components/ui/PremiumOfferCard";
 import { Sparkles } from "lucide-react";
 
+import { getSiteUrl } from "@/lib/seo-utils";
+
 export const metadata = {
-    title: "Best Offers & Hot Deals | CouponHub",
-    description: "Browse the best verified coupons and hot deals of the day. Save massive amounts on your shopping.",
+    title: "Best Offers & Top Deals Today",
+    description: "Browse top verified coupons and seasonal offers curated today across leading Indian online stores.",
+    alternates: { canonical: `${getSiteUrl()}/best-offers` },
 };
 
 async function getBestOffers() {

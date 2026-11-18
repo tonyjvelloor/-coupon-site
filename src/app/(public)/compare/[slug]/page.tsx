@@ -5,32 +5,18 @@ import { ArrowLeft, CheckCircle2, ShieldAlert, Star, TrendingUp, HelpCircle, Pac
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { Button } from "@/components/ui/Button";
 import { Metadata } from "next";
-
-// Pre-render the highest-value comparison pairs so Google can index them immediately
-const HIGH_VALUE_PAIRS = [
-  "amazon-vs-flipkart",
-  "myntra-vs-ajio",
-  "zomato-vs-swiggy",
-  "nykaa-beauty-vs-myntra",
-  "croma-retail-vs-reliance-digital",
-  "decathlon-vs-puma",
-  "healthkart-vs-wellbeing-nutrition",
-  "boat-vs-mivi",
-  "campus-shoes-vs-neemans",
-  "tata-cliq-vs-myntra",
-  "jockey-vs-the-man-company",
-  "bella-vita-vs-plum-goodness",
-];
+import { CURATED_COMPARE_PAIRS } from "@/lib/compare-pairs";
+import { getSiteUrl, getCurrentMonthYear } from "@/lib/seo-utils";
 
 export const revalidate = 86400; // 24h — compare pages are stable
 
 export async function generateStaticParams() {
-  return HIGH_VALUE_PAIRS.map((slug) => ({ slug }));
+  return CURATED_COMPARE_PAIRS.map((pair) => ({ slug: pair.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  if (!slug.includes("-vs-")) return { title: "Compare | CouponHub" };
+  if (!slug.includes("-vs-")) return { title: "Compare Stores", robots: { index: false, follow: true } };
 
   const [slug1, slug2] = slug.split("-vs-");
   let store1: any = null;
@@ -44,21 +30,24 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     // Fallback
   }
 
-  if (!store1 || !store2) return { title: "Compare Brands & Coupons | CouponHub" };
+  if (!store1 || !store2) return { title: "Compare Brands & Coupons", robots: { index: false, follow: true } };
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
-  const title = `${store1.name} vs ${store2.name}: Coupons, Cashback & Offers Compared | CouponHub`;
-  const description = `${store1.name} offers ${store1.cashbackRate || "deals"} cashback (${store1.activeOfferCount} live offers) vs ${store2.name} with ${store2.cashbackRate || "deals"} cashback (${store2.activeOfferCount} live offers). Compare shipping, returns, and best discounts side-by-side.`;
+  const siteUrl = getSiteUrl();
+  const { shortMonthYear } = getCurrentMonthYear();
+  const isCurated = CURATED_COMPARE_PAIRS.some((p) => p.slug === slug);
+  const title = `${store1.name} vs ${store2.name}: Coupons & Offers (${shortMonthYear})`;
+  const description = `${store1.name} (${store1.activeOfferCount} live offers) vs ${store2.name} (${store2.activeOfferCount} live offers). Compare verified promo codes, shipping, returns, and bank card discounts side-by-side.`;
 
   return {
     title,
     description,
+    robots: { index: isCurated, follow: true },
     alternates: { canonical: `${siteUrl}/compare/${slug}` },
     openGraph: {
       title,
       description,
       url: `${siteUrl}/compare/${slug}`,
-      siteName: "CouponHub",
+      siteName: "CouponHub India",
       type: "website",
     },
   };
@@ -237,14 +226,40 @@ export default async function ComparePage({ params }: { params: Promise<{ slug: 
         </div>
       </div>
 
-      <div className="text-center">
-        <h3 className="text-2xl font-bold mb-4">Verdict</h3>
-        <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-          Both <span className="text-primary font-semibold">{store1.name}</span> and <span className="text-primary font-semibold">{store2.name}</span> offer competitive deals. 
-          {store1Score > store2Score ? ` However, based on our knowledge graph signals and active offer count, ${store1.name} edges out slightly in terms of overall shopping intelligence score.` : 
-           store2Score > store1Score ? ` However, based on our knowledge graph signals and active offer count, ${store2.name} edges out slightly in terms of overall shopping intelligence score.` : 
-           ` They are tied in terms of our knowledge graph intelligence scores.`}
+      <div className="bg-card border rounded-2xl p-8 mb-10">
+        <h3 className="text-2xl font-bold mb-4">Editorial Verdict &amp; How to Pick</h3>
+        <p className="text-base text-muted-foreground leading-relaxed mb-4">
+          Both <span className="text-primary font-semibold">{store1.name}</span> and <span className="text-primary font-semibold">{store2.name}</span> run frequent seasonal campaigns in India.{" "}
+          {store1Score > store2Score
+            ? `${store1.name} currently holds a slight edge in active deal coverage (${store1.activeOfferCount || store1.offerCount} verified offers) and policy documentation.`
+            : store2Score > store1Score
+            ? `${store2.name} currently holds a slight edge in active deal coverage (${store2.activeOfferCount || store2.offerCount} verified offers) and policy documentation.`
+            : `Both platforms score closely on active offer availability and published shopping policies.`}
         </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-muted-foreground mb-6">
+          <div className="p-4 rounded-xl bg-muted/40 border">
+            <strong className="text-foreground block mb-1">1. Check Bank Card Instant Discounts</strong>
+            Before finalizing your cart on either {store1.name} or {store2.name}, compare whether a 10% instant discount cap from HDFC, ICICI, SBI, or Axis Bank beats an uncapped cashback card.
+          </div>
+          <div className="p-4 rounded-xl bg-muted/40 border">
+            <strong className="text-foreground block mb-1">2. Factor Return Windows &amp; Shipping Minimums</strong>
+            On high-ticket purchases, an extra few days of return coverage or free shipping threshold can outweigh a small flat coupon difference. Check live{" "}
+            <Link href="/tools/card-vs-cashback-calculator" className="text-primary font-semibold underline">
+              net checkout totals with our Card vs. Cashback Calculator
+            </Link>.
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <Link href={`/stores/${store1.slug}`}>
+            <Button>Browse {store1.name} Coupons</Button>
+          </Link>
+          <Link href={`/stores/${store2.slug}`}>
+            <Button variant="outline">Browse {store2.name} Coupons</Button>
+          </Link>
+          <Link href="/compare">
+            <Button variant="outline">All Store Comparisons</Button>
+          </Link>
+        </div>
       </div>
 
       {/* Structured Data: Comparison Breadcrumbs & FAQ */}

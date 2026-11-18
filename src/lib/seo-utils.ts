@@ -45,6 +45,17 @@ export function refreshSeoDate(text: string, date: Date = new Date()): string {
 }
 
 /**
+ * Strips redundant "| CouponHub", "| CouponHub India", or "| CouponHub by TheBrandManiacs"
+ * suffixes when RootLayout's title.template already appends "| CouponHub India".
+ */
+export function cleanSeoTitle(text: string, date: Date = new Date()): string {
+  if (!text) return text;
+  return refreshSeoDate(text, date)
+    .replace(/\s*\|\s*CouponHub(?:\s+India|\s+by\s+TheBrandManiacs)?$/i, "")
+    .trim();
+}
+
+/**
  * Crawl-budget gate: only index store subpages (returns, shipping, student-discount,
  * split buying-guide/FAQ) for stores with sufficient active offer demand and text depth.
  */

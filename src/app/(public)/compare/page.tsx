@@ -2,68 +2,18 @@ import Link from "next/link";
 import { Metadata } from "next";
 import { ArrowRight, Scale, ShieldCheck, CreditCard } from "lucide-react";
 import { getSiteUrl } from "@/lib/seo-utils";
+import { CURATED_COMPARE_PAIRS } from "@/lib/compare-pairs";
 
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-    title: "Compare Stores Side-by-Side: Coupons, Cashback & Policies | CouponHub",
+    title: "Compare Stores Side-by-Side: Coupons & Policies",
     description:
         "Compare India's top online shopping platforms side-by-side — Amazon vs Flipkart, Myntra vs AJIO, Zomato vs Swiggy, Nykaa vs Myntra, and electronics retailers.",
     alternates: {
         canonical: `${getSiteUrl()}/compare`,
     },
 };
-
-const COMPARISON_PAIRS = [
-    {
-        slug: "amazon-vs-flipkart",
-        title: "Amazon vs Flipkart",
-        category: "Everything & Electronics",
-        summary: "Compare Prime vs Plus shipping perks, SBI/HDFC vs Axis/ICICI bank instant discounts, and return windows across smartphones and appliances.",
-    },
-    {
-        slug: "myntra-vs-ajio",
-        title: "Myntra vs AJIO",
-        category: "Fashion & Apparel",
-        summary: "Side-by-side breakdown of Myntra Insider discounts vs AJIO Reliance card codes, convenience fees, and EORS vs All Stars sale markdowns.",
-    },
-    {
-        slug: "zomato-vs-swiggy",
-        title: "Zomato vs Swiggy",
-        category: "Food Delivery & Quick Commerce",
-        summary: "Compare Zomato Gold vs Swiggy One delivery benefits, bank card promos, and restaurant coupon caps for daily food orders.",
-    },
-    {
-        slug: "nykaa-beauty-vs-myntra",
-        title: "Nykaa vs Myntra Beauty",
-        category: "Beauty & Skincare",
-        summary: "Evaluate Pink Friday vs Myntra beauty gift hampers, BOGO skincare promos, and authentic brand warranty guarantees.",
-    },
-    {
-        slug: "croma-retail-vs-reliance-digital",
-        title: "Croma vs Reliance Digital",
-        category: "Appliances & Laptops",
-        summary: "Check in-store pickup options, No-Cost EMI bank tie-ups, and extended warranty costs on TVs, laptops, and home appliances.",
-    },
-    {
-        slug: "decathlon-vs-puma",
-        title: "Decathlon vs Puma India",
-        category: "Sportswear & Fitness",
-        summary: "Compare activewear pricing, clearance outlet discounts, and app-exclusive coupon codes for running gear and sports accessories.",
-    },
-    {
-        slug: "healthkart-vs-wellbeing-nutrition",
-        title: "HealthKart vs Wellbeing Nutrition",
-        category: "Health & Supplements",
-        summary: "Compare subscription savings, authenticity verification, and bundle coupon codes on whey protein, multivitamins, and daily nutrition.",
-    },
-    {
-        slug: "tata-cliq-vs-myntra",
-        title: "Tata CLiQ vs Myntra",
-        category: "Lifestyle & Luxury Fashion",
-        summary: "Evaluate Tata NeuCoins rewards and luxury brand markdowns against Myntra seasonal fashion coupons and express returns.",
-    },
-];
 
 export default function CompareHubPage() {
     return (
@@ -85,7 +35,7 @@ export default function CompareHubPage() {
 
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {COMPARISON_PAIRS.map((pair) => (
+                    {CURATED_COMPARE_PAIRS.map((pair) => (
                         <Link
                             key={pair.slug}
                             href={`/compare/${pair.slug}`}

@@ -9,7 +9,7 @@ import { CreditCard, Sparkles, ShieldCheck, ArrowRight } from "lucide-react";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
 
 export const metadata: Metadata = {
-    title: "Bank & Credit Card Offers in India – HDFC, ICICI, SBI & Axis Deals | CouponHub",
+    title: "Bank & Credit Card Offers in India – HDFC, ICICI, SBI & Axis Deals",
     description: "Discover verified credit and debit card instant discounts, no-cost EMI offers, and cashback vouchers for HDFC, ICICI, SBI, Axis, and Kotak banks across India.",
     alternates: {
         canonical: `${siteUrl}/banks`,

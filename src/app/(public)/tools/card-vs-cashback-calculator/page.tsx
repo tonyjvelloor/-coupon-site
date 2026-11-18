@@ -7,7 +7,7 @@ import { getSiteUrl } from "@/lib/seo-utils";
 const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
-  title: "Credit Card Instant Discount vs Cashback Calculator (India 2026) | CouponHub",
+  title: "Credit Card Instant Discount vs Cashback Calculator (India 2026)",
   description:
     "Compare 10% instant bank discount cards (HDFC, SBI, ICICI) against 5% cashback credit cards and hidden No-Cost EMI GST fees before checking out.",
   alternates: {

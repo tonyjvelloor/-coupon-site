@@ -14,9 +14,10 @@ export interface StoreHeroProps {
     store: any; // e.g. from getMerchantBySlug
     activeCoupons: any[];
     bestDeal: any;
+    lastCheckedText?: string;
 }
 
-export function StoreHero({ store, activeCoupons, bestDeal }: StoreHeroProps) {
+export function StoreHero({ store, activeCoupons, bestDeal, lastCheckedText }: StoreHeroProps) {
     const [copied, setCopied] = useState(false);
     const [showStickyCTA, setShowStickyCTA] = useState(false);
     const { openCouponModal } = useCouponModal();
@@ -95,22 +96,22 @@ export function StoreHero({ store, activeCoupons, bestDeal }: StoreHeroProps) {
                                 {store.name} Coupons & Promo Codes
                             </h1>
                             <p className="font-body-md text-body-md text-text-muted mt-1 max-w-2xl line-clamp-2">
-                                Get the latest working discount codes and cashback offers for {store.name} at checkout.
+                                {store.description || `Browse verified ${store.name} promo codes, seasonal deals, and bank card offers at checkout.`}
                             </p>
                             <div className="flex flex-wrap items-center gap-y-2 gap-x-4 mt-space-md">
                                 <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-100 px-space-sm py-1 rounded-full text-emerald-800 font-body-sm text-body-sm">
                                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                    <span><strong>{activeCoupons.length} Active Offers</strong> today</span>
+                                    <span><strong>{activeCoupons.length} Active Offers</strong></span>
                                 </div>
                                 
                                 <div className="flex items-center gap-2 text-slate-600 font-body-sm text-body-sm">
                                     <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                                    <span>Tested by <strong>Neha S.</strong> {formatDistanceToNow(new Date(), { addSuffix: true })}</span>
+                                    <span>Updated <strong>{lastCheckedText || (store.updatedAt ? formatDistanceToNow(new Date(store.updatedAt), { addSuffix: true }) : "recently")}</strong></span>
                                 </div>
 
                                 <div className="flex items-center gap-2 text-slate-600 font-body-sm text-body-sm">
                                     <TrendingUp className="w-4 h-4 text-blue-600" />
-                                    <span><strong>98%</strong> Community Success</span>
+                                    <span>{store.cashbackRate ? `${store.cashbackRate} Partner Rewards` : "No Login Required"}</span>
                                 </div>
                             </div>
                         </div>

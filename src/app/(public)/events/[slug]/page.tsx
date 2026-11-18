@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 import { getSaleEventBySlug, getAllSaleEvents } from "@/lib/events-data";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getSiteUrl, refreshSeoDate } from "@/lib/seo-utils";
+import { getSiteUrl, refreshSeoDate, cleanSeoTitle } from "@/lib/seo-utils";
 import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     if (!event) return { title: "Event Not Found" };
 
     const siteUrl = getSiteUrl();
-    const ogTitle = refreshSeoDate(event.seoTitle || `${event.title} Offers, Deals & Promo Codes | CouponHub`);
+    const ogTitle = cleanSeoTitle(event.seoTitle || `${event.title} Offers, Deals & Promo Codes`);
     const ogDescription = refreshSeoDate(event.description || `Find the best verified deals, promo codes, and biggest price drops for ${event.title}. Updated daily.`);
 
     return {

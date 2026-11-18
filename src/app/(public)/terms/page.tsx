@@ -1,6 +1,9 @@
+import { getSiteUrl } from "@/lib/seo-utils";
+
 export const metadata = {
-    title: "Terms & Conditions | CouponHub by TheBrandManiacs",
-    description: "Terms and Conditions for using CouponHub. Operated by TheBrandManiacs.",
+    title: "Terms & Conditions",
+    description: "Terms and Conditions for using CouponHub, operated by TheBrandManiacs.",
+    alternates: { canonical: `${getSiteUrl()}/terms` },
 };
 
 export default function TermsPage() {

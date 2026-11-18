@@ -1,9 +1,12 @@
 import { Metadata } from "next";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 
+import { getSiteUrl } from "@/lib/seo-utils";
+
 export const metadata: Metadata = {
-    title: "Editorial Policy | CouponHub",
+    title: "Editorial & Verification Policy",
     description: "Learn how we source, verify, and publish coupons and deals on CouponHub.",
+    alternates: { canonical: `${getSiteUrl()}/editorial-policy` },
 };
 
 export default function EditorialPolicyPage() {

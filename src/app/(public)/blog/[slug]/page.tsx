@@ -9,6 +9,7 @@ import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { format } from "date-fns";
 import NewsletterSignup from "@/components/ui/NewsletterSignup";
 import { AdBannerInArticle, AdBannerSidebar } from "@/components/ui/AdBanner";
+import { cleanSeoTitle, getSiteUrl } from "@/lib/seo-utils";
 
 interface BlogPostPageProps {
     params: Promise<{
@@ -39,8 +40,8 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
         };
     }
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
-    const ogTitle = post.seoTitle || post.title;
+    const siteUrl = getSiteUrl();
+    const ogTitle = cleanSeoTitle(post.seoTitle || post.title);
     const ogDescription = post.seoDescription || post.excerpt || post.content.substring(0, 160);
 
     return {

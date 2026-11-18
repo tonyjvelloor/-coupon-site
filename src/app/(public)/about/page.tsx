@@ -4,11 +4,14 @@ import TrustWidget from "@/components/ui/TrustWidget";
 import { prisma } from "@/lib/db";
 import { getAllBlogPosts } from "@/lib/blog-data";
 
+import { getSiteUrl } from "@/lib/seo-utils";
+
 export const revalidate = 3600;
 
 export const metadata = {
-    title: "About Us | CouponHub",
+    title: "About Us",
     description: "Learn about CouponHub, our deal verification methodology, editorial standards, and transparent affiliate & advertising model for Indian online shoppers.",
+    alternates: { canonical: `${getSiteUrl()}/about` },
 };
 
 export default async function AboutPage() {

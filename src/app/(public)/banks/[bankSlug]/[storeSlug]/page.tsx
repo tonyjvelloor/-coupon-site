@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         // Fallback
     }
 
-    if (!bank || !store) return { title: "Bank Credit Card Offers & Coupons | CouponHub" };
+    if (!bank || !store) return { title: "Bank Credit Card Offers & Coupons" };
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
     const shortMonthYear = new Intl.DateTimeFormat('en-IN', { month: 'short', year: 'numeric' }).format(new Date());

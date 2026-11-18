@@ -174,11 +174,11 @@ export async function generateMetadata({ params }: Props) {
     }
 
     if (!campaignLink) {
-        return { title: "Offer Not Found | CouponHub" };
+        return { title: "Offer Not Found" };
     }
 
     return {
-        title: `${campaignLink.name} | CouponHub`,
+        title: campaignLink.name,
         description: `Get the best deal on ${campaignLink.store?.name || "our partner store"}. Verified offer with exclusive savings.`,
         openGraph: {
             title: campaignLink.name,

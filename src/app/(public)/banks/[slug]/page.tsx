@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getCurrentMonthYear, getSiteUrl, refreshSeoDate } from "@/lib/seo-utils";
+import { getCurrentMonthYear, getSiteUrl, refreshSeoDate, cleanSeoTitle } from "@/lib/seo-utils";
 import Image from "next/image";
 import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
@@ -37,11 +37,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         // Fallback
     }
 
-    if (!bank) return { title: "Bank Offers & Coupons | CouponHub" };
+    if (!bank) return { title: "Bank Offers & Coupons" };
 
     const siteUrl = getSiteUrl();
     const { fullMonthYear } = getCurrentMonthYear();
-    const ogTitle = refreshSeoDate(bank.seoTitle || `${bank.name} Credit Card Offers & Coupons – ${fullMonthYear} | CouponHub`);
+    const ogTitle = cleanSeoTitle(bank.seoTitle || `${bank.name} Credit Card Offers & Coupons – ${fullMonthYear}`);
     const ogDescription = refreshSeoDate(bank.description || `Maximize your savings with verified ${bank.name} credit and debit card offers for ${fullMonthYear}. Discover instant discounts, cashback deals, and promotional vouchers.`);
 
     return {

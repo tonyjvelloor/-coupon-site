@@ -3,12 +3,15 @@ import { Metadata } from "next";
 import Link from "next/link";
 import StoresDirectoryClient from "./StoresDirectoryClient";
 
+import { getSiteUrl } from "@/lib/seo-utils";
+
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
     title: "All Stores Directory - Verified Partner Stores & Coupon Codes",
     description:
         "Browse top Indian and global online shopping destinations. Compare verified promo codes, seasonal markdowns, and bank card offers updated daily.",
+    alternates: { canonical: `${getSiteUrl()}/stores` },
 };
 
 async function getStoresData() {

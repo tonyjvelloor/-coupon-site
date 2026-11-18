@@ -4,6 +4,7 @@ import { getAllBlogPosts } from "@/lib/blog-data";
 import { getAllSaleEvents } from "@/lib/events-data";
 import { contentSplitService } from "@/lib/services/content-split.service";
 import { getSiteUrl, isStoreSubpageIndexable, MIN_STORE_OFFERS_FOR_SUBPAGES } from "@/lib/seo-utils";
+import { CURATED_COMPARE_PAIRS } from "@/lib/compare-pairs";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = getSiteUrl();
@@ -263,42 +264,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         console.warn("[sitemap] Failed to fetch collection routes:", e);
     }
 
-    // 6. Dynamic Compare Routes (Programmatic SEO: Store vs Store)
-    const compareRoutes: MetadataRoute.Sitemap = [];
-    try {
-        const topStores = await prisma.store.findMany({
-            where: { isActive: true, activeOfferCount: { gt: 10 } },
-            select: { slug: true, updatedAt: true, storeCategories: { select: { categoryId: true } } },
-            orderBy: [{ clicks: 'desc' }, { activeOfferCount: 'desc' }],
-            take: 25 // Focus on highest-demand store comparisons to keep crawl budget tight
-        });
-
-        for (let i = 0; i < topStores.length; i++) {
-            for (let j = i + 1; j < topStores.length; j++) {
-                const storeA = topStores[i];
-                const storeB = topStores[j];
-                // Only generate comparison if they share a category
-                const sharesCategory = storeA.storeCategories.some(c1 => 
-                    storeB.storeCategories.some(c2 => c1.categoryId === c2.categoryId)
-                );
-                if (sharesCategory) {
-                    // Ensure alphabetical order to avoid duplicate reverse pages
-                    const [slug1, slug2] = [storeA.slug, storeB.slug].sort();
-                    // Use the most recent update time
-                    const lastModified = storeA.updatedAt > storeB.updatedAt ? storeA.updatedAt : storeB.updatedAt;
-                    
-                    compareRoutes.push({
-                        url: `${baseUrl}/compare/${slug1}-vs-${slug2}`,
-                        lastModified,
-                        changeFrequency: "weekly" as const,
-                        priority: 0.7,
-                    });
-                }
-            }
-        }
-    } catch (e) {
-        console.warn("[sitemap] Failed to fetch compare routes:", e);
-    }
+    // 6. Curated Compare Routes (High-Intent Store vs Store)
+    const compareRoutes: MetadataRoute.Sitemap = CURATED_COMPARE_PAIRS.map((pair) => ({
+        url: `${baseUrl}/compare/${pair.slug}`,
+        lastModified: new Date(),
+        changeFrequency: "weekly" as const,
+        priority: 0.75,
+    }));
 
     // 7. Dynamic Sale Event Routes (Diwali, Prime Day, etc.)
     let saleEvents: any[] = [];

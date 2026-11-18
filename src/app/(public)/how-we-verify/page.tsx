@@ -2,9 +2,12 @@ import { Shield, CheckCircle2, Clock, Activity, Search } from "lucide-react";
 import Link from "next/link";
 import { Metadata } from "next";
 
+import { getSiteUrl } from "@/lib/seo-utils";
+
 export const metadata: Metadata = {
-    title: "How We Verify Coupons | CouponHub",
-    description: "Learn about the CouponHub Commerce Intelligence Platform and how we verify, curate, and guarantee merchant information and offers.",
+    title: "How We Verify Coupons",
+    description: "Learn about the CouponHub deal verification workflow and how we review merchant policies, promo codes, and expiration dates.",
+    alternates: { canonical: `${getSiteUrl()}/how-we-verify` },
 };
 
 export default function HowWeVerifyPage() {

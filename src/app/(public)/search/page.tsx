@@ -6,7 +6,7 @@ import { MerchantSnapshot } from "@/components/ui/MerchantSnapshot";
 import { DecisionCard } from "@/components/ui/DecisionCard";
 
 export const metadata: Metadata = {
-    title: "Search Results | CouponHub",
+    title: "Search Results",
     description: "Search for the best coupons, stores, and deals.",
     robots: {
         index: false,

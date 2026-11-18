@@ -3,11 +3,14 @@ import Link from "next/link";
 import { BookOpen, Calendar, Zap, ArrowRight } from "lucide-react";
 import Image from "next/image";
 
+import { getSiteUrl } from "@/lib/seo-utils";
+
 export const revalidate = 3600;
 
 export const metadata = {
-  title: "Shopping Hub | CouponHub",
+  title: "Shopping Guides & Knowledge Hub",
   description: "Expert buying guides, sale calendars, and smart shopping tips to help you maximize your savings.",
+  alternates: { canonical: `${getSiteUrl()}/knowledge` },
 };
 
 export default async function KnowledgeHubPage() {

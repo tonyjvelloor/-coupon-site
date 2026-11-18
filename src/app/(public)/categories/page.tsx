@@ -13,10 +13,13 @@ import {
     ChevronRight,
 } from "lucide-react";
 
+import { getSiteUrl } from "@/lib/seo-utils";
+
 export const metadata: Metadata = {
-    title: "All Categories - Coupons & Offers",
+    title: "All Shopping Categories - Coupons & Offers",
     description:
-        "Browse all categories and find the best coupons, promo codes, and deals in fashion, electronics, travel, food, and more.",
+        "Browse all categories and find verified coupons, promo codes, and deals in fashion, electronics, travel, food, beauty, and more.",
+    alternates: { canonical: `${getSiteUrl()}/categories` },
 };
 
 const iconMap: Record<string, React.ElementType> = {

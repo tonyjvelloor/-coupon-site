@@ -1,8 +1,11 @@
 import { Search, Copy, ShoppingBag, BadgeCheck } from "lucide-react";
 
+import { getSiteUrl } from "@/lib/seo-utils";
+
 export const metadata = {
-    title: "How It Works | CouponHub by TheBrandManiacs",
-    description: "Learn how to use CouponHub to save money on your online shopping. A simple guide by TheBrandManiacs.",
+    title: "How It Works",
+    description: "Learn how to use CouponHub to find verified promo codes, compare bank card discounts, and save on online shopping in India.",
+    alternates: { canonical: `${getSiteUrl()}/how-it-works` },
 };
 
 export default function HowItWorksPage() {
