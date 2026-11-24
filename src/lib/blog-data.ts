@@ -27,6 +27,205 @@ const AUTHOR_COUPONHUB = {
 
 export const FALLBACK_BLOG_POSTS: BlogPostData[] = [
     // -------------------------------------------------------------
+    // 0. BEST INDIAN CREDIT CARDS FOR ONLINE SHOPPING (2026–2027)
+    // -------------------------------------------------------------
+    {
+        id: "post-best-credit-cards-online-shopping-india-2026-2027",
+        slug: "best-credit-cards-online-shopping-india-2026-2027",
+        title: "Best Credit Cards for Online Shopping in India (2026–2027): Instant Discount vs. Cashback Math",
+        excerpt: "Data-driven comparison of SBI Cashback, Amazon Pay ICICI, Flipkart Axis, Swiggy HDFC, and HDFC Millennia cards—when a 10% capped bank offer beats 5% cashback, and how to stack store promo codes.",
+        seoTitle: "Best Credit Cards for Online Shopping India (2026–2027) | CouponHub",
+        seoDescription: "Compare SBI Cashback, Amazon Pay ICICI, Flipkart Axis, Swiggy HDFC & HDFC Millennia credit cards in India. Learn exact instant discount caps, EMI GST costs, and coupon stacking rules.",
+        keywords: "best credit cards for online shopping india 2026,sbi cashback vs amazon pay icici,flipkart axis bank credit card offers,hdfc millennia online discount,credit card instant discount vs cashback india",
+        isPublished: true,
+        publishedAt: new Date("2026-11-24T09:00:00.000Z"),
+        author: AUTHOR_COUPONHUB,
+        content: `<h2>Quick Answer: Which Credit Card Saves the Most Online in India?</h2>
+<p>No single card wins every cart size. For <strong>orders under ₹30,000 during major sales</strong>, a <strong>10% instant bank discount</strong> on <a href="/banks/hdfc">HDFC</a>, <a href="/banks/icici">ICICI</a>, <a href="/banks/sbi">SBI</a>, or <a href="/banks/kotak">Kotak</a> cards usually beats cashback cards because you save up to ₹1,500–₹2,500 immediately. For <strong>everyday shopping and carts above ₹35,000</strong>, uncapped or high-cap <strong>5% cashback cards</strong> (like Amazon Pay ICICI, Flipkart Axis, or SBI Cashback) frequently deliver higher net savings.</p>
+
+<h2>Side-by-Side Comparison of Top Online Shopping Cards (2026–2027)</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Credit Card</th>
+            <th>Core Online Reward</th>
+            <th>Best Stores</th>
+            <th>Where to Check Live Offers</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Amazon Pay ICICI Card</strong></td>
+            <td>5% unlimited cashback (Prime) / 3% (non-Prime)</td>
+            <td><a href="/stores/amazon">Amazon India</a></td>
+            <td><a href="/banks/icici/amazon">ICICI × Amazon Offers</a></td>
+        </tr>
+        <tr>
+            <td><strong>Flipkart Axis Bank Card</strong></td>
+            <td>5% cashback on Flipkart &amp; partner brands</td>
+            <td><a href="/stores/flipkart">Flipkart</a>, <a href="/stores/myntra">Myntra</a></td>
+            <td><a href="/banks/axis/flipkart">Axis × Flipkart Offers</a></td>
+        </tr>
+        <tr>
+            <td><strong>SBI Cashback / SimplyCLICK</strong></td>
+            <td>5% online cashback (Cashback) / 10% festive instant off (SimplyCLICK)</td>
+            <td><a href="/stores/amazon">Amazon</a>, <a href="/stores/klook">Klook</a>, <a href="/stores/ajio">AJIO</a></td>
+            <td><a href="/banks/sbi">SBI Card Offers</a></td>
+        </tr>
+        <tr>
+            <td><strong>HDFC Millennia / Swiggy HDFC</strong></td>
+            <td>5%–10% cashback + frequent 10% instant sale caps</td>
+            <td><a href="/stores/swiggy">Swiggy</a>, <a href="/stores/croma-retail">Croma</a>, <a href="/stores/myntra">Myntra</a></td>
+            <td><a href="/banks/hdfc">HDFC Bank Offers</a></td>
+        </tr>
+        <tr>
+            <td><strong>Kotak Mahindra Bank Cards</strong></td>
+            <td>10% instant discount up to ₹1,000 on fashion sales</td>
+            <td><a href="/stores/myntra">Myntra</a>, <a href="/stores/flipkart">Flipkart</a></td>
+            <td><a href="/banks/kotak">Kotak Bank Offers</a></td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Real Math Example: ₹45,000 Laptop on Amazon vs. Croma</h2>
+<ul>
+    <li><strong>Option A (10% Instant Bank Discount, Capped at ₹1,500):</strong> You save ₹1,500 upfront (3.33% effective discount).</li>
+    <li><strong>Option B (5% Unlimited Cashback Card):</strong> You earn ₹2,250 back (₹750 more than Option A).</li>
+    <li><strong>Hidden EMI Trap:</strong> Choosing a 6-month "No-Cost EMI" adds <strong>18% GST on the interest component</strong> plus a ₹199 + GST processing fee, which can quietly erase ₹400–₹800 of your savings.</li>
+</ul>
+<p>Before paying, test your exact cart total in our <a href="/tools/card-vs-cashback-calculator">Card Instant Discount vs. Cashback Calculator</a> or filter live offers for the cards already in your wallet with our <a href="/tools/card-finder">My Cards &amp; Bank Offer Finder</a>.</p>
+
+<h2>3 Rules for Stacking Store Promo Codes with Bank Cards</h2>
+<ol>
+    <li><strong>Check the Post-Coupon Minimum Spend:</strong> Apply store coupons first (e.g., on <a href="/stores/tata-cliq">Tata CLiQ</a> or <a href="/stores/nykaa-beauty">Nykaa Beauty</a>) and verify your payable subtotal still crosses the bank threshold (usually ₹2,500 on fashion or ₹5,000 on electronics).</li>
+    <li><strong>Watch Co-Branded Card Exclusions:</strong> During Great Indian Festival or Big Billion Days, co-branded cards like Amazon Pay ICICI are occasionally excluded from core bank 10% instant discount banners—use a core card (Coral/Rubyx/Millennia) for capped instant sales.</li>
+    <li><strong>Compare Two Stores Before Checkout:</strong> Check <a href="/compare/amazon-vs-flipkart">Amazon vs. Flipkart</a> or <a href="/compare/croma-retail-vs-reliance-digital">Croma vs. Reliance Digital</a> because identical smartphones often carry a different bank partner on each platform.</li>
+</ol>`,
+    },
+    // -------------------------------------------------------------
+    // 00. MYNTRA END OF REASON SALE (EORS) DECEMBER 2026 GUIDE
+    // -------------------------------------------------------------
+    {
+        id: "post-myntra-eors-december-2026-guide",
+        slug: "myntra-end-of-reason-sale-december-2026-coupons-bank-offers",
+        title: "Myntra End of Reason Sale (EORS) December 2026: Dates, Coupons, Insider Access & Bank Stacking",
+        excerpt: "Complete December 2026 Myntra EORS buyer guide: expected dates, 50%–80% off winterwear and sneaker drops, Kotak/ICICI/HDFC instant card discounts, and how to beat convenience fees.",
+        seoTitle: "Myntra End of Reason Sale (EORS) Dec 2026: Coupons & Bank Offers | CouponHub",
+        seoDescription: "Prepare for Myntra End of Reason Sale (EORS) December 2026. Get verified Myntra coupon codes, Kotak/ICICI/HDFC 10% bank offers, and sneaker/winterwear stacking tips.",
+        keywords: "myntra end of reason sale december 2026,myntra eors 2026 dates,myntra coupon code december 2026,myntra bank offers kotak icici hdfc,myntra vs ajio sale",
+        isPublished: true,
+        publishedAt: new Date("2026-11-24T08:30:00.000Z"),
+        author: AUTHOR_COUPONHUB,
+        content: `<h2>When Is Myntra End of Reason Sale (EORS) December 2026?</h2>
+<p>Myntra's Winter <strong>End of Reason Sale (EORS)</strong> traditionally goes live in the <strong>second week of December</strong>, with 24-hour early access for Myntra Insider Select and Icon members. Shoppers can expect <strong>50% to 80% off</strong> across winter jackets, Nike/Adidas/Puma sneakers, ethnicwear, and beauty bundles.</p>
+
+<h2>Best Categories to Target During EORS December 2026</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Category</th>
+            <th>Expected EORS Markdown</th>
+            <th>Stacking Strategy</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Sneakers &amp; Running Shoes</strong></td>
+            <td>40%–65% OFF (<a href="/stores/puma">Puma</a>, Adidas, Nike, <a href="/stores/campus-shoes">Campus</a>)</td>
+            <td>Stack wishlist price drop + 10% Kotak/ICICI instant discount</td>
+        </tr>
+        <tr>
+            <td><strong>Winterwear &amp; Jackets</strong></td>
+            <td>50%–75% OFF (H&amp;M, Roadster, Marks &amp; Spencer)</td>
+            <td>Bundle to cross ₹2,999 bank card minimum spend</td>
+        </tr>
+        <tr>
+            <td><strong>Ethnicwear &amp; Festive</strong></td>
+            <td>55%–80% OFF (Biba, W, Aurelia, Libas)</td>
+            <td>Apply brand-level Myntra cart coupon before bank checkout</td>
+        </tr>
+        <tr>
+            <td><strong>Beauty &amp; Grooming</strong></td>
+            <td>30%–50% OFF + Free Mini Gifts</td>
+            <td>Cross-check prices against <a href="/stores/nykaa-beauty">Nykaa Beauty</a> &amp; <a href="/stores/plum-goodness">Plum Goodness</a></td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>How to Stack Coupons + Bank Offers on Myntra EORS</h2>
+<ol>
+    <li><strong>Wishlist 5–7 Days Early:</strong> Add your exact sizes before Curtain Raiser opens so you can spot genuine price drops versus pre-sale MRP bumps.</li>
+    <li><strong>Apply Store &amp; New-User Coupons First:</strong> Check live working vouchers on our <a href="/stores/myntra">Myntra Coupons page</a> and <a href="/events/end-of-reason-sale-2026">EORS 2026 Event Hub</a>.</li>
+    <li><strong>Use Eligible Bank Cards at Payment:</strong> Myntra EORS typically rotates <strong>10% instant discounts up to ₹1,000</strong> on <a href="/banks/kotak/myntra">Kotak Mahindra Bank</a>, <a href="/banks/icici/myntra">ICICI Bank</a>, and <a href="/banks/hdfc/myntra">HDFC Bank</a> cards on carts of ₹2,500–₹3,000+.</li>
+    <li><strong>Cross-Check AJIO &amp; Tata CLiQ:</strong> Before placing an order over ₹3,000, compare identical SKUs on <a href="/compare/myntra-vs-ajio">Myntra vs. AJIO</a> and <a href="/compare/tata-cliq-vs-myntra">Tata CLiQ vs. Myntra</a>—especially when AJIO All Stars runs concurrently.</li>
+</ol>
+<p>Want to see every fashion discount across your specific cards? Try our <a href="/tools/card-finder">My Cards &amp; Bank Offer Finder</a> or browse all <a href="/best/fashion-coupons">Best Fashion Coupons in India</a>.</p>`,
+    },
+    // -------------------------------------------------------------
+    // 000. DECEMBER & NEW YEAR 2026–2027 FLIGHT & HOTEL COUPONS INDIA
+    // -------------------------------------------------------------
+    {
+        id: "post-december-new-year-flight-hotel-coupons-india-2026",
+        slug: "december-new-year-flight-hotel-coupons-india-2026-2027",
+        title: "December 2026 & New Year Flight, Hotel & Holiday Coupon Codes India: Save Up to ₹2,000+",
+        excerpt: "Verified domestic flight promo codes, Indian hotel discounts, and international tour vouchers for December 2026 and New Year 2027 across MakeMyTrip, Klook, and Air India Express.",
+        seoTitle: "December 2026 & New Year Flight & Hotel Coupon Codes India | CouponHub",
+        seoDescription: "Save up to ₹2,000 on December 2026 & New Year flights, Indian hotels, and international tours with verified MakeMyTrip, Klook & Air India Express promo codes.",
+        keywords: "december flight coupon codes india 2026,new year hotel booking offers india,makemytrip hdfc promo code,klook india promo code unpackindia,air india express mastercard offer",
+        isPublished: true,
+        publishedAt: new Date("2026-11-24T08:00:00.000Z"),
+        author: AUTHOR_COUPONHUB,
+        content: `<h2>How to Cut December &amp; New Year Travel Costs in India</h2>
+<p>Peak holiday airfares and resort tariffs between <strong>December 18 and January 4</strong> routinely climb 40%–70% above off-peak rates. The fastest way to offset surge pricing is combining <strong>weekday bank promo codes</strong> with direct airline or experience vouchers—saving ₹600 to ₹2,000+ per booking.</p>
+
+<h2>Verified Travel Promo Codes &amp; Bank Vouchers Right Now</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Platform</th>
+            <th>Verified Offer</th>
+            <th>Promo Code</th>
+            <th>Store Link</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Klook India</strong></td>
+            <td>Extra ₹2,000 Off Indian Hotels &amp; Curated Experiences</td>
+            <td><code>UNPACKINDIA</code></td>
+            <td><a href="/stores/klook">Claim on Klook</a></td>
+        </tr>
+        <tr>
+            <td><strong>Klook × SBI Cards</strong></td>
+            <td>20% Off International Tours (Singapore, Vietnam, Japan, Europe)</td>
+            <td><code>SBICKLOOK20</code></td>
+            <td><a href="/banks/sbi/klook">SBI × Klook Offer</a></td>
+        </tr>
+        <tr>
+            <td><strong>MakeMyTrip × HDFC</strong></td>
+            <td>Flat 12% Off Domestic Flights &amp; Hotels (min ₹4,000)</td>
+            <td><code>HDFCDOM</code></td>
+            <td><a href="/banks/hdfc/makemytrip-hotels">HDFC × MakeMyTrip</a></td>
+        </tr>
+        <tr>
+            <td><strong>Air India Express</strong></td>
+            <td>Up to ₹600 Off Flights with Mastercard</td>
+            <td><code>FLYMASTER</code></td>
+            <td><a href="/stores/air-india-express">Air India Express Codes</a></td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>4 Smart Booking Tactics for Holiday Travel (2026–2027)</h2>
+<ol>
+    <li><strong>Book on Bank-Offer Weekdays:</strong> <a href="/banks/icici">ICICI</a> (Mondays), <a href="/banks/hdfc">HDFC</a>, and <a href="/banks/sbi">SBI</a> rotate steeper flat instant flight caps early in the week on <a href="/stores/makemytrip-hotels">MakeMyTrip</a>—never book a ₹12,000 round-trip ticket without checking bank codes first.</li>
+    <li><strong>Split Round-Trip Bookings When Capped:</strong> If a domestic flight code caps at ₹1,000 per transaction, splitting outbound and return legs across two eligible cards can double your total instant discount.</li>
+    <li><strong>Watch Base Fare vs. Convenience Fees:</strong> Travel coupons calculate discounts on the base fare, while OTAs add ₹350–₹500 per passenger in convenience fees. Compare the final payable total against direct airline checkout on <a href="/stores/air-india-express">Air India Express</a>.</li>
+    <li><strong>Pre-Book Airport Transfers &amp; Attractions:</strong> Using <a href="/stores/klook">Klook</a> codes like <code>UNPACKINDIA</code> or <code>SBICKLOOK20</code> locks in INR pricing with zero forex markup before your trip.</li>
+</ol>
+<p>Explore all active travel promos in our <a href="/offers/flight-coupons">Flight Coupons Collection</a> and <a href="/best/travel-coupons">Best Travel Coupons Hub</a>, or check which of your cards saves the most with the <a href="/tools/card-finder">Card Offer Finder</a>.</p>`,
+    },
+    // -------------------------------------------------------------
     // 0A. BLACK FRIDAY & CYBER MONDAY INDIA 2026 GUIDE
     // -------------------------------------------------------------
     {

@@ -4,6 +4,12 @@ import { getAllBlogPosts } from "@/lib/blog-data";
 import { getAllSaleEvents } from "@/lib/events-data";
 import { CURATED_COMPARE_PAIRS } from "@/lib/compare-pairs";
 import { getSiteUrl, getCurrentMonthYear } from "@/lib/seo-utils";
+import {
+    FALLBACK_BANK_OFFERS,
+    FALLBACK_BANKS,
+    FALLBACK_STORES,
+    getFallbackCouponsByStoreSlug,
+} from "@/lib/fallback-catalog";
 
 export const revalidate = 43200; // 12h cache for AI crawlers to save Neon compute hours
 
@@ -48,7 +54,33 @@ export async function GET() {
             }),
         ]);
     } catch (e) {
-        console.warn("[llms-full.txt] DB error:", e);
+        console.warn("[llms-full.txt] DB error, using fallback catalog:", e);
+    }
+
+    if (stores.length === 0) {
+        stores = FALLBACK_STORES.slice(0, 25).map((s) => ({
+            name: s.name,
+            slug: s.slug,
+            activeOfferCount: s.offerCount,
+            description: s.description,
+            storeCategories: [{ category: { name: s.primaryCategory } }],
+            merchantIdentity: {
+                coupons: getFallbackCouponsByStoreSlug(s.slug),
+            },
+        }));
+    }
+
+    if (bankOffers.length === 0) {
+        bankOffers = FALLBACK_BANK_OFFERS.slice(0, 20).map((bo) => {
+            const bank = FALLBACK_BANKS.find((b) => b.slug === bo.bankSlug);
+            const store = FALLBACK_STORES.find((s) => s.slug === bo.storeSlug);
+            return {
+                discountDetails: bo.discountDetails,
+                terms: bo.terms,
+                bank: { name: bank?.name || bo.bankSlug.toUpperCase(), slug: bo.bankSlug },
+                store: store ? { name: store.name, slug: store.slug } : null,
+            };
+        });
     }
 
     const [events, blogPosts] = await Promise.all([
@@ -85,7 +117,7 @@ ${couponLines}`;
             ? bankOffers
                   .map(
                       (bo) =>
-                          `- **${bo.bank.name}**${bo.store ? ` at ${bo.store.name}` : ""}: ${bo.title}${bo.promoCode ? ` (Code: \`${bo.promoCode}\`)` : ""} — ${siteUrl}/banks/${bo.bank.slug}`
+                          `- **${bo.bank.name}**${bo.store ? ` at ${bo.store.name}` : ""}: ${bo.discountDetails || bo.title || "Verified instant card offer"} — ${bo.store ? `${siteUrl}/banks/${bo.bank.slug}/${bo.store.slug}` : `${siteUrl}/banks/${bo.bank.slug}`}`
                   )
                   .join("\n")
             : `- HDFC, ICICI, SBI, Axis, and Kotak instant discounts — ${siteUrl}/banks`;

@@ -31,12 +31,14 @@ const footerLinks = {
         { name: "Site Map", href: "/html-sitemap" },
     ],
     popular: [
-        { name: "Savings Calculators", href: "/tools" },
+        { name: "My Cards Offer Finder", href: "/tools/card-finder" },
         { name: "Card vs. Cashback Tool", href: "/tools/card-vs-cashback-calculator" },
+        { name: "Savings Calculators", href: "/tools" },
         { name: "HDFC Card Offers", href: "/banks/hdfc" },
+        { name: "ICICI Card Offers", href: "/banks/icici" },
         { name: "SBI Card Discounts", href: "/banks/sbi" },
+        { name: "Seasonal Sale Events", href: "/events" },
         { name: "First Order Coupons", href: "/offers/new-user-coupons" },
-        { name: "Free Shipping Codes", href: "/offers/free-shipping-codes" },
     ]
 };
 

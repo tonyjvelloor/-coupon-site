@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { couponService } from "@/lib/services/coupon.service";
 import { PremiumOfferCard } from "@/components/ui/PremiumOfferCard";
+import { BestOffersFilterGrid } from "@/components/modules/offers/BestOffersFilterGrid";
 import { Sparkles, Tag, ShieldCheck, ArrowRight } from "lucide-react";
 import { getSiteUrl, getCurrentMonthYear } from "@/lib/seo-utils";
 import { cleanCouponCode, formatDiscountBadge, getOfferBadgeLabel } from "@/lib/coupon-ranking";
@@ -87,6 +88,7 @@ export default async function BestOffersPage() {
                                         }}
                                         storeName={coupon.merchantName}
                                         storeLogo={coupon.merchantLogo}
+                                        source="best-offers-spotlight"
                                     />
                                 ))}
                             </div>
@@ -141,32 +143,10 @@ export default async function BestOffersPage() {
                     </section>
                 )}
 
-                {/* Full Ranked Offers Grid */}
-                {remainingOffers.length > 0 ? (
-                    <section>
-                        <h2 className="text-2xl font-bold text-slate-900 mb-6">
-                            More Verified Deals &amp; Store Offers
-                        </h2>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {remainingOffers.map((coupon, index) => (
-                                <PremiumOfferCard
-                                    key={coupon.id}
-                                    badgeLabel={getOfferBadgeLabel(coupon, index + 3)}
-                                    coupon={{
-                                        ...coupon,
-                                        discountValue: formatDiscountBadge(
-                                            coupon.discountValue,
-                                            coupon.discountType,
-                                            coupon.title
-                                        ),
-                                    }}
-                                    storeName={coupon.merchantName}
-                                    storeLogo={coupon.merchantLogo}
-                                />
-                            ))}
-                        </div>
-                    </section>
-                ) : coupons.length === 0 ? (
+                {/* Interactive Filtered Offers Grid */}
+                {coupons.length > 0 ? (
+                    <BestOffersFilterGrid offers={remainingOffers.length > 0 ? remainingOffers : coupons} />
+                ) : (
                     <div className="bg-white rounded-xl shadow-sm p-12 text-center">
                         <p className="text-gray-600 text-lg mb-4">
                             Browse our full store directory for live brand offers and bank card guides.
@@ -178,7 +158,7 @@ export default async function BestOffersPage() {
                             Explore Partner Stores <ArrowRight className="w-4 h-4" />
                         </Link>
                     </div>
-                ) : null}
+                )}
             </div>
         </div>
     );

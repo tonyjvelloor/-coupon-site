@@ -4,6 +4,11 @@ import { getAllBlogPosts } from "@/lib/blog-data";
 import { getAllSaleEvents } from "@/lib/events-data";
 import { CURATED_COMPARE_PAIRS } from "@/lib/compare-pairs";
 import { getSiteUrl, getCurrentMonthYear } from "@/lib/seo-utils";
+import {
+    FALLBACK_BANKS,
+    FALLBACK_STORES,
+    getFallbackCouponsByStoreSlug,
+} from "@/lib/fallback-catalog";
 
 export const revalidate = 43200; // 12h cache for AI crawlers to save Neon compute hours
 
@@ -48,7 +53,25 @@ export async function GET() {
             }),
         ]);
     } catch (e) {
-        console.warn("[ai-index.json] DB error:", e);
+        console.warn("[ai-index.json] DB error, using fallback catalog:", e);
+    }
+
+    if (stores.length === 0) {
+        stores = FALLBACK_STORES.map((s) => ({
+            name: s.name,
+            slug: s.slug,
+            activeOfferCount: s.offerCount,
+            cashbackRate: s.cashbackRate,
+            description: s.description,
+            storeCategories: [{ category: { name: s.primaryCategory, slug: s.categorySlug } }],
+            merchantIdentity: {
+                coupons: getFallbackCouponsByStoreSlug(s.slug),
+            },
+        }));
+    }
+
+    if (banks.length === 0) {
+        banks = FALLBACK_BANKS;
     }
 
     const [events, blogPosts] = await Promise.all([
@@ -70,6 +93,12 @@ export async function GET() {
             verificationProcess: `${siteUrl}/how-we-verify`,
         },
         tools: [
+            {
+                name: "My Cards & Bank Offer Finder India",
+                url: `${siteUrl}/tools/card-finder`,
+                description:
+                    "Interactive Indian wallet matcher pairing HDFC, ICICI, SBI, Axis, Kotak, and AU Bank cards with verified instant discounts and stackable promo codes.",
+            },
             {
                 name: "Credit Card Instant Discount vs. Cashback Calculator",
                 url: `${siteUrl}/tools/card-vs-cashback-calculator`,
