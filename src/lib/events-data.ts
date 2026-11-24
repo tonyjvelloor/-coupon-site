@@ -29,9 +29,9 @@ export const FALLBACK_SALE_EVENTS: SaleEventData[] = [
         icon: "favorite",
         isActive: true,
         store: {
-            name: "Nykaa",
-            slug: "nykaa",
-            logo: "/images/stores/nykaa.png"
+            name: "Nykaa Beauty",
+            slug: "nykaa-beauty",
+            logo: null
         }
     },
     {

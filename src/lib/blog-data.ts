@@ -71,7 +71,7 @@ export const FALLBACK_BLOG_POSTS: BlogPostData[] = [
         <tr>
             <td><strong>Croma</strong></td>
             <td>Extra 10% Instant Bank Discount on TVs, Wearables &amp; Appliances</td>
-            <td><a href="/stores/croma">View Croma Coupons</a></td>
+            <td><a href="/stores/croma-retail">View Croma Coupons</a></td>
         </tr>
         <tr>
             <td><strong>Myntra &amp; AJIO</strong></td>
@@ -106,7 +106,7 @@ export const FALLBACK_BLOG_POSTS: BlogPostData[] = [
 <h2>How to Maximize Savings During Nykaa Pink Friday 2026</h2>
 <ol>
     <li><strong>Target Brand Freebie Thresholds:</strong> Brands like Plum, Minimalist, Cetaphil, MAC, and Nykaa Cosmetics bundle full-size free gifts once your brand subtotal crosses ₹999 or ₹1,499.</li>
-    <li><strong>Apply Cart-Level Promo Codes:</strong> Check live tested vouchers on our <a href="/stores/nykaa">Nykaa Verified Coupons page</a> and <a href="/best/beauty-coupons">Best Beauty Deals hub</a> before paying.</li>
+    <li><strong>Apply Cart-Level Promo Codes:</strong> Check live tested vouchers on our <a href="/stores/nykaa-beauty">Nykaa Verified Coupons page</a> and <a href="/best/health-beauty-coupons">Best Beauty Deals hub</a> before paying.</li>
     <li><strong>Use Bank Card Day Windows:</strong> HDFC and ICICI bank cards typically run flat ₹200–₹350 instant discounts on minimum carts of ₹1,500–₹2,500 during early access hours.</li>
 </ol>
 
