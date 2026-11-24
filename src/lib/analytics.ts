@@ -4,6 +4,11 @@ type EventProperties = {
     store_saved: { storeId: string };
     deal_saved: { dealId: string };
     trust_vote: { couponId: string; vote: 'up' | 'down' };
+    coupon_voted: { couponId: string; type: 'up' | 'down' };
+    modal_coupon_copied: { couponId: string; source?: string };
+    modal_continue_clicked: { storeName: string; source?: string };
+    mobile_sticky_code_copied: { couponId: string; storeName: string };
+    mobile_sticky_deal_clicked: { couponId: string; storeName: string };
 };
 
 export type EventName = keyof EventProperties;

@@ -11,6 +11,7 @@ interface CouponData {
   affiliateUrl: string;
   storeName: string;
   storeLogo?: string;
+  source?: string;
 }
 
 interface CouponModalContextType {

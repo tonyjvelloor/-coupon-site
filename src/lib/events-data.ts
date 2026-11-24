@@ -31,7 +31,7 @@ export const FALLBACK_SALE_EVENTS: SaleEventData[] = [
         store: {
             name: "Nykaa Beauty",
             slug: "nykaa-beauty",
-            logo: null
+            logo: "/images/stores/nykaa-beauty.jpg"
         }
     },
     {

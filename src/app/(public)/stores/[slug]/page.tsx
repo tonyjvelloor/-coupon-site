@@ -18,6 +18,7 @@ import { ShoppingIntelligenceSummary } from "@/components/modules/store/Shopping
 import { SavingsStrategy } from "@/components/modules/store/SavingsStrategy";
 import { OfferFeed } from "@/components/modules/store/OfferFeed";
 import { AdditionalSavings } from "@/components/modules/store/AdditionalSavings";
+import { MobileStickyDealBar } from "@/components/modules/store/MobileStickyDealBar";
 import dynamic from "next/dynamic";
 
 const TrustCenter = dynamic(() => import("@/components/modules/store/TrustCenter").then(mod => mod.TrustCenter), { ssr: true });
@@ -279,6 +280,17 @@ export default async function StorePage({ params }: PageProps) {
             </div>
             
             <StoreSchema store={store} coupons={activeCoupons} faqs={allFaqs} />
+            {bestDeal && (
+                <MobileStickyDealBar
+                    storeId={store.id}
+                    storeName={store.name}
+                    couponId={bestDeal.id}
+                    title={bestDeal.title}
+                    discountBadge={formatDiscountBadge(bestDeal.discountValue, bestDeal.discountType, bestDeal.title)}
+                    code={cleanCouponCode(bestDeal.code)}
+                    affiliateUrl={bestDeal.affiliateUrl || store.website}
+                />
+            )}
         </div>
     );
 }

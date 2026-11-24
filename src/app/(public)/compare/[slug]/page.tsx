@@ -228,9 +228,23 @@ export default async function ComparePage({ params }: { params: Promise<{ slug: 
           <div className="p-4 md:border-l md:border-r">
             <ul className="space-y-3">
               {(store1.merchantIdentity?.coupons || []).map((coupon: any) => (
-                <li key={coupon.id} className="text-sm border rounded p-2 bg-background">
+                <li key={coupon.id} className="text-sm border rounded-lg p-2.5 bg-background flex flex-col gap-1.5">
                   <div className="font-semibold">{coupon.title}</div>
-                  {coupon.code && <div className="text-xs text-muted-foreground mt-1 bg-muted inline-block px-1 rounded">Code: {coupon.code}</div>}
+                  <div className="flex items-center justify-between gap-2">
+                    {coupon.code ? (
+                      <span className="text-xs font-mono font-bold text-primary bg-muted px-1.5 py-0.5 rounded">Code: {coupon.code}</span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">Auto-applied deal</span>
+                    )}
+                    <a
+                      href={`/out?url=${encodeURIComponent(coupon.affiliateUrl || store1.website)}&storeId=${encodeURIComponent(store1.slug)}&couponId=${encodeURIComponent(coupon.id)}&source=compare-table`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs font-bold text-primary hover:underline shrink-0"
+                    >
+                      Claim →
+                    </a>
+                  </div>
                 </li>
               ))}
               {(store1.merchantIdentity?.coupons || []).length === 0 && <span className="text-sm text-muted-foreground">No active offers currently.</span>}
@@ -239,9 +253,23 @@ export default async function ComparePage({ params }: { params: Promise<{ slug: 
           <div className="p-4 md:border-l">
             <ul className="space-y-3">
               {(store2.merchantIdentity?.coupons || []).map((coupon: any) => (
-                <li key={coupon.id} className="text-sm border rounded p-2 bg-background">
+                <li key={coupon.id} className="text-sm border rounded-lg p-2.5 bg-background flex flex-col gap-1.5">
                   <div className="font-semibold">{coupon.title}</div>
-                  {coupon.code && <div className="text-xs text-muted-foreground mt-1 bg-muted inline-block px-1 rounded">Code: {coupon.code}</div>}
+                  <div className="flex items-center justify-between gap-2">
+                    {coupon.code ? (
+                      <span className="text-xs font-mono font-bold text-primary bg-muted px-1.5 py-0.5 rounded">Code: {coupon.code}</span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">Auto-applied deal</span>
+                    )}
+                    <a
+                      href={`/out?url=${encodeURIComponent(coupon.affiliateUrl || store2.website)}&storeId=${encodeURIComponent(store2.slug)}&couponId=${encodeURIComponent(coupon.id)}&source=compare-table`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs font-bold text-primary hover:underline shrink-0"
+                    >
+                      Claim →
+                    </a>
+                  </div>
                 </li>
               ))}
               {(store2.merchantIdentity?.coupons || []).length === 0 && <span className="text-sm text-muted-foreground">No active offers currently.</span>}

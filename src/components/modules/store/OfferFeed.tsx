@@ -200,6 +200,7 @@ export function OfferFeed({ store, offers }: OfferFeedProps) {
                                         storeName={store.name}
                                         storeLogo={store.logo}
                                         badgeLabel={badgeLabel}
+                                        source={isTopPick ? "store-top-pick" : "store-feed"}
                                     />
                                 </div>
                             );

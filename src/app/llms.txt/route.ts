@@ -4,6 +4,7 @@ import { getAllBlogPosts } from "@/lib/blog-data";
 import { getAllSaleEvents } from "@/lib/events-data";
 import { CURATED_COMPARE_PAIRS } from "@/lib/compare-pairs";
 import { getSiteUrl, getCurrentMonthYear } from "@/lib/seo-utils";
+import { FALLBACK_BANKS, FALLBACK_STORES } from "@/lib/fallback-catalog";
 
 export const revalidate = 43200; // 12h cache for AI crawlers to save Neon compute hours
 
@@ -58,6 +59,17 @@ export async function GET() {
         console.warn("[llms.txt] DB error, using resilient fallbacks:", e);
     }
 
+    if (topStores.length === 0) {
+        topStores = FALLBACK_STORES.map((s) => ({
+            name: s.name,
+            slug: s.slug,
+            activeOfferCount: s.offerCount,
+        }));
+    }
+    if (banks.length === 0) {
+        banks = FALLBACK_BANKS.map((b) => ({ name: b.name, slug: b.slug }));
+    }
+
     const [events, blogPosts] = await Promise.all([
         getAllSaleEvents().catch(() => []),
         getAllBlogPosts().catch(() => []),
@@ -81,6 +93,7 @@ export async function GET() {
 
 ## Core Navigation & Tools
 - [All Partner Stores](${siteUrl}/stores): Searchable directory of active merchants
+- [My Cards & Bank Offer Finder](${siteUrl}/tools/card-finder): Match HDFC, ICICI, SBI, Axis, Kotak & AU Bank cards to live instant discounts and stackable promo codes
 - [Credit Card Instant Discount vs. Cashback Calculator](${siteUrl}/tools/card-vs-cashback-calculator): Models 10% bank discount caps, 5% cashback cards, and 18% GST on No-Cost EMI interest
 - [Discount Stacking Calculator](${siteUrl}/tools/discount-calculator): Calculate layered coupon + cart discounts
 - [Store Comparison Hub](${siteUrl}/compare): Side-by-side platform, return policy, and bank-offer comparisons

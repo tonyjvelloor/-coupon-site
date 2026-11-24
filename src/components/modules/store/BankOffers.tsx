@@ -23,7 +23,7 @@ export function BankOffers({ storeSlug, offers }: BankOffersProps) {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {displayOffers.map((offer) => (
-                    <div key={offer.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 hover:shadow-md transition-shadow">
+                    <div key={offer.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 hover:shadow-md transition-shadow flex flex-col">
                         <div className="flex items-center gap-3 mb-3">
                             <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-600 dark:text-slate-300">
                                 <CreditCard className="w-5 h-5" />
@@ -34,9 +34,18 @@ export function BankOffers({ storeSlug, offers }: BankOffersProps) {
                             {offer.discountDetails}
                         </p>
                         {offer.terms && (
-                            <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mb-4">
                                 {offer.terms}
                             </p>
+                        )}
+                        {offer.bank?.slug && (
+                            <Link
+                                href={`/banks/${offer.bank.slug}/${storeSlug}`}
+                                className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline mt-auto"
+                            >
+                                View {offer.bank.name} Offer Details
+                                <ExternalLink className="w-3.5 h-3.5" />
+                            </Link>
                         )}
                     </div>
                 ))}
@@ -45,10 +54,10 @@ export function BankOffers({ storeSlug, offers }: BankOffersProps) {
             {shouldSplit && (
                 <div className="mt-6 text-center">
                     <Link 
-                        href={`/stores/${storeSlug}/bank-offers`}
+                        href="/banks"
                         className="inline-flex items-center gap-2 text-violet-600 font-medium hover:text-violet-700 hover:underline"
                     >
-                        View all {offers.length} Bank Offers
+                        Explore All Bank &amp; Card Offers
                         <ExternalLink className="w-4 h-4" />
                     </Link>
                 </div>

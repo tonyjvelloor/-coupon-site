@@ -101,9 +101,17 @@ export default async function BanksIndexPage() {
                     <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight mb-4">
                         India's Best Credit & Debit Card Offers
                     </h1>
-                    <p className="text-indigo-100 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-indigo-100 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed mb-6">
                         Stack instant bank card discounts on top of verified merchant promo codes to maximize your checkout savings at Amazon, Flipkart, Myntra, and more.
                     </p>
+                    <Link
+                        href="/tools/card-finder"
+                        className="inline-flex items-center gap-2 bg-white text-indigo-900 font-bold px-6 py-3 rounded-xl hover:bg-indigo-50 transition-colors shadow-md text-sm"
+                    >
+                        <CreditCard className="w-4 h-4" />
+                        Match My Cards to Live Offers
+                        <ArrowRight className="w-4 h-4" />
+                    </Link>
                 </div>
             </section>
 

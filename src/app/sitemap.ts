@@ -5,6 +5,15 @@ import { getAllSaleEvents } from "@/lib/events-data";
 import { contentSplitService } from "@/lib/services/content-split.service";
 import { getSiteUrl, isStoreSubpageIndexable, MIN_STORE_OFFERS_FOR_SUBPAGES } from "@/lib/seo-utils";
 import { CURATED_COMPARE_PAIRS } from "@/lib/compare-pairs";
+import {
+    FALLBACK_BANK_OFFERS,
+    FALLBACK_BANKS,
+    FALLBACK_CATEGORIES,
+    FALLBACK_COLLECTIONS,
+    FALLBACK_STORES,
+} from "@/lib/fallback-catalog";
+
+export const revalidate = 43200; // 12h cache so crawler sitemap fetches don't wake Neon Free compute
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = getSiteUrl();
@@ -18,16 +27,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             priority: 1,
         },
         {
+            url: `${baseUrl}/best-offers`,
+            lastModified: new Date(),
+            changeFrequency: "daily" as const,
+            priority: 0.95,
+        },
+        {
             url: `${baseUrl}/stores`,
             lastModified: new Date(),
             changeFrequency: "daily" as const,
-            priority: 0.8,
+            priority: 0.85,
         },
         {
             url: `${baseUrl}/categories`,
             lastModified: new Date(),
             changeFrequency: "weekly" as const,
             priority: 0.8,
+        },
+        {
+            url: `${baseUrl}/events`,
+            lastModified: new Date(),
+            changeFrequency: "daily" as const,
+            priority: 0.85,
         },
         {
             url: `${baseUrl}/html-sitemap`,
@@ -45,13 +66,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             url: `${baseUrl}/compare`,
             lastModified: new Date(),
             changeFrequency: "weekly" as const,
-            priority: 0.7,
+            priority: 0.75,
         },
         {
             url: `${baseUrl}/tools`,
             lastModified: new Date(),
             changeFrequency: "weekly" as const,
             priority: 0.8,
+        },
+        {
+            url: `${baseUrl}/tools/card-finder`,
+            lastModified: new Date(),
+            changeFrequency: "weekly" as const,
+            priority: 0.9,
         },
         {
             url: `${baseUrl}/tools/discount-calculator`,
@@ -123,7 +150,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             }
         });
     } catch (e) {
-        console.warn("[sitemap] Failed to fetch stores:", e);
+        console.warn("[sitemap] Failed to fetch stores, using fallback catalog:", e);
+    }
+
+    if (storeRoutes.length === 0) {
+        FALLBACK_STORES.forEach((store) => {
+            storeRoutes.push({
+                url: `${baseUrl}/stores/${store.slug}`,
+                lastModified: new Date(),
+                changeFrequency: "daily" as const,
+                priority: store.isFeatured ? 0.9 : 0.8,
+            });
+        });
     }
 
     // 3. Dynamic Bank Routes (India Bank & Card SEO)
@@ -173,7 +211,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             }
         });
     } catch (e) {
-        console.warn("[sitemap] Failed to fetch bank routes:", e);
+        console.warn("[sitemap] Failed to fetch bank routes, using fallback catalog:", e);
+    }
+
+    if (bankRoutes.length <= 1) {
+        FALLBACK_BANKS.forEach((bank) => {
+            bankRoutes.push({
+                url: `${baseUrl}/banks/${bank.slug}`,
+                lastModified: new Date(),
+                changeFrequency: "daily" as const,
+                priority: 0.8,
+            });
+        });
+        const seenPairs = new Set<string>();
+        FALLBACK_BANK_OFFERS.forEach((offer) => {
+            const pairKey = `${offer.bankSlug}/${offer.storeSlug}`;
+            if (seenPairs.has(pairKey)) return;
+            seenPairs.add(pairKey);
+            bankRoutes.push({
+                url: `${baseUrl}/banks/${offer.bankSlug}/${offer.storeSlug}`,
+                lastModified: new Date(),
+                changeFrequency: "weekly" as const,
+                priority: 0.75,
+            });
+        });
     }
 
     // 3. Dynamic Category Routes (Programmatic SEO with Quality Gates)
@@ -223,7 +284,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             }
         });
     } catch (e) {
-        console.warn("[sitemap] Failed to fetch category routes:", e);
+        console.warn("[sitemap] Failed to fetch category routes, using fallback catalog:", e);
+    }
+
+    if (categoryRoutes.length === 0) {
+        FALLBACK_CATEGORIES.forEach((category) => {
+            categoryRoutes.push({
+                url: `${baseUrl}/best/${category.slug}-coupons`,
+                lastModified: new Date(),
+                changeFrequency: "daily" as const,
+                priority: 0.8,
+            });
+        });
     }
 
     // 4. Dynamic Blog Routes
@@ -261,7 +333,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             });
         });
     } catch (e) {
-        console.warn("[sitemap] Failed to fetch collection routes:", e);
+        console.warn("[sitemap] Failed to fetch collection routes, using fallback catalog:", e);
+    }
+
+    if (collectionRoutes.length === 0) {
+        FALLBACK_COLLECTIONS.forEach((col) => {
+            collectionRoutes.push({
+                url: `${baseUrl}/offers/${col.slug}`,
+                lastModified: new Date(),
+                changeFrequency: "daily" as const,
+                priority: 0.8,
+            });
+        });
     }
 
     // 6. Curated Compare Routes (High-Intent Store vs Store)

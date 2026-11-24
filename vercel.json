@@ -7,7 +7,7 @@
     },
     {
       "path": "/api/cron/sync-commissions",
-      "schedule": "0 19 * * *"
+      "schedule": "35 18 * * *"
     }
   ]
 }

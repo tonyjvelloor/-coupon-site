@@ -4,11 +4,11 @@ import { useChat } from "ai/react";
 import { Sparkles, MessageCircle, Send, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import ReactMarkdown from 'react-markdown';
 import { LocalStorageAdapter, ShoppingProfile } from "@/lib/profile";
 
-export default function AssistantPage() {
+function AssistantContent() {
     const searchParams = useSearchParams();
     const initialQuery = searchParams.get("q");
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -174,5 +174,13 @@ export default function AssistantPage() {
                 </div>
             </footer>
         </div>
+    );
+}
+
+export default function AssistantPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-surface-50 dark:bg-black" />}>
+            <AssistantContent />
+        </Suspense>
     );
 }

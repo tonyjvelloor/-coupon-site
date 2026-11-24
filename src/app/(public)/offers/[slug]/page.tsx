@@ -178,6 +178,7 @@ export default async function CollectionPage({ params }: PageProps) {
                                     coupon={coupon as any}
                                     storeName={coupon.merchantIdentity?.store?.name || ""}
                                     storeLogo={coupon.merchantIdentity?.store?.logo || null}
+                                    source={`collection-${collection.slug}`}
                                 />
                             ))}
                         </div>

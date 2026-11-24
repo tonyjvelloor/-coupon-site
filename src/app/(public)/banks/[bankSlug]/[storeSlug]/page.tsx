@@ -222,13 +222,15 @@ export default async function BankStoreOfferPage({ params }: PageProps) {
                                                 )}
                                             </div>
                                             <div className="shrink-0 w-full sm:w-auto">
-                                                <Link 
-                                                    href={`/stores/${store.slug}?coupon=${coupon.id}`}
+                                                <a 
+                                                    href={`/out?url=${encodeURIComponent(coupon.affiliateUrl || store.website)}&storeId=${encodeURIComponent(store.slug)}&couponId=${encodeURIComponent(coupon.id)}&source=bank-store-page&type=${coupon.code ? "code" : "deal"}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
                                                     className="w-full sm:w-auto inline-flex justify-center items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-xl transition-colors"
                                                 >
-                                                    {coupon.code ? "Show Code" : "Activate Deal"}
+                                                    {coupon.code ? `Code: ${coupon.code}` : "Activate Deal"}
                                                     <ArrowRight className="w-4 h-4" />
-                                                </Link>
+                                                </a>
                                             </div>
                                         </div>
                                     ))}
@@ -255,13 +257,15 @@ export default async function BankStoreOfferPage({ params }: PageProps) {
                                             )}
                                         </div>
                                         <div className="shrink-0 w-full sm:w-auto">
-                                            <Link 
-                                                href={`/stores/${store.slug}?coupon=${coupon.id}`}
+                                            <a 
+                                                href={`/out?url=${encodeURIComponent(coupon.affiliateUrl || store.website)}&storeId=${encodeURIComponent(store.slug)}&couponId=${encodeURIComponent(coupon.id)}&source=bank-store-stackable&type=${coupon.code ? "code" : "deal"}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
                                                 className="w-full sm:w-auto inline-flex justify-center items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-6 rounded-xl transition-colors"
                                             >
-                                                {coupon.code ? "Show Code" : "Activate Deal"}
+                                                {coupon.code ? `Use ${coupon.code}` : "Activate Deal"}
                                                 <ArrowRight className="w-4 h-4" />
-                                            </Link>
+                                            </a>
                                         </div>
                                     </div>
                                 ))}

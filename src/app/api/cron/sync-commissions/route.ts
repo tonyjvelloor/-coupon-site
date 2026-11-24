@@ -19,6 +19,15 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Skip immediately without waking Neon DB if CJ API credentials aren't configured
+    if (!process.env.CJ_API_TOKEN) {
+      return NextResponse.json({
+        success: true,
+        skipped: true,
+        message: 'CJ_API_TOKEN not configured; skipped commission sync to conserve DB compute.',
+      });
+    }
+
     // 2. Initialize the CJ Client
     const client = new CJCommissionClient();
 

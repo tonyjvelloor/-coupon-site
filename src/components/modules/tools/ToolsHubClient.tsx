@@ -88,7 +88,30 @@ export function ToolsHubClient() {
   return (
     <div className="space-y-16">
       {/* Featured Tools Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Tool 0: My Cards & Bank Offer Finder */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border-2 border-indigo-200 dark:border-indigo-900/60 p-8 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
+          <div>
+            <div className="w-14 h-14 rounded-xl bg-violet-50 dark:bg-violet-950/60 text-violet-600 flex items-center justify-center mb-6 group-hover:scale-105 transition-transform">
+              <CreditCard className="w-7 h-7" />
+            </div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-violet-50 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300 mb-3">
+              <Sparkles className="w-3.5 h-3.5" /> Interactive Wallet Matcher
+            </div>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">
+              My Cards &amp; Bank Offer Finder
+            </h2>
+            <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-6">
+              Select the HDFC, ICICI, SBI, Axis, Kotak, or AU Bank cards in your wallet to uncover estimated instant rupee savings and stackable promo codes across top stores.
+            </p>
+          </div>
+          <Link
+            href="/tools/card-finder"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-semibold transition-all shadow-sm hover:shadow active:scale-[0.99]"
+          >
+            Find My Card Offers <ExternalLink className="w-4 h-4" />
+          </Link>
+        </div>
         {/* Tool 1: Discount Calculator */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
           <div>

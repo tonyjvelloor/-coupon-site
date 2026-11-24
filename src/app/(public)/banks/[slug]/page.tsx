@@ -279,12 +279,31 @@ export default async function BankPage({ params }: PageProps) {
                                             {offer.terms || "Standard terms and conditions apply."}
                                         </p>
                                     </div>
-                                    <Link 
-                                        href={offer.store ? `/stores/${offer.store.slug}` : "/stores"} 
-                                        className="block w-full text-center bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 text-brand-indigo font-bold py-2.5 rounded-xl transition-colors text-sm"
-                                    >
-                                        View {offer.store?.name || "Merchant"} Coupons
-                                    </Link>
+                                    <div className="flex flex-col gap-2">
+                                        {offer.store ? (
+                                            <>
+                                                <Link 
+                                                    href={`/banks/${bank.slug}/${offer.store.slug}`}
+                                                    className="block w-full text-center bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl transition-colors text-sm"
+                                                >
+                                                    View {bank.name} × {offer.store.name} Offer
+                                                </Link>
+                                                <Link 
+                                                    href={`/stores/${offer.store.slug}`}
+                                                    className="block w-full text-center bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 text-brand-indigo font-semibold py-2 rounded-xl transition-colors text-xs"
+                                                >
+                                                    All {offer.store.name} Coupons
+                                                </Link>
+                                            </>
+                                        ) : (
+                                            <Link 
+                                                href="/stores"
+                                                className="block w-full text-center bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 text-brand-indigo font-bold py-2.5 rounded-xl transition-colors text-sm"
+                                            >
+                                                Browse Merchant Coupons
+                                            </Link>
+                                        )}
+                                    </div>
                                 </div>
                             ))}
                         </div>

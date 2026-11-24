@@ -42,10 +42,10 @@ export function ShoppingTips({ storeSlug, tips }: ShoppingTipsProps) {
             {shouldSplit && (
                 <div className="mt-6 text-center">
                     <Link 
-                        href={`/stores/${storeSlug}/shopping-tips`}
+                        href="/knowledge"
                         className="inline-flex items-center gap-2 text-violet-600 font-medium hover:text-violet-700 hover:underline"
                     >
-                        Read all {tips.length} Shopping Tips
+                        Read More Shopping Guides
                         <ExternalLink className="w-4 h-4" />
                     </Link>
                 </div>

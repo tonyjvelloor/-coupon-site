@@ -5,15 +5,10 @@ import { ImpactConnector } from "@/lib/import-engine/connectors/impact";
 import { CJConnector } from "@/lib/import-engine/connectors/cj";
 import { CuelinksConnector } from "@/lib/import-engine/connectors/cuelinks/cuelinks.connector";
 import { notificationEngine } from "@/lib/notifications";
-
-// Ensure connectors are loaded in API context
-const isDev = process.env.NODE_ENV !== "production";
-connectorRegistry.register(new ImpactConnector(isDev));
-connectorRegistry.register(new CJConnector(isDev));
-connectorRegistry.register(new CuelinksConnector());
+import { runCouponScoringAndIndexNow } from "@/lib/services/coupon-maintenance.service";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 60; // Allow up to 60s for import pipeline execution
+export const maxDuration = 60;
 
 export async function GET(request: NextRequest) {
   // Security: Ensure this is called by Vercel Cron or a trusted source
@@ -21,42 +16,59 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const token = searchParams.get("token");
 
-  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}` && token !== process.env.CRON_SECRET) {
+  if (
+    process.env.CRON_SECRET &&
+    authHeader !== `Bearer ${process.env.CRON_SECRET}` &&
+    token !== process.env.CRON_SECRET
+  ) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
+    // Register ONLY configured connectors so unconfigured providers don't waste Neon compute wakeups
+    const isDev = process.env.NODE_ENV !== "production";
+    if (process.env.CUELINKS_API_KEY) {
+      connectorRegistry.register(new CuelinksConnector());
+    }
+    if (process.env.CJ_API_TOKEN) {
+      connectorRegistry.register(new CJConnector(isDev));
+    }
+    if (process.env.IMPACT_ACCOUNT_SID && process.env.IMPACT_AUTH_TOKEN) {
+      connectorRegistry.register(new ImpactConnector(isDev) as any);
+    }
+
     const connectors = connectorRegistry.list();
     const pipeline = new ImportPipeline();
-    
-    // Fire and forget so we don't block the cron request (Vercel has 10s limits on free tier, or 60s max)
-    // NOTE: In a true long-running setup on Vercel Edge/Serverless, we might need a background queue (like Inngest/Upstash). 
-    // For now, we spawn them concurrently.
-    const runPromises = connectors.map(async (connector) => {
+
+    for (const connector of connectors) {
       try {
         await pipeline.run(connector, "v1.0");
       } catch (err) {
         const c = connector as any;
         const cid = c.sourceId || c.id || c.manifest?.id;
         console.error(`Scheduled run failed for ${cid}:`, err);
-        // The pipeline already notifies on failure, but we log it here just in case.
       }
-    });
-    
-    // We await them if we want to ensure they finish, but serverless timeouts might kill them.
-    // Better to use edge functions or defer. Since we aren't limited by Vercel in this mock environment, we await.
-    await Promise.all(runPromises);
+    }
 
-    return NextResponse.json({ 
-      success: true, 
-      message: `Scheduled import triggered for ${connectors.length} connectors.` 
+    // Automatically re-score best coupons, sync store counts, and ping IndexNow
+    let maintenance = null;
+    try {
+      maintenance = await runCouponScoringAndIndexNow();
+    } catch (maintErr) {
+      console.warn("[Cron] Post-import coupon scoring skipped:", maintErr);
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: `Scheduled import complete for ${connectors.length} active connector(s).`,
+      maintenance,
     });
   } catch (error) {
     await notificationEngine.notify({
       title: "Cron Scheduler Failed",
       message: error instanceof Error ? error.message : "Unknown error",
       level: "ERROR",
-      source: "scheduler"
+      source: "scheduler",
     });
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Scheduler failed" },

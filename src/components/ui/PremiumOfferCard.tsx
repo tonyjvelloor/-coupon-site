@@ -34,6 +34,7 @@ interface PremiumOfferCardProps {
     storeLogo?: string | null;
     badgeLabel?: string;
     highlight?: boolean;
+    source?: string;
 }
 
 /** Masks the second half of a code: "FIRST10" -> "FIRS•••" */
@@ -48,6 +49,7 @@ export function PremiumOfferCard({
     storeLogo,
     badgeLabel,
     highlight = false,
+    source = "coupon-card",
 }: PremiumOfferCardProps) {
     const [revealed, setRevealed] = useState(false);
     const [copied, setCopied] = useState(false);
@@ -94,15 +96,17 @@ export function PremiumOfferCard({
 
         trackEvent("coupon_copied", { couponId: coupon.id });
 
+        const clickSource = `${source}-copy`;
         openCouponModal({
             ...coupon,
             code: cleanedCode || undefined,
             description: coupon.description || undefined,
             storeName,
             storeLogo: storeLogo || undefined,
+            source: clickSource,
         });
 
-        const outUrl = `/out?url=${encodeURIComponent(coupon.affiliateUrl)}&storeId=${coupon.storeId || "none"}&couponId=${coupon.id}&source=coupon-card-copy&type=code`;
+        const outUrl = `/out?url=${encodeURIComponent(coupon.affiliateUrl)}&storeId=${coupon.storeId || "none"}&couponId=${coupon.id}&source=${encodeURIComponent(clickSource)}&type=code`;
         window.open(outUrl, "_blank", "noopener,noreferrer");
     };
 
@@ -110,15 +114,17 @@ export function PremiumOfferCard({
         setActivated(true);
         trackEvent("deal_clicked", { couponId: coupon.id });
 
+        const clickSource = `${source}-deal`;
         openCouponModal({
             ...coupon,
             code: undefined,
             description: coupon.description || undefined,
             storeName,
             storeLogo: storeLogo || undefined,
+            source: clickSource,
         });
 
-        const outUrl = `/out?url=${encodeURIComponent(coupon.affiliateUrl)}&storeId=${coupon.storeId || "none"}&couponId=${coupon.id}&source=coupon-card-deal&type=deal`;
+        const outUrl = `/out?url=${encodeURIComponent(coupon.affiliateUrl)}&storeId=${coupon.storeId || "none"}&couponId=${coupon.id}&source=${encodeURIComponent(clickSource)}&type=deal`;
         window.open(outUrl, "_blank", "noopener,noreferrer");
     };
 
