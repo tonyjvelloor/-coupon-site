@@ -20,11 +20,15 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function NewsListingPage() {
-    // Fetch all verified news articles
-    const newsArticles = await prisma.newsArticle.findMany({
-        where: { isVerified: true },
-        orderBy: { publishedAt: "desc" },
-    });
+    let newsArticles: any[] = [];
+    try {
+        newsArticles = await prisma.newsArticle.findMany({
+            where: { isVerified: true },
+            orderBy: { publishedAt: "desc" },
+        });
+    } catch (err) {
+        console.warn("[NewsListingPage] DB query failed:", err);
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 py-12">

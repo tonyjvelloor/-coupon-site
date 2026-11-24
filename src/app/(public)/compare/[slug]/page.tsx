@@ -11,7 +11,13 @@ import { getSiteUrl, getCurrentMonthYear } from "@/lib/seo-utils";
 export const revalidate = 86400; // 24h — compare pages are stable
 
 export async function generateStaticParams() {
-  return CURATED_COMPARE_PAIRS.map((pair) => ({ slug: pair.slug }));
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    return CURATED_COMPARE_PAIRS.map((pair) => ({ slug: pair.slug }));
+  } catch {
+    console.warn("DB unavailable during build; deferring /compare/[slug] to ISR on-demand");
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { ChevronRight, CreditCard } from "lucide-react";
 import { CardVsCashbackCalculatorClient } from "@/components/modules/tools/CardVsCashbackCalculatorClient";
+import { ContextualDealsStrip } from "@/components/modules/shared/ContextualDealsStrip";
 import { getSiteUrl } from "@/lib/seo-utils";
 
 const siteUrl = getSiteUrl();
@@ -86,6 +87,13 @@ export default function CardVsCashbackCalculatorPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <CardVsCashbackCalculatorClient />
+
+        {/* Live Contextual Affiliate Offers Strip */}
+        <ContextualDealsStrip
+          heading="Apply Your Winning Card on Today's Best Verified Codes"
+          subtitle="Stack these active promo codes with your HDFC, ICICI, SBI, or Axis Bank card at checkout."
+          limit={3}
+        />
 
         {/* Educational SEO Section */}
         <div className="mt-16 max-w-4xl mx-auto prose dark:prose-invert prose-slate">

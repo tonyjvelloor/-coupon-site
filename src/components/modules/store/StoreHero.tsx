@@ -95,7 +95,7 @@ export function StoreHero({ store, activeCoupons, bestDeal, lastCheckedText }: S
                             <h1 className="font-headline-lg text-headline-lg text-on-surface font-extrabold tracking-tight">
                                 {store.name} Coupons & Promo Codes
                             </h1>
-                            <p className="font-body-md text-body-md text-text-muted mt-1 max-w-2xl line-clamp-2">
+                            <p className="ai-store-summary font-body-md text-body-md text-text-muted mt-1 max-w-2xl line-clamp-2">
                                 {store.description || `Browse verified ${store.name} promo codes, seasonal deals, and bank card offers at checkout.`}
                             </p>
                             <div className="flex flex-wrap items-center gap-y-2 gap-x-4 mt-space-md">

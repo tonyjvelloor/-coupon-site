@@ -15,42 +15,51 @@ export const metadata: Metadata = {
 };
 
 async function getStoresData() {
-    const stores = await prisma.store.findMany({
-        where: { activeOfferCount: { gt: 0 } },
-        orderBy: { name: "asc" },
-        include: {
-            storeCategories: {
-                include: {
-                    category: true
+    try {
+        const stores = await prisma.store.findMany({
+            where: { activeOfferCount: { gt: 0 } },
+            orderBy: { name: "asc" },
+            include: {
+                storeCategories: {
+                    include: {
+                        category: true
+                    }
                 }
             }
-        }
-    });
+        });
 
-    return stores.map(store => ({
-        id: store.id,
-        name: store.name,
-        slug: store.slug,
-        logo: store.logo,
-        cashbackRate: store.cashbackRate,
-        offerCount: store.activeOfferCount,
-        description: store.description,
-        primaryCategory: store.storeCategories?.[0]?.category?.name || 'Retail',
-        isFeatured: store.isFeatured
-    }));
+        return stores.map(store => ({
+            id: store.id,
+            name: store.name,
+            slug: store.slug,
+            logo: store.logo,
+            cashbackRate: store.cashbackRate,
+            offerCount: store.activeOfferCount,
+            description: store.description,
+            primaryCategory: store.storeCategories?.[0]?.category?.name || 'Retail',
+            isFeatured: store.isFeatured
+        }));
+    } catch (err) {
+        console.warn("[StoresPage] getStoresData failed:", err);
+        return [];
+    }
 }
 
 async function getCategoriesData() {
-    const categories = await prisma.category.findMany({
-        where: { isActive: true },
-        orderBy: { displayOrder: "asc" },
-        select: {
-            id: true,
-            name: true,
-            slug: true
-        }
-    });
-    return categories;
+    try {
+        return await prisma.category.findMany({
+            where: { isActive: true },
+            orderBy: { displayOrder: "asc" },
+            select: {
+                id: true,
+                name: true,
+                slug: true
+            }
+        });
+    } catch (err) {
+        console.warn("[StoresPage] getCategoriesData failed:", err);
+        return [];
+    }
 }
 
 export default async function StoresPage() {

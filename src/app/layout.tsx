@@ -86,6 +86,10 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
         <link rel="dns-prefetch" href="https://cdn0.cuelinks.com" />
+        <link rel="alternate" type="text/plain" title="LLMs Context Index" href="/llms.txt" />
+        <link rel="alternate" type="text/plain" title="LLMs Full Catalog" href="/llms-full.txt" />
+        <link rel="alternate" type="application/json" title="AI Structured Deals Feed" href="/ai-index.json" />
+        <link rel="alternate" type="application/rss+xml" title="CouponHub RSS Feed" href="/feed.xml" />
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
         <meta name="google-adsense-account" content={adsenseClientId} />
         <script
@@ -177,8 +181,22 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "Organization",
               name: "CouponHub",
+              alternateName: "CouponHub India",
               url: siteUrl,
               logo: `${siteUrl}/logo.jpg`,
+              publishingPrinciples: `${siteUrl}/editorial-policy`,
+              correctionsPolicy: `${siteUrl}/contact`,
+              areaServed: {
+                "@type": "Country",
+                name: "India",
+                identifier: "IN",
+              },
+              knowsAbout: [
+                "Indian E-Commerce Promo Codes",
+                "Credit Card Instant Discounts",
+                "No-Cost EMI GST Calculations",
+                "UPI Cashback Offers",
+              ],
               contactPoint: {
                 "@type": "ContactPoint",
                 contactType: "customer support",

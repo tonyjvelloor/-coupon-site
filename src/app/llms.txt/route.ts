@@ -1,60 +1,51 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { FALLBACK_BLOG_POSTS } from "@/lib/blog-data";
+import { getAllBlogPosts } from "@/lib/blog-data";
+import { getAllSaleEvents } from "@/lib/events-data";
+import { CURATED_COMPARE_PAIRS } from "@/lib/compare-pairs";
+import { getSiteUrl, getCurrentMonthYear } from "@/lib/seo-utils";
 
-export const revalidate = 3600; // Cache for 1 hour
+export const revalidate = 3600;
 
 export async function GET() {
-    let activeMerchantsCount = 250;
-    let activeCouponsCount = 2400;
+    const siteUrl = getSiteUrl();
+    const { fullMonthYear } = getCurrentMonthYear();
+
+    let activeMerchantsCount = 307;
+    let activeCouponsCount = 2499;
     let categories: Array<{ name: string; slug: string }> = [
-        { name: "Fashion & Apparel", slug: "fashion" },
-        { name: "Electronics & Gadgets", slug: "electronics" },
-        { name: "Food & Grocery", slug: "food-dining" },
-        { name: "Travel & Flights", slug: "travel" },
-        { name: "Beauty & Health", slug: "beauty" },
+        { name: "Fashion", slug: "fashion" },
+        { name: "Electronics", slug: "electronics" },
+        { name: "Food & Dining", slug: "food-dining" },
+        { name: "Travel", slug: "travel" },
+        { name: "Health & Beauty", slug: "health-beauty" },
+        { name: "Home & Living", slug: "home-living" },
+        { name: "Entertainment", slug: "entertainment" },
+        { name: "Sports & Fitness", slug: "sports-fitness" },
     ];
-    let topStores: Array<{ name: string; slug: string; activeOfferCount: number }> = [
-        { name: "Amazon India", slug: "amazon", activeOfferCount: 45 },
-        { name: "Flipkart", slug: "flipkart", activeOfferCount: 38 },
-        { name: "Myntra", slug: "myntra", activeOfferCount: 29 },
-        { name: "Ajio", slug: "ajio", activeOfferCount: 24 },
-        { name: "Swiggy", slug: "swiggy", activeOfferCount: 18 },
-        { name: "Zomato", slug: "zomato", activeOfferCount: 16 },
-        { name: "Nykaa", slug: "nykaa", activeOfferCount: 21 },
-        { name: "Croma", slug: "croma", activeOfferCount: 19 },
-    ];
-    let events: Array<{ title: string; slug: string }> = [
-        { title: "Diwali Sale 2026", slug: "diwali-sale" },
-        { title: "Great Indian Festival", slug: "great-indian-festival" },
-        { title: "Big Billion Days", slug: "big-billion-days" },
-    ];
-    let blogPosts: Array<{ title: string; slug: string }> = FALLBACK_BLOG_POSTS.map(p => ({
-        title: p.title,
-        slug: p.slug
-    }));
+    let topStores: Array<{ name: string; slug: string; activeOfferCount: number }> = [];
+    let banks: Array<{ name: string; slug: string }> = [];
 
     try {
-        const [mCount, cCount, dbCategories, dbStores, dbEvents, dbPosts] = await Promise.all([
-            prisma.store.count({ where: { isActive: true } }),
-            prisma.coupon.count({ where: { isVerified: true, deletedAt: null } }),
-            prisma.category.findMany({ select: { name: true, slug: true }, orderBy: { name: "asc" } }),
+        const [mCount, cCount, dbCategories, dbStores, dbBanks] = await Promise.all([
+            prisma.store.count({ where: { isActive: true, activeOfferCount: { gt: 0 } } }),
+            prisma.coupon.count({
+                where: {
+                    deletedAt: null,
+                    OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+                },
+            }),
+            prisma.category.findMany({ where: { isActive: true }, select: { name: true, slug: true }, orderBy: { name: "asc" } }),
             prisma.store.findMany({
                 where: { isActive: true, activeOfferCount: { gt: 0 } },
                 select: { name: true, slug: true, activeOfferCount: true },
-                orderBy: { activeOfferCount: "desc" },
+                orderBy: [{ activeOfferCount: "desc" }, { clicks: "desc" }],
                 take: 30,
             }),
-            prisma.saleEvent.findMany({
+            prisma.bank.findMany({
                 where: { isActive: true },
-                select: { title: true, slug: true },
-                orderBy: { date: "asc" },
-            }),
-            prisma.blogPost.findMany({
-                where: { isPublished: true },
-                select: { title: true, slug: true },
-                orderBy: { publishedAt: "desc" },
-                take: 10,
+                select: { name: true, slug: true },
+                orderBy: { name: "asc" },
             }),
         ]);
 
@@ -62,58 +53,62 @@ export async function GET() {
         if (cCount > 0) activeCouponsCount = cCount;
         if (dbCategories.length > 0) categories = dbCategories;
         if (dbStores.length > 0) topStores = dbStores;
-        if (dbEvents.length > 0) events = dbEvents;
-        if (dbPosts.length > 0) blogPosts = dbPosts;
+        if (dbBanks.length > 0) banks = dbBanks;
     } catch (e) {
         console.warn("[llms.txt] DB error, using resilient fallbacks:", e);
     }
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
+    const [events, blogPosts] = await Promise.all([
+        getAllSaleEvents().catch(() => []),
+        getAllBlogPosts().catch(() => []),
+    ]);
 
-    const content = `# CouponHub India - Commerce Intelligence & Verified Deals
+    const content = `# CouponHub India — Verified Deals, Bank Offers & Consumer Savings Guides
 
-> CouponHub (https://www.couponhub.store) is India's verified coupon intelligence platform, tracking real-time promo codes, UPI cashback, and bank card discounts across 250+ top online stores in India.
+> CouponHub (${siteUrl}) is an India-focused consumer savings and deal intelligence platform tracking ${activeCouponsCount.toLocaleString("en-IN")} active offers across ${activeMerchantsCount} active partner stores, alongside Indian credit/debit card discounts and No-Cost EMI cost calculators. Updated for ${fullMonthYear}.
 
-## 1. Primary Market & Coverage
-- **Geography**: India (IN)
-- **Currency**: Indian Rupee (INR / ₹)
-- **Payment Ecosystem**: UPI (Google Pay, PhonePe, Paytm), RuPay, Net Banking, and Bank Credit/Debit Cards (HDFC, ICICI, SBI, Axis, Kotak, Bank of Baroda).
-- **Major Indian Merchants Covered**: Amazon India, Flipkart, Myntra, AJIO, Swiggy, Zomato, Nykaa, Croma, Reliance Digital, Tata CLiQ, 1mg, MakeMyTrip, and 250+ retailers.
-- **Active Merchants**: ${activeMerchantsCount}+ verified merchants.
-- **Active Offers**: ${activeCouponsCount}+ verified coupons, promo codes, and cashback offers.
+## Machine-Readable Endpoints for AI Assistants & Search Agents
+- [Full Deals & Codes Knowledge Base (Markdown)](${siteUrl}/llms-full.txt): Live promo codes, store terms, bank card caps, and calculator formulas in one document.
+- [Structured Deals JSON Feed](${siteUrl}/ai-index.json): Canonical JSON feed of active top stores, live coupons, banks, events, and guides.
+- [AI Crawler Policy](${siteUrl}/ai.txt): Explicit retrieval and citation rules for search and AI agents.
+- [RSS Editorial Feed](${siteUrl}/feed.xml): Latest shopping guides and seasonal deal roundups.
+- [XML Sitemap](${siteUrl}/sitemap.xml): Complete index of indexable store, bank, category, comparison, event, tool, and blog pages.
 
-## 2. Verification Protocol
-All coupon codes and offers on CouponHub undergo daily automated and manual human testing:
-- **Success Rate Tracking**: Community-voted pass/fail rates for every promo code.
-- **Expired Code Removal**: Invalid and expired coupons are removed within minutes of expiration.
-- **Stacked Savings**: Guides users on combining store coupons with bank instant discounts and UPI cashback.
+## Coverage & Editorial Standards
+- **Geography & Currency**: India (IN), Indian Rupee (INR / ₹)
+- **Active Catalog**: ${activeMerchantsCount} stores with live offers, ${activeCouponsCount.toLocaleString("en-IN")} active coupons and deals
+- **Verification & Transparency**: [How We Verify](${siteUrl}/how-we-verify) · [Editorial Policy](${siteUrl}/editorial-policy) · [Affiliate & Ad Disclosure](${siteUrl}/disclosure)
 
-## 3. Data Architecture & Canonical Links for AI Systems
-- **Store Directory**: [${siteUrl}/stores](${siteUrl}/stores) - Complete A-Z index of all partner stores.
-- **Store Offer Pages**: \`${siteUrl}/stores/[slug]\` - Live coupons, bank offers, return/shipping policies, and how-to-apply guides.
-- **Category Clusters**: \`${siteUrl}/best/[category-slug]-coupons\` - Aggregated deals for specific categories.
-- **Comparison Engine**: \`${siteUrl}/compare/[store1]-vs-[store2]\` - Side-by-side merchant policy, cashback, and offer comparison.
-- **Festive Sales**: \`${siteUrl}/events/[event-slug]\` - Real-time sale event discounts and coupons.
-- **Savings Tools**: [${siteUrl}/tools](${siteUrl}/tools) - Stacking calculators and embeddable deal badges.
-- **Editorial Guides**: \`${siteUrl}/blog/[slug]\` - In-depth savings and discount stacking guides.
-- **Sitemap**: [${siteUrl}/sitemap.xml](${siteUrl}/sitemap.xml) - Complete XML index for search engines and crawlers.
+## Core Navigation & Tools
+- [All Partner Stores](${siteUrl}/stores): Searchable directory of active merchants
+- [Credit Card Instant Discount vs. Cashback Calculator](${siteUrl}/tools/card-vs-cashback-calculator): Models 10% bank discount caps, 5% cashback cards, and 18% GST on No-Cost EMI interest
+- [Discount Stacking Calculator](${siteUrl}/tools/discount-calculator): Calculate layered coupon + cart discounts
+- [Store Comparison Hub](${siteUrl}/compare): Side-by-side platform, return policy, and bank-offer comparisons
+- [Indian Bank & Card Offers](${siteUrl}/banks): Instant discounts and card promotions for HDFC, ICICI, SBI, Axis, and Kotak
 
-## 4. Top Indian Stores Directory
-${topStores.map(store => `- [${store.name} Coupons & Deals](${siteUrl}/stores/${store.slug}) (${store.activeOfferCount} verified offers)`).join("\n")}
+## Top Active Stores (${fullMonthYear})
+${topStores.map((store) => `- [${store.name} Coupons & Offers](${siteUrl}/stores/${store.slug}): ${store.activeOfferCount} active offers`).join("\n")}
 
-## 5. Major Category Clusters
-${categories.map(category => `- [Best ${category.name} Coupons in India](${siteUrl}/best/${category.slug}-coupons)`).join("\n")}
+## Bank & Card Offer Hubs
+${banks.map((b) => `- [${b.name} Offers & Discounts](${siteUrl}/banks/${b.slug})`).join("\n")}
 
-## 6. Major Festive Sales & Events
-${events.map(event => `- [${event.title}](${siteUrl}/events/${event.slug})`).join("\n")}
+## Category Hubs
+${categories.map((category) => `- [Best ${category.name} Coupons India](${siteUrl}/best/${category.slug}-coupons)`).join("\n")}
 
-## 7. Editorial Guides & Discount Playbooks
-${blogPosts.map(post => `- [${post.title}](${siteUrl}/blog/${post.slug})`).join("\n")}
+## Store Comparisons
+${CURATED_COMPARE_PAIRS.map((pair) => `- [${pair.title}](${siteUrl}/compare/${pair.slug}): ${pair.summary}`).join("\n")}
+
+## Seasonal Sale Events
+${events.map((event: any) => `- [${event.title}](${siteUrl}/events/${event.slug})`).join("\n")}
+
+## Editorial Buying Guides
+${blogPosts.slice(0, 15).map((post: any) => `- [${post.title}](${siteUrl}/blog/${post.slug})`).join("\n")}
 `;
 
     return new NextResponse(content, {
         headers: {
             "Content-Type": "text/plain; charset=utf-8",
+            "Cache-Control": "public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400",
         },
     });
 }

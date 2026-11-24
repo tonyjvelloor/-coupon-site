@@ -9,6 +9,7 @@ import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { format } from "date-fns";
 import NewsletterSignup from "@/components/ui/NewsletterSignup";
 import { AdBannerInArticle, AdBannerSidebar } from "@/components/ui/AdBanner";
+import { ContextualDealsStrip } from "@/components/modules/shared/ContextualDealsStrip";
 import { cleanSeoTitle, getSiteUrl } from "@/lib/seo-utils";
 
 interface BlogPostPageProps {
@@ -86,31 +87,38 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
     const postPublishedDate = post.publishedAt instanceof Date ? post.publishedAt : new Date(post.publishedAt);
     
-    // JSON-LD Structured Data Schema for SEO
+    // JSON-LD Structured Data Schema for SEO & AI Answer Engines
     const jsonLd = {
         "@context": "https://schema.org",
         "@type": "BlogPosting",
+        inLanguage: "en-IN",
         mainEntityOfPage: {
             "@type": "WebPage",
             "@id": `${siteUrl}/blog/${post.slug}`
         },
         headline: post.seoTitle || post.title,
         description: post.seoDescription || post.excerpt || post.content.substring(0, 160),
-        image: post.coverImage ? [post.coverImage] : undefined,
+        image: post.coverImage ? [post.coverImage] : [`${siteUrl}/logo.jpg`],
         author: {
-            "@type": "Person",
-            name: post.author?.name || "CouponHub Deal Experts",
+            "@type": "Organization",
+            name: post.author?.name || "CouponHub Editorial Team",
+            url: `${siteUrl}/about`,
         },
         publisher: {
             "@type": "Organization",
             name: "CouponHub",
+            url: siteUrl,
             logo: {
                 "@type": "ImageObject",
-                url: `${siteUrl}/logo.png`
+                url: `${siteUrl}/logo.jpg`
             }
         },
         datePublished: postPublishedDate.toISOString(),
         dateModified: postPublishedDate.toISOString(),
+        speakable: {
+            "@type": "SpeakableSpecification",
+            cssSelector: ["h1", ".ai-answer-capsule"],
+        },
     };
 
     return (
@@ -175,7 +183,24 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 <div className="flex flex-col lg:flex-row gap-12">
                     {/* Main Content */}
                     <div className="lg:w-3/4">
+                        {post.seoDescription && (
+                            <aside className="ai-answer-capsule mb-8 rounded-2xl border border-indigo-100 bg-indigo-50/70 p-6">
+                                <div className="text-xs font-bold uppercase tracking-wider text-indigo-700 mb-2">
+                                    Quick Answer &amp; Key Summary
+                                </div>
+                                <p className="text-sm md:text-base text-slate-800 leading-relaxed font-medium">
+                                    {post.seoDescription}
+                                </p>
+                            </aside>
+                        )}
                         <BlogContentRenderer content={post.content} />
+
+                        {/* Contextual Affiliate Offers Strip */}
+                        <ContextualDealsStrip
+                            heading="Top Verified Promo Codes You Can Use Today"
+                            subtitle="Highest-value active codes hand-ranked across top Indian merchants."
+                            limit={3}
+                        />
 
                         {/* In-article ad */}
                         <AdBannerInArticle />

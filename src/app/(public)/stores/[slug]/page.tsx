@@ -5,6 +5,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 import { getCurrentMonthYear, getSiteUrl, refreshSeoDate, cleanSeoTitle } from "@/lib/seo-utils";
+import { cleanCouponCode, formatDiscountBadge, rankCoupons } from "@/lib/coupon-ranking";
 
 // Global Shared Components
 import { RecentStoreTracker } from "@/components/ui/RecentStoreTracker";
@@ -119,19 +120,16 @@ export default async function StorePage({ params }: PageProps) {
     const bankOffers = await merchantService.getStoreBankOffers(store.id);
     const shoppingTips = await merchantService.getStoreShoppingTips(categoryIds);
     
-    // Fetch coupons and filter active
+    // Fetch coupons (prioritizing unexpired active offers with resilient ranking)
     const coupons = await couponService.getStoreCoupons(slug);
-    const now = new Date();
-    const activeCoupons = coupons.filter(c => !c.expiresAt || c.expiresAt > now);
-    
-    // Sort so deals with discountValue are higher for bestDeal
-    activeCoupons.sort((a, b) => {
-        const aVal = a.discountValue ? parseInt(a.discountValue.replace(/[^0-9]/g, '')) || 0 : 0;
-        const bVal = b.discountValue ? parseInt(b.discountValue.replace(/[^0-9]/g, '')) || 0 : 0;
-        return bVal - aVal;
-    });
+    const rankedCoupons = rankCoupons(coupons);
+    const activeCoupons = rankedCoupons.map((c) => ({
+        ...c,
+        discountValue: c._formattedDiscount,
+    }));
 
     const bestDeal = activeCoupons.length > 0 ? activeCoupons[0] : null;
+    const summaryRows = activeCoupons.slice(0, 5);
     const hasStudent = store.contents.some(c => c.type === 'STUDENT');
 
     const lastCheckedText = activeCoupons.length > 0 
@@ -220,6 +218,46 @@ export default async function StorePage({ params }: PageProps) {
 
                 {/* STAGE 3: Active Offers */}
                 <OfferFeed store={store} offers={activeCoupons} />
+
+                {/* SEO & AI Overview Scannable Summary Table */}
+                {summaryRows.length > 0 && (
+                    <section className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm overflow-x-auto">
+                        <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-4">
+                            Top {store.name} Coupons &amp; Promo Codes Summary ({getCurrentMonthYear().fullMonthYear})
+                        </h2>
+                        <table className="w-full text-left text-sm border-collapse">
+                            <thead>
+                                <tr className="border-b border-slate-200 dark:border-slate-800 text-xs uppercase text-slate-500">
+                                    <th className="py-2.5 pr-4">Offer</th>
+                                    <th className="py-2.5 pr-4">Savings</th>
+                                    <th className="py-2.5 pr-4">Code</th>
+                                    <th className="py-2.5 text-right">Type</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                {summaryRows.map((c) => {
+                                    const code = cleanCouponCode(c.code);
+                                    return (
+                                        <tr key={`summary-${c.id}`}>
+                                            <td className="py-2.5 pr-4 text-slate-800 dark:text-slate-200 font-medium">
+                                                {c.title}
+                                            </td>
+                                            <td className="py-2.5 pr-4 font-bold text-brand-emerald whitespace-nowrap">
+                                                {formatDiscountBadge(c.discountValue, c.discountType, c.title)}
+                                            </td>
+                                            <td className="py-2.5 pr-4 font-mono font-bold text-brand-indigo whitespace-nowrap">
+                                                {code || "No code needed"}
+                                            </td>
+                                            <td className="py-2.5 text-right text-xs text-slate-500 whitespace-nowrap">
+                                                {code ? "Promo Code" : "Instant Deal"}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </section>
+                )}
                 
                 {/* STAGE 4: More Savings Available */}
                 <div className="space-y-12">
@@ -287,7 +325,7 @@ function StoreSchema({ store, coupons, faqs = [] }: { store: any, coupons: any[]
         "@type": "Organization",
         name: store.name,
         url: store.website,
-        logo: store.logo || `${siteUrl}/logo.png`,
+        logo: store.logo || `${siteUrl}/logo.jpg`,
         areaServed: "IN",
     };
 
@@ -296,7 +334,7 @@ function StoreSchema({ store, coupons, faqs = [] }: { store: any, coupons: any[]
         "@type": "Store",
         name: store.name,
         url: store.website,
-        image: store.logo || `${siteUrl}/logo.png`,
+        image: store.logo || `${siteUrl}/logo.jpg`,
         description: store.description,
         areaServed: {
             "@type": "Country",
@@ -311,6 +349,23 @@ function StoreSchema({ store, coupons, faqs = [] }: { store: any, coupons: any[]
                 highPrice: 0
             }
         } : {})
+    };
+
+    const webPageSchema = {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: `${store.name} Coupons & Promo Codes`,
+        url: `${siteUrl}/stores/${store.slug}`,
+        inLanguage: "en-IN",
+        isPartOf: {
+            "@type": "WebSite",
+            name: "CouponHub",
+            url: siteUrl,
+        },
+        speakable: {
+            "@type": "SpeakableSpecification",
+            cssSelector: ["h1", ".ai-store-summary"],
+        },
     };
 
     const breadcrumbSchema = {
@@ -368,6 +423,10 @@ function StoreSchema({ store, coupons, faqs = [] }: { store: any, coupons: any[]
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(merchantSchema) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
             />
             {faqs.length > 0 && (
                 <script

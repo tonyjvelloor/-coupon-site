@@ -16,10 +16,10 @@ export default async function SitemapPage() {
             where: { isActive: true, activeOfferCount: { gt: 0 } },
             select: { name: true, slug: true },
             orderBy: { name: 'asc' }
-        }),
-        prisma.category.findMany({ where: { isActive: true }, select: { name: true, slug: true }, orderBy: { name: 'asc' } }),
-        prisma.collection.findMany({ where: { isIndexable: true }, select: { name: true, slug: true }, orderBy: { priority: 'desc' } }),
-        getAllBlogPosts()
+        }).catch(() => []),
+        prisma.category.findMany({ where: { isActive: true }, select: { name: true, slug: true }, orderBy: { name: 'asc' } }).catch(() => []),
+        prisma.collection.findMany({ where: { isIndexable: true }, select: { name: true, slug: true }, orderBy: { priority: 'desc' } }).catch(() => []),
+        getAllBlogPosts().catch(() => [])
     ]);
 
     return (

@@ -22,8 +22,8 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; border: stri
 
 export default async function CalendarPage() {
     const [sales, featuredStores] = await Promise.all([
-        saleService.getUpcomingSales(10),
-        merchantService.getFeaturedMerchants(6),
+        saleService.getUpcomingSales(10).catch(() => []),
+        merchantService.getFeaturedMerchants(6).catch(() => []),
     ]);
 
     // Always show a curated base calendar alongside any DB-driven events

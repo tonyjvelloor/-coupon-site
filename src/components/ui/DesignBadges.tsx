@@ -11,9 +11,10 @@ import { ShieldCheck, Wallet, Clock } from 'lucide-react';
  */
 
 export function SavingsBadge({ value, className = "" }: { value: string, className?: string }) {
-    const displayValue = /^\d+$/.test(value) 
-        ? (Number(value) <= 100 ? `SAVE ${value}%` : `SAVE ₹${value}`)
-        : (value.toUpperCase().startsWith('SAVE') ? value : `SAVE ${value}`);
+    const trimmed = value.trim();
+    const displayValue = /^\d+$/.test(trimmed)
+        ? (Number(trimmed) <= 95 ? `${trimmed}% OFF` : `₹${Number(trimmed).toLocaleString("en-IN")} OFF`)
+        : trimmed.toUpperCase();
 
     return (
         <div className={`text-display-l text-brand-emerald font-display font-bold uppercase tracking-tight leading-none ${className}`}>

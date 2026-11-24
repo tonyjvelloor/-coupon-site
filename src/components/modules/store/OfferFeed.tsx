@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { PremiumOfferCard } from "@/components/ui/PremiumOfferCard";
 import { Tag, Sparkles, CreditCard, ShieldCheck, ArrowUpDown } from "lucide-react";
+import { cleanCouponCode, formatDiscountBadge, getOfferBadgeLabel, parseNormalizedDiscountScore } from "@/lib/coupon-ranking";
 
 export interface OfferFeedProps {
     store: any;
@@ -46,12 +47,9 @@ export function OfferFeed({ store, offers }: OfferFeedProps) {
         // Apply sorting
         if (sortBy === 'discount') {
             result.sort((a, b) => {
-                const parseDiscount = (val?: string | null) => {
-                    if (!val) return 0;
-                    const num = parseInt(val.replace(/[^0-9]/g, ''), 10);
-                    return isNaN(num) ? 0 : num;
-                };
-                return parseDiscount(b.discountValue) - parseDiscount(a.discountValue);
+                const scoreA = parseNormalizedDiscountScore(a.discountValue, a.discountType, a.title);
+                const scoreB = parseNormalizedDiscountScore(b.discountValue, b.discountType, b.title);
+                return scoreB - scoreA;
             });
         } else if (sortBy === 'newest') {
             result.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
@@ -169,9 +167,9 @@ export function OfferFeed({ store, offers }: OfferFeedProps) {
                         let assignedCodes = false;
 
                         return filteredOffers.map((coupon, index) => {
-                            let badgeLabel = undefined;
-                            if (index === 0 && filter === 'all') badgeLabel = "Most Popular";
-                            else if (index === 1 && coupon.type === "coupon") badgeLabel = "Highest Savings";
+                            const badgeLabel = getOfferBadgeLabel(coupon, index);
+                            const isTopPick = index === 0 && filter === 'all';
+                            const cleanedCode = cleanCouponCode(coupon.code);
 
                             const titleLower = (coupon.title || "").toLowerCase();
                             const urlLower = (coupon.affiliateUrl || "").toLowerCase();
@@ -183,7 +181,7 @@ export function OfferFeed({ store, offers }: OfferFeedProps) {
                             } else if (!assignedWomen && (urlLower.includes("-women") || /\bwomen\b|\bwomen's\b/i.test(titleLower))) {
                                 anchorId = "women";
                                 assignedWomen = true;
-                            } else if (!assignedCodes && Boolean(coupon.code && coupon.code.trim().length > 0)) {
+                            } else if (!assignedCodes && Boolean(cleanedCode)) {
                                 anchorId = "promo-code";
                                 assignedCodes = true;
                             }
@@ -191,9 +189,13 @@ export function OfferFeed({ store, offers }: OfferFeedProps) {
                             return (
                                 <div key={coupon.id} id={anchorId} className={anchorId ? "scroll-mt-28" : undefined}>
                                     <PremiumOfferCard
+                                        highlight={isTopPick}
                                         coupon={{
                                             ...coupon,
+                                            code: cleanedCode,
+                                            discountValue: formatDiscountBadge(coupon.discountValue, coupon.discountType, coupon.title),
                                             affiliateUrl: coupon.affiliateUrl || `/go/${coupon.id}`,
+                                            storeId: store.id,
                                         }}
                                         storeName={store.name}
                                         storeLogo={store.logo}

@@ -33,15 +33,22 @@ const iconMap: Record<string, React.ElementType> = {
     Dumbbell,
 };
 
+export const revalidate = 3600;
+
 export default async function CategoriesPage() {
-    const categories = await prisma.category.findMany({
-        where: { isActive: true, parentId: null },
-        orderBy: { displayOrder: "asc" },
-        include: {
-            children: { where: { isActive: true } },
-            _count: { select: { coupons: true, storeCategories: true } },
-        },
-    });
+    let categories: any[] = [];
+    try {
+        categories = await prisma.category.findMany({
+            where: { isActive: true, parentId: null },
+            orderBy: { displayOrder: "asc" },
+            include: {
+                children: { where: { isActive: true } },
+                _count: { select: { coupons: true, storeCategories: true } },
+            },
+        });
+    } catch (err) {
+        console.warn("[CategoriesPage] DB query failed:", err);
+    }
 
     return (
         <div>

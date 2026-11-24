@@ -17,6 +17,13 @@ export class CouponService {
   }
 
   /**
+   * Retrieves highest-scoring promo codes and deals across diverse top merchants.
+   */
+  async getBestCoupons(limit: number = 30, maxPerStore: number = 2): Promise<PublicCoupon[]> {
+    return await couponRepository.getBestPublicCoupons(limit, maxPerStore);
+  }
+
+  /**
    * Retrieves curated deals based on user preferences.
    */
   async getCuratedDeals(walletBanks: string[], savedStoreSlugs: string[], limit: number = 6): Promise<PublicCoupon[]> {

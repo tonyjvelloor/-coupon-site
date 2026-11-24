@@ -14,20 +14,20 @@ export const metadata = {
 };
 
 export default async function KnowledgeHubPage() {
-  // Fetch data in parallel
+  // Fetch data in parallel with DB resilience
   const [articles, storeGuides, saleEvents] = await Promise.all([
     prisma.blogPost.findMany({
       where: { isPublished: true },
       orderBy: { publishedAt: 'desc' },
       take: 6,
       include: { author: { select: { name: true } } }
-    }),
+    }).catch(() => []),
     prisma.storeContent.findMany({
       where: { type: 'BUYING_GUIDE' },
       orderBy: { updatedAt: 'desc' },
       take: 4,
       include: { store: { select: { name: true, slug: true, logo: true } } }
-    }),
+    }).catch(() => []),
     prisma.collection.findMany({
       where: { 
         OR: [
@@ -38,7 +38,7 @@ export default async function KnowledgeHubPage() {
       },
       orderBy: { priority: 'desc' },
       take: 4
-    })
+    }).catch(() => [])
   ]);
 
   const featuredArticle = articles[0];
