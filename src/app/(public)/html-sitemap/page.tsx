@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { Metadata } from "next";
 import { getAllBlogPosts } from "@/lib/blog-data";
+import { FALLBACK_CATEGORIES, FALLBACK_COLLECTIONS, FALLBACK_STORES } from "@/lib/fallback-catalog";
 
 export const revalidate = 86400; // 24 hours ISR
 
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function SitemapPage() {
-    const [stores, categories, collections, posts] = await Promise.all([
+    const [dbStores, dbCategories, dbCollections, posts] = await Promise.all([
         prisma.store.findMany({
             where: { isActive: true, activeOfferCount: { gt: 0 } },
             select: { name: true, slug: true },
@@ -21,6 +22,16 @@ export default async function SitemapPage() {
         prisma.collection.findMany({ where: { isIndexable: true }, select: { name: true, slug: true }, orderBy: { priority: 'desc' } }).catch(() => []),
         getAllBlogPosts().catch(() => [])
     ]);
+
+    const stores = dbStores.length > 0
+        ? dbStores
+        : FALLBACK_STORES.map((s) => ({ name: s.name, slug: s.slug })).sort((a, b) => a.name.localeCompare(b.name));
+    const categories = dbCategories.length > 0
+        ? dbCategories
+        : FALLBACK_CATEGORIES.map((c) => ({ name: c.name, slug: c.slug })).sort((a, b) => a.name.localeCompare(b.name));
+    const collections = dbCollections.length > 0
+        ? dbCollections
+        : FALLBACK_COLLECTIONS.map((c) => ({ name: c.name, slug: c.slug }));
 
     return (
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">

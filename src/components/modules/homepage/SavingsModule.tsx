@@ -3,11 +3,16 @@ import { prisma } from "@/lib/db";
 import Link from "next/link";
 
 export async function SavingsModule() {
-    const cashbackStores = await prisma.store.findMany({
-        where: { isActive: true, cashbackRate: { not: null } },
-        orderBy: { clicks: 'desc' },
-        take: 4
-    });
+    let cashbackStores: any[] = [];
+    try {
+        cashbackStores = await prisma.store.findMany({
+            where: { isActive: true, cashbackRate: { not: null } },
+            orderBy: { clicks: 'desc' },
+            take: 4
+        });
+    } catch {
+        cashbackStores = [];
+    }
 
     const savingsData = cashbackStores.length > 0 ? cashbackStores.map(s => ({
         id: s.id,
@@ -34,7 +39,7 @@ export async function SavingsModule() {
                         <h2 className="font-display-lg text-title-md font-bold text-gray-900 dark:text-white">Extra Savings</h2>
                         <p className="font-body-md text-body-md text-gray-600 dark:text-gray-400 mt-2">Stack these with coupons for maximum value.</p>
                     </div>
-                    <Link href="/savings" className="hidden sm:flex items-center gap-1 font-label-md text-label-md text-primary hover:text-brand-indigo font-bold transition-colors">
+                    <Link href="/best-offers" className="hidden sm:flex items-center gap-1 font-label-md text-label-md text-primary hover:text-brand-indigo font-bold transition-colors">
                         View All <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>arrow_forward</span>
                     </Link>
                 </div>

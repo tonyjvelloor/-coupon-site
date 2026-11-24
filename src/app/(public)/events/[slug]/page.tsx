@@ -6,6 +6,7 @@ import { getSiteUrl, refreshSeoDate, cleanSeoTitle } from "@/lib/seo-utils";
 import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
+import { FALLBACK_COUPONS, getFallbackCouponsByStoreSlug } from "@/lib/fallback-catalog";
 
 interface PageProps {
     params: Promise<{ slug: string }>;
@@ -84,6 +85,19 @@ export default async function EventPage({ params }: PageProps) {
         }
     } catch (err) {
         console.warn("[events/[slug]] Database deals lookup failed, using fallback deals");
+        const fallbackList = event.store?.slug
+            ? getFallbackCouponsByStoreSlug(event.store.slug)
+            : FALLBACK_COUPONS.slice(0, 8);
+        deals = fallbackList.map((c) => ({
+            ...c,
+            merchantIdentity: {
+                store: {
+                    id: `fb-${c.merchantSlug}`,
+                    name: c.merchantName,
+                    slug: c.merchantSlug,
+                },
+            },
+        }));
     }
 
     return (

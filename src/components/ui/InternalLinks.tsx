@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ChevronRight, TrendingUp, Clock, Tag, Store as StoreIcon, Layers } from "lucide-react";
 import { couponRepository } from "@/lib/repositories/coupon.repository";
 import { merchantRepository } from "@/lib/repositories/merchant.repository";
+import { FALLBACK_COLLECTIONS } from "@/lib/fallback-catalog";
 
 interface InternalLinksProps {
     currentStoreId?: string;
@@ -11,7 +12,7 @@ interface InternalLinksProps {
 }
 
 export default async function InternalLinks({ currentStoreId, currentCategoryId, currentCollectionId }: InternalLinksProps) {
-    // We fetch several clusters of links concurrently
+    // We fetch several clusters of links concurrently with DB resilience
     const [
         trendingCoupons,
         expiringSoon,
@@ -19,16 +20,22 @@ export default async function InternalLinks({ currentStoreId, currentCategoryId,
         popularStores,
         similarCollections
     ] = await Promise.all([
-        couponRepository.getTrendingCoupons(currentStoreId, 6),
-        couponRepository.getExpiringCoupons(currentStoreId, 6),
-        couponRepository.getRecentPublicCoupons(6, currentStoreId),
-        merchantRepository.getPublicActiveStores(12, currentStoreId),
+        couponRepository.getTrendingCoupons(currentStoreId, 6).catch(() => []),
+        couponRepository.getExpiringCoupons(currentStoreId, 6).catch(() => []),
+        couponRepository.getRecentPublicCoupons(6, currentStoreId).catch(() => []),
+        merchantRepository.getPublicActiveStores(12, currentStoreId).catch(() => []),
         // Similar Collections
         prisma.collection.findMany({
             where: { id: { not: currentCollectionId || undefined }, isIndexable: true },
             orderBy: { priority: 'desc' },
             take: 8
-        })
+        }).catch(() =>
+            FALLBACK_COLLECTIONS.filter((c) => c.id !== currentCollectionId).map((c) => ({
+                id: c.id,
+                name: c.name,
+                slug: c.slug,
+            }))
+        )
     ]);
 
     return (

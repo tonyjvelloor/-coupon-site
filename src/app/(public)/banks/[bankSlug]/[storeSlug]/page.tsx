@@ -6,12 +6,18 @@ import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { CreditCard, ShieldCheck, Tag, ShoppingBag, ArrowRight } from "lucide-react";
+import {
+    getFallbackBankBySlug,
+    getFallbackBankCoupons,
+    getFallbackCouponsByStoreSlug,
+    getFallbackMerchantBySlug,
+} from "@/lib/fallback-catalog";
 
 interface PageProps {
     params: Promise<{ bankSlug: string; storeSlug: string }>;
 }
 
-export const revalidate = 3600; // 1-hour cache
+export const revalidate = 21600; // 6h ISR to minimize Neon Free compute wakeups
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { bankSlug, storeSlug } = await params;
@@ -24,7 +30,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
             prisma.store.findUnique({ where: { slug: storeSlug, isActive: true } })
         ]);
     } catch (e) {
-        // Fallback
+        bank = getFallbackBankBySlug(bankSlug);
+        store = getFallbackMerchantBySlug(storeSlug);
     }
 
     if (!bank || !store) return { title: "Bank Credit Card Offers & Coupons" };
@@ -56,52 +63,74 @@ export default async function BankStoreOfferPage({ params }: PageProps) {
     const { bankSlug, storeSlug } = await params;
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
 
-    // 1. Fetch Bank and Store details
-    const [bank, store] = await Promise.all([
-        prisma.bank.findUnique({ where: { slug: bankSlug, isActive: true } }),
-        prisma.store.findUnique({ where: { slug: storeSlug, isActive: true } })
-    ]);
+    let bank: any = null;
+    let store: any = null;
+    let bankOffer: any = null;
+    let bankCoupons: any[] = [];
+    let storeCoupons: any[] = [];
+
+    try {
+        // 1. Fetch Bank and Store details
+        [bank, store] = await Promise.all([
+            prisma.bank.findUnique({ where: { slug: bankSlug, isActive: true } }),
+            prisma.store.findUnique({ where: { slug: storeSlug, isActive: true } })
+        ]);
+
+        if (bank && store) {
+            // 2. Fetch specific BankOffer if one explicitly links these two
+            bankOffer = await prisma.bankOffer.findFirst({
+                where: {
+                    bankId: bank.id,
+                    storeId: store.id,
+                    isActive: true,
+                },
+            });
+
+            // 3. Fetch Coupons for the Store (optionally filtering by the bank name)
+            const bankKeyword = bank.name.replace(/Bank|Card/i, '').trim();
+            bankCoupons = await prisma.coupon.findMany({
+                where: {
+                    merchantIdentity: {
+                        canonicalStoreId: store.id
+                    },
+                    bank: { contains: bankKeyword, mode: 'insensitive' },
+                    OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+                },
+                orderBy: { createdAt: 'desc' },
+                take: 3,
+            });
+
+            // Fallback if no specific bank coupons exist: show best store coupons
+            storeCoupons = await prisma.coupon.findMany({
+                where: {
+                    merchantIdentity: {
+                        canonicalStoreId: store.id
+                    },
+                    OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+                },
+                orderBy: { isVerified: 'desc' },
+                take: bankCoupons.length > 0 ? 3 : 6,
+            });
+        }
+    } catch (err) {
+        console.warn(`[banks/${bankSlug}/${storeSlug}] DB query failed, using fallback:`, err);
+        bank = getFallbackBankBySlug(bankSlug);
+        store = getFallbackMerchantBySlug(storeSlug);
+        if (bank && store) {
+            bankOffer = bank.bankOffers.find((o: any) => o.store?.slug === store.slug) || null;
+            bankCoupons = getFallbackBankCoupons(bank.name, store.slug).slice(0, 3);
+            storeCoupons = getFallbackCouponsByStoreSlug(store.slug).slice(0, 6);
+        }
+    }
 
     if (!bank || !store) {
         notFound();
     }
 
-    // 2. Fetch specific BankOffer if one explicitly links these two
-    const bankOffer = await prisma.bankOffer.findFirst({
-        where: {
-            bankId: bank.id,
-            storeId: store.id,
-            isActive: true,
-        },
-    });
-
-    // 3. Fetch Coupons for the Store (optionally filtering by the bank name)
-    const bankKeyword = bank.name.replace(/Bank|Card/i, '').trim();
-    const bankCoupons = await prisma.coupon.findMany({
-        where: {
-            merchantIdentity: {
-                storeId: store.id
-            },
-            bank: { contains: bankKeyword, mode: 'insensitive' },
-            OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
-        },
-        orderBy: { createdAt: 'desc' },
-        take: 3,
-    });
-
-    // Fallback if no specific bank coupons exist: show best store coupons
-    const storeCoupons = await prisma.coupon.findMany({
-        where: {
-            merchantIdentity: {
-                storeId: store.id
-            },
-            OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
-        },
-        orderBy: { isVerified: 'desc' },
-        take: bankCoupons.length > 0 ? 3 : 6,
-    });
-
+    const shortMonthYear = new Intl.DateTimeFormat('en-IN', { month: 'short', year: 'numeric' }).format(new Date());
     const monthYear = new Intl.DateTimeFormat('en-IN', { month: 'long', year: 'numeric' }).format(new Date());
+    const pageTitle = `${store.name} ${bank.name} Credit Card Offer (${shortMonthYear}) - Extra Discount`;
+    const pageDescription = `Get verified ${bank.name} credit and debit card offers for ${store.name} in ${monthYear}. Combine bank discounts with ${store.name} coupons for maximum savings.`;
 
     return (
         <div className="bg-slate-50 min-h-screen">
@@ -110,10 +139,9 @@ export default async function BankStoreOfferPage({ params }: PageProps) {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <Breadcrumbs
                         items={[
-                            { label: "Home", href: "/" },
-                            { label: "Banks", href: "/banks" },
-                            { label: bank.name, href: `/banks/${bank.slug}` },
-                            { label: store.name, href: `/banks/${bank.slug}/${store.slug}` },
+                            { name: "Banks", href: "/banks" },
+                            { name: bank.name, href: `/banks/${bank.slug}` },
+                            { name: store.name },
                         ]}
                     />
                 </div>
@@ -300,8 +328,8 @@ export default async function BankStoreOfferPage({ params }: PageProps) {
                     __html: JSON.stringify({
                         "@context": "https://schema.org",
                         "@type": "WebPage",
-                        name: title,
-                        description: description,
+                        name: pageTitle,
+                        description: pageDescription,
                         publisher: {
                             "@type": "Organization",
                             name: "CouponHub India",

@@ -70,8 +70,8 @@ export async function POST(req: Request) {
             );
         }
         return NextResponse.json(
-            { error: "Failed to subscribe to the newsletter. Please try again later." },
-            { status: 500 }
+            { error: "Newsletter signups are temporarily paused during scheduled database maintenance. Please try again soon." },
+            { status: 503 }
         );
     }
 }

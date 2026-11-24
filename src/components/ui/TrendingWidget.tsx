@@ -1,20 +1,36 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { TrendingUp, Flame } from "lucide-react";
+import { FALLBACK_COUPONS } from "@/lib/fallback-catalog";
 
 export default async function TrendingWidget() {
-    // Link Equity Engine: Fetch top clicked active coupons
-    const trendingCoupons = await prisma.coupon.findMany({
-        where: {
-            OR: [
-                { expiresAt: null },
-                { expiresAt: { gt: new Date() } }
-            ]
-        },
-        orderBy: { clicks: 'desc' },
-        take: 5,
-        include: { merchantIdentity: { include: { store: true } } }
-    });
+    // Link Equity Engine: Fetch top clicked active coupons with DB fallback
+    let trendingCoupons: any[] = [];
+    try {
+        trendingCoupons = await prisma.coupon.findMany({
+            where: {
+                OR: [
+                    { expiresAt: null },
+                    { expiresAt: { gt: new Date() } }
+                ]
+            },
+            orderBy: { clicks: 'desc' },
+            take: 5,
+            include: { merchantIdentity: { include: { store: true } } }
+        });
+    } catch (err) {
+        console.warn("[TrendingWidget] DB query failed, using fallback coupons:", err);
+        trendingCoupons = FALLBACK_COUPONS.slice(0, 5).map((c) => ({
+            ...c,
+            clicks: 0,
+            merchantIdentity: {
+                store: {
+                    name: c.merchantName,
+                    slug: c.merchantSlug,
+                },
+            },
+        }));
+    }
 
     if (trendingCoupons.length === 0) return null;
 

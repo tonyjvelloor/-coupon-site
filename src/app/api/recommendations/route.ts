@@ -1,15 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { FALLBACK_STORES } from "@/lib/fallback-catalog";
 
 export async function POST(request: NextRequest) {
+    let slugs: string[] = [];
     try {
         const body = await request.json();
-        const { slugs } = body;
-
-        if (!slugs || !Array.isArray(slugs) || slugs.length === 0) {
-            return NextResponse.json({ stores: [] });
+        if (body && Array.isArray(body.slugs)) {
+            slugs = body.slugs.filter((s: unknown): s is string => typeof s === "string");
         }
+    } catch {
+        return NextResponse.json({ stores: [] });
+    }
 
+    if (slugs.length === 0) {
+        return NextResponse.json({ stores: [] });
+    }
+
+    try {
         const stores = await prisma.store.findMany({
             where: {
                 slug: { in: slugs },
@@ -21,21 +29,27 @@ export async function POST(request: NextRequest) {
                 slug: true,
                 logo: true,
                 offerCount: true,
-                // We'll mock rating and savings in the component, or we can fetch them here if we have real data.
             },
         });
 
-        // Ensure stores are returned in the exact order they were requested (e.g. recently viewed order)
         const orderedStores = slugs
             .map(slug => stores.find(s => s.slug === slug))
             .filter(Boolean);
 
         return NextResponse.json({ stores: orderedStores });
     } catch (error) {
-        console.error("Recommendations error:", error);
-        return NextResponse.json(
-            { error: "Internal Server Error" },
-            { status: 500 }
-        );
+        console.warn("[api/recommendations] DB failed, serving fallback stores:", error);
+        const orderedFallback = slugs
+            .map(slug => FALLBACK_STORES.find(s => s.slug === slug))
+            .filter(Boolean)
+            .map(s => ({
+                id: s!.id,
+                name: s!.name,
+                slug: s!.slug,
+                logo: s!.logo,
+                offerCount: s!.offerCount,
+            }));
+
+        return NextResponse.json({ stores: orderedFallback });
     }
 }

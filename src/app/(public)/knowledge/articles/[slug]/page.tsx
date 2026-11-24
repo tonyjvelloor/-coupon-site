@@ -4,15 +4,21 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Clock, Share2 } from "lucide-react";
 import { cleanSeoTitle, getSiteUrl } from "@/lib/seo-utils";
+import { getBlogPostBySlug } from "@/lib/blog-data";
 
-export const revalidate = 3600;
+export const revalidate = 21600;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const article = await prisma.blogPost.findUnique({
-    where: { slug },
-    select: { title: true, excerpt: true, seoTitle: true, seoDescription: true, coverImage: true }
-  });
+  let article: any = null;
+  try {
+    article = await prisma.blogPost.findUnique({
+      where: { slug },
+      select: { title: true, excerpt: true, seoTitle: true, seoDescription: true, coverImage: true }
+    });
+  } catch {
+    article = await getBlogPostBySlug(slug).catch(() => null);
+  }
 
   if (!article) return { title: "Article Not Found" };
 
@@ -30,10 +36,23 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const article = await prisma.blogPost.findUnique({
-    where: { slug },
-    include: { author: true }
-  });
+  let article: any = null;
+  try {
+    article = await prisma.blogPost.findUnique({
+      where: { slug },
+      include: { author: true }
+    });
+  } catch {
+    const fallback = await getBlogPostBySlug(slug).catch(() => null);
+    if (fallback) {
+      article = {
+        ...fallback,
+        isPublished: true,
+        publishedAt: fallback.publishedAt ? new Date(fallback.publishedAt) : new Date(),
+        author: { name: "CouponHub Editorial", profileImage: null },
+      };
+    }
+  }
 
   if (!article || !article.isPublished) {
     notFound();

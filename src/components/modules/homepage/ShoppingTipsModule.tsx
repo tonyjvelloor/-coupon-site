@@ -3,11 +3,16 @@ import { KnowledgeCard } from "@/components/ui/KnowledgeCard";
 import { prisma } from "@/lib/db";
 
 export async function ShoppingTipsModule() {
-    const dbTips = await prisma.shoppingTip.findMany({
-        where: { isActive: true },
-        orderBy: { createdAt: 'desc' },
-        take: 4
-    });
+    let dbTips: any[] = [];
+    try {
+        dbTips = await prisma.shoppingTip.findMany({
+            where: { isActive: true },
+            orderBy: { createdAt: 'desc' },
+            take: 4
+        });
+    } catch {
+        dbTips = [];
+    }
 
     const tips = dbTips.length > 0 ? dbTips : [
         { id: 't1', title: 'Stack bank card offers on Amazon', description: 'Check HDFC, ICICI, and SBI instant discount caps before checking out on electronics or appliances.', icon: 'credit_card', category: 'Bank Offers', href: '/banks/hdfc' },

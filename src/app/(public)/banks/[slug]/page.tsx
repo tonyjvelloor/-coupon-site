@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { CreditCard, Tag, ShieldCheck, ChevronDown, Sparkles, ExternalLink } from "lucide-react";
+import { getFallbackBankBySlug, getFallbackBankCoupons } from "@/lib/fallback-catalog";
 
 interface PageProps {
     params: Promise<{ slug: string }>;
@@ -34,7 +35,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
             where: { slug, isActive: true },
         });
     } catch (e) {
-        // Fallback
+        bank = getFallbackBankBySlug(slug);
     }
 
     if (!bank) return { title: "Bank Offers & Coupons" };
@@ -69,36 +70,48 @@ export default async function BankPage({ params }: PageProps) {
     const { slug } = await params;
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.couponhub.store";
 
-    const bank = await prisma.bank.findUnique({
-        where: { slug, isActive: true },
-        include: {
-            bankOffers: {
-                where: { isActive: true },
-                include: { store: true },
-                orderBy: { createdAt: "desc" },
+    let bank: any = null;
+    let bankCoupons: any[] = [];
+
+    try {
+        bank = await prisma.bank.findUnique({
+            where: { slug, isActive: true },
+            include: {
+                bankOffers: {
+                    where: { isActive: true },
+                    include: { store: true },
+                    orderBy: { createdAt: "desc" },
+                },
             },
-        },
-    });
+        });
+
+        if (bank) {
+            const bankKeyword = bank.name.replace(/Bank|Card/i, '').trim();
+            bankCoupons = await prisma.coupon.findMany({
+                where: {
+                    bank: { contains: bankKeyword, mode: 'insensitive' },
+                    OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+                },
+                take: 6,
+                include: {
+                    merchantIdentity: {
+                        include: { store: true },
+                    },
+                },
+                orderBy: { createdAt: 'desc' },
+            });
+        }
+    } catch (err) {
+        console.warn(`[banks/${slug}] DB query failed, using fallback bank:`, err);
+        bank = getFallbackBankBySlug(slug);
+        if (bank) {
+            bankCoupons = getFallbackBankCoupons(bank.name);
+        }
+    }
 
     if (!bank) {
         notFound();
     }
-
-    // Query coupons tagged with this bank
-    const bankKeyword = bank.name.replace(/Bank|Card/i, '').trim();
-    const bankCoupons = await prisma.coupon.findMany({
-        where: {
-            bank: { contains: bankKeyword, mode: 'insensitive' },
-            OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
-        },
-        take: 6,
-        include: {
-            merchantIdentity: {
-                include: { store: true },
-            },
-        },
-        orderBy: { createdAt: 'desc' },
-    });
 
     const faqs = [
         {
@@ -154,7 +167,7 @@ export default async function BankPage({ params }: PageProps) {
             "@type": "ItemList",
             name: `${bank.name} Verified Offers`,
             numberOfItems: bank.bankOffers.length,
-            itemListElement: bank.bankOffers.map((offer, index) => ({
+            itemListElement: bank.bankOffers.map((offer: any, index: number) => ({
                 "@type": "ListItem",
                 position: index + 1,
                 item: {
@@ -241,7 +254,7 @@ export default async function BankPage({ params }: PageProps) {
 
                     {bank.bankOffers.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {bank.bankOffers.map((offer) => (
+                            {bank.bankOffers.map((offer: any) => (
                                 <div key={offer.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 hover:shadow-md transition-shadow flex flex-col justify-between">
                                     <div>
                                         <div className="flex items-center gap-4 mb-4">

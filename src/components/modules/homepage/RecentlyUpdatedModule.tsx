@@ -4,11 +4,16 @@ import { prisma } from "@/lib/db";
 import { formatDistanceToNowStrict } from "date-fns";
 
 export async function RecentlyUpdatedModule() {
-    const recentStores = await prisma.store.findMany({
-        where: { isActive: true },
-        orderBy: { updatedAt: 'desc' },
-        take: 3
-    });
+    let recentStores: any[] = [];
+    try {
+        recentStores = await prisma.store.findMany({
+            where: { isActive: true },
+            orderBy: { updatedAt: 'desc' },
+            take: 3
+        });
+    } catch {
+        recentStores = [];
+    }
 
     const recentUpdates: TimelineEvent[] = recentStores.length > 0 ? recentStores.map((s, idx) => ({
         id: s.id,
@@ -18,9 +23,9 @@ export async function RecentlyUpdatedModule() {
         isActive: idx === 0,
         href: `/stores/${s.slug}`
     })) : [
-        { id: 'r1', title: 'Amazon', subtitle: '5 min ago', icon: 'update', isActive: true, href: '/stores/amazon' },
-        { id: 'r2', title: 'Flipkart', subtitle: '12 min ago', icon: 'update', href: '/stores/flipkart' },
-        { id: 'r3', title: 'Nykaa', subtitle: '20 min ago', icon: 'update', href: '/stores/nykaa' },
+        { id: 'r1', title: 'Amazon India', subtitle: 'Verified today', icon: 'update', isActive: true, href: '/stores/amazon' },
+        { id: 'r2', title: 'Flipkart', subtitle: 'Verified today', icon: 'update', href: '/stores/flipkart' },
+        { id: 'r3', title: 'Nykaa Beauty', subtitle: 'Verified today', icon: 'update', href: '/stores/nykaa-beauty' },
     ];
 
     return (

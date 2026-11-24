@@ -225,141 +225,168 @@ export class CouponRepository {
       return this.getRecentPublicCoupons(limit);
     }
 
-    const coupons = await prisma.coupon.findMany({
-      where: {
-        deletedAt: null,
-        merchantIdentity: {
-          canonicalStoreId: { not: null },
-          store: { isActive: true }
+    try {
+      const coupons = await prisma.coupon.findMany({
+        where: {
+          deletedAt: null,
+          merchantIdentity: {
+            canonicalStoreId: { not: null },
+            store: { isActive: true }
+          },
+          OR: [
+            { expiresAt: null },
+            { expiresAt: { gt: new Date() } }
+          ],
+          AND: [
+            {
+              OR: [
+                ...(walletBanks.length > 0 ? [{ bank: { in: walletBanks, mode: 'insensitive' as const } }] : []),
+                ...(savedStoreSlugs.length > 0 ? [{ merchantIdentity: { store: { slug: { in: savedStoreSlugs } } } }] : [])
+              ]
+            }
+          ]
         },
-        OR: [
-          { expiresAt: null },
-          { expiresAt: { gt: new Date() } }
+        include: {
+          merchantIdentity: { include: { store: true } }
+        },
+        orderBy: [
+          { isFeatured: 'desc' },
+          { createdAt: 'desc' }
         ],
-        AND: [
-          {
-            OR: [
-              ...(walletBanks.length > 0 ? [{ bank: { in: walletBanks, mode: 'insensitive' as const } }] : []),
-              ...(savedStoreSlugs.length > 0 ? [{ merchantIdentity: { store: { slug: { in: savedStoreSlugs } } } }] : [])
-            ]
-          }
-        ]
-      },
-      include: {
-        merchantIdentity: { include: { store: true } }
-      },
-      orderBy: [
-        { isFeatured: 'desc' },
-        { createdAt: 'desc' }
-      ],
-      take: limit
-    });
+        take: limit
+      });
 
-    return coupons.map(c => {
-      const store = c.merchantIdentity.store!;
-      return {
-        id: c.id,
-        title: c.title,
-        description: c.description,
-        code: c.code,
-        type: c.type,
-        discountType: c.discountType,
-        discountValue: c.discountValue,
-        affiliateUrl: c.affiliateUrl,
-        expiresAt: c.expiresAt,
-        isVerified: c.isVerified,
-        isExclusive: c.isExclusive,
-        merchantName: store.name,
-        merchantSlug: store.slug,
-        merchantLogo: store.logo,
-        createdAt: c.createdAt
-      };
-    });
+      return coupons.map(c => {
+        const store = c.merchantIdentity.store!;
+        return {
+          id: c.id,
+          title: c.title,
+          description: c.description,
+          code: c.code,
+          type: c.type,
+          discountType: c.discountType,
+          discountValue: c.discountValue,
+          affiliateUrl: c.affiliateUrl,
+          expiresAt: c.expiresAt,
+          isVerified: c.isVerified,
+          isExclusive: c.isExclusive,
+          merchantName: store.name,
+          merchantSlug: store.slug,
+          merchantLogo: store.logo,
+          createdAt: c.createdAt
+        };
+      });
+    } catch (err) {
+      console.warn("[CouponRepository] getCuratedCoupons failed, using fallback:", err);
+      const bankTerms = walletBanks.map((b) => b.toLowerCase());
+      const slugSet = new Set(savedStoreSlugs);
+      const matched = FALLBACK_COUPONS.filter((c) => {
+        if (slugSet.has(c.merchantSlug)) return true;
+        const text = `${c.title} ${c.description || ""}`.toLowerCase();
+        return bankTerms.some((b) => text.includes(b));
+      });
+      return (matched.length > 0 ? matched : FALLBACK_COUPONS).slice(0, limit);
+    }
   }
 
   async getTrendingCoupons(excludeStoreId?: string, limit: number = 6): Promise<PublicCoupon[]> {
-    const coupons = await prisma.coupon.findMany({
-      where: {
-        deletedAt: null,
-        merchantIdentity: {
-          canonicalStoreId: excludeStoreId ? { not: excludeStoreId } : { not: null },
-          store: { isActive: true }
-        }
-      },
-      orderBy: { usageCount: 'desc' },
-      take: limit,
-      include: { merchantIdentity: { include: { store: true } } }
-    });
+    try {
+      const coupons = await prisma.coupon.findMany({
+        where: {
+          deletedAt: null,
+          merchantIdentity: {
+            canonicalStoreId: excludeStoreId ? { not: excludeStoreId } : { not: null },
+            store: { isActive: true }
+          }
+        },
+        orderBy: { usageCount: 'desc' },
+        take: limit,
+        include: { merchantIdentity: { include: { store: true } } }
+      });
 
-    return coupons.map(c => {
-      const store = c.merchantIdentity.store!;
-      return {
-        id: c.id,
-        title: c.title,
-        description: c.description,
-        code: c.code,
-        type: c.type,
-        discountType: c.discountType,
-        discountValue: c.discountValue,
-        affiliateUrl: c.affiliateUrl,
-        expiresAt: c.expiresAt,
-        isVerified: c.isVerified,
-        isExclusive: c.isExclusive,
-        merchantName: store.name,
-        merchantSlug: store.slug,
-        merchantLogo: store.logo,
-        createdAt: c.createdAt
-      };
-    });
+      return coupons.map(c => {
+        const store = c.merchantIdentity.store!;
+        return {
+          id: c.id,
+          title: c.title,
+          description: c.description,
+          code: c.code,
+          type: c.type,
+          discountType: c.discountType,
+          discountValue: c.discountValue,
+          affiliateUrl: c.affiliateUrl,
+          expiresAt: c.expiresAt,
+          isVerified: c.isVerified,
+          isExclusive: c.isExclusive,
+          merchantName: store.name,
+          merchantSlug: store.slug,
+          merchantLogo: store.logo,
+          createdAt: c.createdAt
+        };
+      });
+    } catch (err) {
+      console.warn("[CouponRepository] getTrendingCoupons failed, using fallback:", err);
+      return FALLBACK_COUPONS.slice(0, limit);
+    }
   }
 
   async getExpiringCoupons(excludeStoreId?: string, limit: number = 6): Promise<PublicCoupon[]> {
-    const coupons = await prisma.coupon.findMany({
-      where: {
-        deletedAt: null,
-        expiresAt: { not: null, gt: new Date() },
-        merchantIdentity: {
-          canonicalStoreId: excludeStoreId ? { not: excludeStoreId } : { not: null },
-          store: { isActive: true }
-        }
-      },
-      orderBy: { expiresAt: 'asc' },
-      take: limit,
-      include: { merchantIdentity: { include: { store: true } } }
-    });
+    try {
+      const coupons = await prisma.coupon.findMany({
+        where: {
+          deletedAt: null,
+          expiresAt: { not: null, gt: new Date() },
+          merchantIdentity: {
+            canonicalStoreId: excludeStoreId ? { not: excludeStoreId } : { not: null },
+            store: { isActive: true }
+          }
+        },
+        orderBy: { expiresAt: 'asc' },
+        take: limit,
+        include: { merchantIdentity: { include: { store: true } } }
+      });
 
-    return coupons.map(c => {
-      const store = c.merchantIdentity.store!;
-      return {
-        id: c.id,
-        title: c.title,
-        description: c.description,
-        code: c.code,
-        type: c.type,
-        discountType: c.discountType,
-        discountValue: c.discountValue,
-        affiliateUrl: c.affiliateUrl,
-        expiresAt: c.expiresAt,
-        isVerified: c.isVerified,
-        isExclusive: c.isExclusive,
-        merchantName: store.name,
-        merchantSlug: store.slug,
-        merchantLogo: store.logo,
-        createdAt: c.createdAt
-      };
-    });
+      return coupons.map(c => {
+        const store = c.merchantIdentity.store!;
+        return {
+          id: c.id,
+          title: c.title,
+          description: c.description,
+          code: c.code,
+          type: c.type,
+          discountType: c.discountType,
+          discountValue: c.discountValue,
+          affiliateUrl: c.affiliateUrl,
+          expiresAt: c.expiresAt,
+          isVerified: c.isVerified,
+          isExclusive: c.isExclusive,
+          merchantName: store.name,
+          merchantSlug: store.slug,
+          merchantLogo: store.logo,
+          createdAt: c.createdAt
+        };
+      });
+    } catch (err) {
+      console.warn("[CouponRepository] getExpiringCoupons failed, using fallback:", err);
+      return FALLBACK_COUPONS.slice(0, limit);
+    }
   }
 
   async voteCoupon(id: string, isSuccess: boolean): Promise<void> {
+    if (id.startsWith('fb-')) return;
     const incrementField = isSuccess ? 'successCount' : 'failureCount';
-    await prisma.coupon.update({
-      where: { id },
-      data: {
-        [incrementField]: {
-          increment: 1
+    try {
+      await prisma.coupon.update({
+        where: { id },
+        data: {
+          [incrementField]: {
+            increment: 1
+          }
         }
-      }
-    });
+      });
+    } catch (err) {
+      console.warn(`[CouponRepository] voteCoupon(${id}) failed:`, err);
+    }
   }
 }
 

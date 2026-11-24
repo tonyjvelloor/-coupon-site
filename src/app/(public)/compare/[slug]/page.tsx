@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Metadata } from "next";
 import { CURATED_COMPARE_PAIRS } from "@/lib/compare-pairs";
 import { getSiteUrl, getCurrentMonthYear } from "@/lib/seo-utils";
+import { getFallbackCompareStore } from "@/lib/fallback-catalog";
 
 export const revalidate = 86400; // 24h — compare pages are stable
 
@@ -33,7 +34,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       prisma.store.findUnique({ where: { slug: slug2 }, select: { name: true, cashbackRate: true, activeOfferCount: true } }),
     ]);
   } catch (e) {
-    // Fallback
+    store1 = getFallbackCompareStore(slug1);
+    store2 = getFallbackCompareStore(slug2);
   }
 
   if (!store1 || !store2) return { title: "Compare Brands & Coupons", robots: { index: false, follow: true } };
@@ -69,16 +71,32 @@ export default async function ComparePage({ params }: { params: Promise<{ slug: 
 
   const [slug1, slug2] = slug.split("-vs-");
 
-  // Fetch both stores in a single query to avoid connection-pool contention during build/SSR
-  const stores = await prisma.store.findMany({
-    where: { slug: { in: [slug1, slug2] } },
-    include: {
-      storeContents: true,
-      merchantIdentity: { include: { coupons: { where: { expiresAt: { gt: new Date() } }, take: 3 } } }
-    }
-  });
-  const store1 = stores.find((s) => s.slug === slug1) ?? null;
-  const store2 = stores.find((s) => s.slug === slug2) ?? null;
+  let store1: any = null;
+  let store2: any = null;
+
+  try {
+    // Fetch both stores in a single query to avoid connection-pool contention during build/SSR
+    const stores = await prisma.store.findMany({
+      where: { slug: { in: [slug1, slug2] } },
+      include: {
+        storeContents: true,
+        merchantIdentity: {
+          include: {
+            coupons: {
+              where: { OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] },
+              take: 3
+            }
+          }
+        }
+      }
+    });
+    store1 = stores.find((s) => s.slug === slug1) ?? null;
+    store2 = stores.find((s) => s.slug === slug2) ?? null;
+  } catch (err) {
+    console.warn(`[compare/${slug}] DB query failed, using fallback stores:`, err);
+    store1 = getFallbackCompareStore(slug1);
+    store2 = getFallbackCompareStore(slug2);
+  }
 
   if (!store1 || !store2) {
     notFound();

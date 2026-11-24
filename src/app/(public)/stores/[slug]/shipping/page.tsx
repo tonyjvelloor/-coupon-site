@@ -2,8 +2,9 @@ import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { getSiteUrl, isStoreSubpageIndexable } from "@/lib/seo-utils";
+import { getFallbackMerchantBySlug } from "@/lib/fallback-catalog";
 
-export const revalidate = 3600;
+export const revalidate = 21600;
 
 interface PageProps {
     params: Promise<{ slug: string }>;
@@ -11,16 +12,22 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { slug } = await params;
-    const store = await prisma.store.findUnique({
-        where: { slug, isActive: true },
-        include: { storeContents: { where: { type: "SHIPPING" } } },
-    });
+    let store: any = null;
+    try {
+        store = await prisma.store.findUnique({
+            where: { slug, isActive: true },
+            include: { storeContents: { where: { type: "SHIPPING" } } },
+        });
+    } catch {
+        const fb = getFallbackMerchantBySlug(slug);
+        if (fb) store = { ...fb, storeContents: fb.contents };
+    }
 
     if (!store) return { title: "Store Not Found" };
 
     const siteUrl = getSiteUrl();
     const ogTitle = `${store.name} Shipping Policy & Free Shipping Codes`;
-    const shippingContent = store.storeContents[0]?.content;
+    const shippingContent = store.storeContents.find((c: any) => c.type === "SHIPPING")?.content;
     const isIndexable = isStoreSubpageIndexable(store.activeOfferCount, shippingContent);
     
     return {
@@ -36,14 +43,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function StoreShippingPage({ params }: PageProps) {
     const { slug } = await params;
 
-    const store = await prisma.store.findUnique({
-        where: { slug, isActive: true },
-        include: { storeContents: true },
-    });
+    let store: any = null;
+    try {
+        store = await prisma.store.findUnique({
+            where: { slug, isActive: true },
+            include: { storeContents: true },
+        });
+    } catch {
+        const fb = getFallbackMerchantBySlug(slug);
+        if (fb) store = { ...fb, storeContents: fb.contents };
+    }
 
     if (!store) notFound();
 
-    const shippingContent = store.storeContents.find(c => c.type === 'SHIPPING')?.content;
+    const shippingContent = store.storeContents.find((c: any) => c.type === 'SHIPPING')?.content;
     
     if (!shippingContent) {
         return (

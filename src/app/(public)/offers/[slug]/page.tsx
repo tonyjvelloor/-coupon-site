@@ -9,6 +9,7 @@ import { AdBannerSidebar } from "@/components/ui/AdBanner";
 import SEOTextAndFAQ from "@/components/ui/SEOTextAndFAQ";
 import InternalLinks from "@/components/ui/InternalLinks";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
+import { getFallbackCollectionBySlug } from "@/lib/fallback-catalog";
 
 export const revalidate = 21600; // 6h ISR to minimize Neon Free compute wakeups
 
@@ -39,7 +40,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
             where: { slug },
         });
     } catch (e) {
-        // Fallback
+        collection = getFallbackCollectionBySlug(slug);
     }
 
     if (!collection) return { title: "Featured Deals & Offers" };
@@ -82,21 +83,27 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function CollectionPage({ params }: PageProps) {
     const { slug } = await params;
 
-    const collection = await prisma.collection.findUnique({
-        where: { slug },
-        include: {
-            coupons: {
-                where: {
-                    OR: [
-                        { expiresAt: null },
-                        { expiresAt: { gt: new Date() } }
-                    ]
+    let collection: any = null;
+    try {
+        collection = await prisma.collection.findUnique({
+            where: { slug },
+            include: {
+                coupons: {
+                    where: {
+                        OR: [
+                            { expiresAt: null },
+                            { expiresAt: { gt: new Date() } }
+                        ]
+                    },
+                    orderBy: [{ isFeatured: "desc" }, { createdAt: "desc" }],
+                    include: { merchantIdentity: { include: { store: true } } },
                 },
-                orderBy: [{ isFeatured: "desc" }, { createdAt: "desc" }],
-                include: { merchantIdentity: { include: { store: true } } },
             },
-        },
-    });
+        });
+    } catch (err) {
+        console.warn(`[offers/${slug}] DB query failed, using fallback collection:`, err);
+        collection = getFallbackCollectionBySlug(slug);
+    }
 
     if (!collection) {
         notFound();
@@ -114,17 +121,17 @@ export default async function CollectionPage({ params }: PageProps) {
         mainEntity: {
             "@type": "OfferCatalog",
             name: `${collection.name} Offers`,
-            itemListElement: collection.coupons.slice(0, 20).map((coupon, index) => ({
+            itemListElement: collection.coupons.slice(0, 20).map((coupon: any) => ({
                 "@type": "Offer",
                 itemOffered: {
                     "@type": "Service",
                     name: coupon.title,
                 },
-                priceCurrency: "USD",
+                priceCurrency: "INR",
                 price: "0",
                 description: coupon.description || coupon.title,
                 url: `${siteUrl}/offers/${collection.slug}`,
-                validFrom: coupon.createdAt.toISOString(),
+                validFrom: new Date(coupon.createdAt).toISOString(),
             })),
         },
     };
@@ -132,7 +139,7 @@ export default async function CollectionPage({ params }: PageProps) {
     return (
         <div>
             <Breadcrumbs items={[
-                { name: "Offers", href: "/offers" },
+                { name: "Best Offers", href: "/best-offers" },
                 { name: collection.name }
             ]} />
 
@@ -165,7 +172,7 @@ export default async function CollectionPage({ params }: PageProps) {
                     <div className="flex-1">
                         {/* Coupons Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {collection.coupons.map((coupon) => (
+                            {collection.coupons.map((coupon: any) => (
                                 <PremiumOfferCard
                                     key={coupon.id}
                                     coupon={coupon as any}
@@ -228,8 +235,8 @@ export default async function CollectionPage({ params }: PageProps) {
                             {
                                 "@type": "ListItem",
                                 "position": 2,
-                                "name": "Offers",
-                                "item": `${siteUrl}/offers`
+                                "name": "Best Offers",
+                                "item": `${siteUrl}/best-offers`
                             },
                             {
                                 "@type": "ListItem",

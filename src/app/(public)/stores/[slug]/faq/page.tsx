@@ -3,8 +3,9 @@ import { notFound, redirect } from "next/navigation";
 import { Metadata } from "next";
 import { contentSplitService } from "@/lib/services/content-split.service";
 import { getSiteUrl, MIN_STORE_OFFERS_FOR_SUBPAGES } from "@/lib/seo-utils";
+import { getFallbackMerchantBySlug } from "@/lib/fallback-catalog";
 
-export const revalidate = 3600;
+export const revalidate = 21600;
 
 interface PageProps {
     params: Promise<{ slug: string }>;
@@ -12,16 +13,22 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { slug } = await params;
-    const store = await prisma.store.findUnique({
-        where: { slug, isActive: true },
-        include: { storeContents: { where: { type: "FAQ" } } },
-    });
+    let store: any = null;
+    try {
+        store = await prisma.store.findUnique({
+            where: { slug, isActive: true },
+            include: { storeContents: { where: { type: "FAQ" } } },
+        });
+    } catch {
+        const fb = getFallbackMerchantBySlug(slug);
+        if (fb) store = { ...fb, storeContents: fb.contents };
+    }
 
     if (!store) return { title: "Store Not Found" };
 
     const siteUrl = getSiteUrl();
     const ogTitle = `${store.name} FAQ & Common Questions`;
-    const faqContent = store.storeContents[0]?.content;
+    const faqContent = store.storeContents.find((c: any) => c.type === "FAQ")?.content;
     const isIndexable =
         (store.activeOfferCount ?? 0) >= MIN_STORE_OFFERS_FOR_SUBPAGES &&
         contentSplitService.shouldSplitFaq(faqContent);
@@ -39,14 +46,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function StoreFaqPage({ params }: PageProps) {
     const { slug } = await params;
 
-    const store = await prisma.store.findUnique({
-        where: { slug, isActive: true },
-        include: { storeContents: true },
-    });
+    let store: any = null;
+    try {
+        store = await prisma.store.findUnique({
+            where: { slug, isActive: true },
+            include: { storeContents: true },
+        });
+    } catch {
+        const fb = getFallbackMerchantBySlug(slug);
+        if (fb) store = { ...fb, storeContents: fb.contents };
+    }
 
     if (!store) notFound();
 
-    const faqContentStr = store.storeContents.find(c => c.type === 'FAQ')?.content;
+    const faqContentStr = store.storeContents.find((c: any) => c.type === 'FAQ')?.content;
     
     // Redirect to embedded hub if threshold not met
     if (!contentSplitService.shouldSplitFaq(faqContentStr)) {

@@ -103,7 +103,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
             activeStores = storeIdentityIds.length;
         }
     } catch (e) {
-        // Fallback
+        const fb = getFallbackCategoryBySlug(dbSlug);
+        if (fb) {
+            category = fb.category;
+            activeStores = fb.stores.length;
+            activeOffers = fb.category._count.coupons;
+        }
     }
 
     if (!category) return { title: "Category Offers & Coupons" };
@@ -149,6 +154,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 
 import { EmptyStateFallback } from "@/components/ui/EmptyStateFallback";
+import { getFallbackCategoryBySlug } from "@/lib/fallback-catalog";
 
 // ... other imports
 
@@ -156,66 +162,66 @@ export default async function CategoryPage({ params }: PageProps) {
     const { slug } = await params;
     const dbSlug = slug.replace('-coupons', '');
 
-    const category = await prisma.category.findUnique({
-        where: { slug: dbSlug, isActive: true },
-        include: {
-            children: { where: { isActive: true } },
-            storeCategories: {
-                include: {
-                    store: {
-                        include: {
-                            merchantIdentity: true
-                        }
+    let category: any = null;
+    let stores: any[] = [];
+    let categoryCoupons: any[] = [];
+
+    try {
+        category = await prisma.category.findUnique({
+            where: { slug: dbSlug, isActive: true },
+            include: {
+                children: { where: { isActive: true } },
+                storeCategories: {
+                    include: {
+                        store: {
+                            include: {
+                                merchantIdentity: true
+                            }
+                        },
                     },
                 },
             },
-        },
-    });
+        });
+
+        if (category) {
+            stores = category.storeCategories.map((sc: any) => ({
+                ...sc.store,
+                offerCount: sc.store.activeOfferCount || sc.store.offerCount,
+            }));
+
+            const storeIdentityIds = category.storeCategories
+                .map((sc: any) => sc.store.merchantIdentity?.id)
+                .filter(Boolean) as string[];
+
+            if (storeIdentityIds.length > 0) {
+                categoryCoupons = await prisma.coupon.findMany({
+                    where: {
+                        merchantIdentityId: { in: storeIdentityIds },
+                        deletedAt: null,
+                        OR: [
+                            { expiresAt: null },
+                            { expiresAt: { gt: new Date() } }
+                        ]
+                    },
+                    include: { merchantIdentity: { include: { store: true } } },
+                    orderBy: { createdAt: "desc" },
+                    take: 30,
+                });
+            }
+        }
+    } catch (err) {
+        console.warn(`[best/${slug}] DB query failed, using fallback category:`, err);
+        const fb = getFallbackCategoryBySlug(dbSlug);
+        if (fb) {
+            category = fb.category;
+            stores = fb.stores;
+            categoryCoupons = fb.coupons;
+        }
+    }
 
     if (!category) {
         notFound();
     }
-
-    const stores = category.storeCategories.map((sc) => ({
-        ...sc.store,
-        offerCount: sc.store.activeOfferCount || sc.store.offerCount,
-    }));
-
-    const storeIdentityIds = category.storeCategories
-        .map((sc) => sc.store.merchantIdentity?.id)
-        .filter(Boolean) as string[];
-
-    // Count total active coupons for quality gate
-    const totalActiveCoupons = await prisma.coupon.count({
-        where: {
-            merchantIdentityId: { in: storeIdentityIds },
-            deletedAt: null,
-            OR: [
-                { expiresAt: null },
-                { expiresAt: { gt: new Date() } }
-            ]
-        }
-    });
-
-    // QUALITY GATE: If this category doesn't meet the inventory thresholds, don't render it.
-    // Lowered thresholds to 0 to fix 404s during development/testing
-    if (stores.length < 0 || totalActiveCoupons < 0) {
-        notFound(); // 404 to prevent thin-content indexing
-    }
-
-    const categoryCoupons = await prisma.coupon.findMany({
-        where: {
-            merchantIdentityId: { in: storeIdentityIds },
-            deletedAt: null,
-            OR: [
-                { expiresAt: null },
-                { expiresAt: { gt: new Date() } }
-            ]
-        },
-        include: { merchantIdentity: { include: { store: true } } },
-        orderBy: { createdAt: "desc" },
-        take: 30, // Get more coupons for the best-coupons page
-    });
 
 
     return (
@@ -259,7 +265,7 @@ export default async function CategoryPage({ params }: PageProps) {
                     <section>
                         <h2 className="text-sm font-bold uppercase tracking-wider text-surface-500 mb-4 px-2">Subcategories</h2>
                         <Stack direction="row" gap={8} wrap>
-                            {category.children.map((child) => (
+                            {category.children.map((child: any) => (
                                 <Link
                                     key={child.id}
                                     href={`/best/${child.slug}-coupons`}
@@ -290,10 +296,9 @@ export default async function CategoryPage({ params }: PageProps) {
                                         name: store.name,
                                         slug: store.slug,
                                         logo: store.logo,
-                                        offerCount: store.offerCount || Math.floor(Math.random() * 50) + 10,
+                                        offerCount: store.offerCount || 0,
                                         verified: true,
-                                        healthScore: 92 + Math.floor(Math.random() * 8),
-                                        lastVerified: "20 mins ago",
+                                        lastVerified: "Verified today",
                                         cashbackRate: store.cashbackRate
                                     }} 
                                   />
@@ -327,8 +332,7 @@ export default async function CategoryPage({ params }: PageProps) {
                                         affiliateUrl: coupon.affiliateUrl || `/go/${coupon.id}`,
                                         isVerified: true,
                                         isExclusive: coupon.isExclusive,
-                                        expiresAt: coupon.expiresAt,
-                                        successRate: 95
+                                        expiresAt: coupon.expiresAt
                                     }}
                                     storeName={coupon.merchantIdentity?.store?.name}
                                     storeLogo={coupon.merchantIdentity?.store?.logo}
@@ -386,7 +390,7 @@ function CategorySchema({ category, coupons }: { category: any, coupons: any }) 
                 "@type": "Service",
                 name: coupon.title
             },
-            priceCurrency: "USD",
+            priceCurrency: "INR",
             price: "0",
             description: coupon.description || coupon.title,
             url: `${siteUrl}/best/${category.slug}-coupons`

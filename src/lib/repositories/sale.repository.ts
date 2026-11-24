@@ -14,17 +14,23 @@ export interface SaleEventDTO {
 
 export class SaleRepository {
   async getUpcomingSales(limit: number = 3): Promise<SaleEventDTO[]> {
-    const saleContents = await prisma.storeContent.findMany({
-      where: {
-        type: {
-          in: [StoreContentType.SALE, StoreContentType.BLACK_FRIDAY, StoreContentType.PRIME_DAY]
-        }
-      },
-      include: {
-        store: true
-      },
-      take: limit * 2, // Take more to allow for filtering
-    });
+    let saleContents: any[] = [];
+    try {
+      saleContents = await prisma.storeContent.findMany({
+        where: {
+          type: {
+            in: [StoreContentType.SALE, StoreContentType.BLACK_FRIDAY, StoreContentType.PRIME_DAY]
+          }
+        },
+        include: {
+          store: true
+        },
+        take: limit * 2, // Take more to allow for filtering
+      });
+    } catch (err) {
+      console.warn("[SaleRepository] getUpcomingSales failed, returning empty:", err);
+      return [];
+    }
 
     const parsedSales: SaleEventDTO[] = [];
 

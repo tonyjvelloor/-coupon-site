@@ -4,6 +4,12 @@ import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import { MerchantSnapshot } from "@/components/ui/MerchantSnapshot";
 import { DecisionCard } from "@/components/ui/DecisionCard";
+import {
+    FALLBACK_CATEGORIES,
+    FALLBACK_COLLECTIONS,
+    FALLBACK_COUPONS,
+    FALLBACK_STORES,
+} from "@/lib/fallback-catalog";
 
 export const metadata: Metadata = {
     title: "Search Results",
@@ -34,49 +40,89 @@ export default async function SearchPage({
 
     const mode = 'insensitive' as const;
 
-    // Perform case-insensitive search across entities using the correct Prisma schema
-    const [stores, categories, coupons, collections] = await Promise.all([
-        prisma.store.findMany({
-            where: {
-                isActive: true,
-                OR: [
-                    { name: { contains: q, mode } },
-                    { slug: { contains: q, mode } },
-                ]
-            },
-            take: 8
-        }),
-        prisma.category.findMany({
-            where: { isActive: true, name: { contains: q, mode } },
-            take: 6
-        }),
-        prisma.coupon.findMany({
-            where: {
-                deletedAt: null,
-                OR: [
-                    { title: { contains: q, mode } },
-                    { description: { contains: q, mode } },
-                    { code: { contains: q, mode } }
-                ],
-                AND: [
-                    {
-                        OR: [
-                            { expiresAt: null },
-                            { expiresAt: { gt: new Date() } }
-                        ]
-                    }
-                ]
-            },
-            include: {
-                merchantIdentity: { include: { store: true } }
-            },
-            take: 12
-        }),
-        prisma.collection.findMany({
-            where: { name: { contains: q, mode } },
-            take: 4
-        })
-    ]);
+    let stores: any[] = [];
+    let categories: any[] = [];
+    let coupons: any[] = [];
+    let collections: any[] = [];
+
+    try {
+        // Perform case-insensitive search across entities using the correct Prisma schema
+        [stores, categories, coupons, collections] = await Promise.all([
+            prisma.store.findMany({
+                where: {
+                    isActive: true,
+                    OR: [
+                        { name: { contains: q, mode } },
+                        { slug: { contains: q, mode } },
+                    ]
+                },
+                take: 8
+            }),
+            prisma.category.findMany({
+                where: { isActive: true, name: { contains: q, mode } },
+                take: 6
+            }),
+            prisma.coupon.findMany({
+                where: {
+                    deletedAt: null,
+                    OR: [
+                        { title: { contains: q, mode } },
+                        { description: { contains: q, mode } },
+                        { code: { contains: q, mode } }
+                    ],
+                    AND: [
+                        {
+                            OR: [
+                                { expiresAt: null },
+                                { expiresAt: { gt: new Date() } }
+                            ]
+                        }
+                    ]
+                },
+                include: {
+                    merchantIdentity: { include: { store: true } }
+                },
+                take: 12
+            }),
+            prisma.collection.findMany({
+                where: { name: { contains: q, mode } },
+                take: 4
+            })
+        ]);
+    } catch (err) {
+        console.warn(`[search?q=${q}] DB query failed, using fallback catalog search:`, err);
+        const ql = q.toLowerCase();
+        stores = FALLBACK_STORES.filter(
+            (s) =>
+                s.name.toLowerCase().includes(ql) ||
+                s.slug.toLowerCase().includes(ql) ||
+                s.primaryCategory.toLowerCase().includes(ql)
+        ).slice(0, 8);
+        categories = FALLBACK_CATEGORIES.filter(
+            (c) => c.name.toLowerCase().includes(ql) || c.slug.toLowerCase().includes(ql)
+        ).slice(0, 6);
+        coupons = FALLBACK_COUPONS.filter(
+            (c) =>
+                c.title.toLowerCase().includes(ql) ||
+                (c.description || "").toLowerCase().includes(ql) ||
+                (c.code || "").toLowerCase().includes(ql) ||
+                c.merchantName.toLowerCase().includes(ql)
+        )
+            .slice(0, 12)
+            .map((c) => ({
+                ...c,
+                merchantIdentity: {
+                    store: {
+                        name: c.merchantName,
+                        slug: c.merchantSlug,
+                        logo: c.merchantLogo,
+                    },
+                },
+            }));
+        collections = FALLBACK_COLLECTIONS.filter(
+            (col) => col.name.toLowerCase().includes(ql) || col.slug.toLowerCase().includes(ql)
+        ).slice(0, 4);
+    }
 
     const hasResults = stores.length > 0 || categories.length > 0 || coupons.length > 0 || collections.length > 0;
     const total = stores.length + categories.length + coupons.length + collections.length;
@@ -135,8 +181,7 @@ export default async function SearchPage({
                                                 logo: store.logo,
                                                 offerCount: store.offerCount || store.activeOfferCount || 0,
                                                 verified: true,
-                                                healthScore: 90,
-                                                lastVerified: "Recently",
+                                                lastVerified: "Verified today",
                                                 cashbackRate: store.cashbackRate,
                                             }}
                                         />
@@ -193,7 +238,6 @@ export default async function SearchPage({
                                                     expiresAt: coupon.expiresAt,
                                                     isVerified: coupon.isVerified,
                                                     isExclusive: coupon.isExclusive,
-                                                    successRate: 90,
                                                 }}
                                                 storeName={store?.name || ""}
                                                 storeLogo={store?.logo}

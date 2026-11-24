@@ -136,7 +136,7 @@ export default async function StorePage({ params }: PageProps) {
         ? formatDistanceToNow(new Date(Math.max(...activeCoupons.map((c: any) => new Date(c.createdAt).getTime()))), { addSuffix: true }) 
         : "today";
 
-    const bestBankOffer = bankOffers.length > 0 ? bankOffers[0].discountValue : undefined;
+    const bestBankOffer = bankOffers.length > 0 ? (bankOffers[0].discountDetails || (bankOffers[0] as any).discountValue) : undefined;
 
     // Factual, Category-Aware FAQs
     const shippingContent = store.contents.find((c: any) => c.type === 'SHIPPING')?.content;

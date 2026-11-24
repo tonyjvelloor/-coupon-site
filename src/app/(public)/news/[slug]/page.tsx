@@ -6,16 +6,22 @@ import Link from "next/link";
 import Image from "next/image";
 
 interface NewsArticlePageProps {
-    params: {
+    params: Promise<{
         slug: string;
-    };
+    }>;
 }
 
 // Generate SEO Metadata
 export async function generateMetadata({ params }: NewsArticlePageProps): Promise<Metadata> {
-    const article = await prisma.newsArticle.findUnique({
-        where: { slug: params.slug },
-    });
+    const { slug } = await params;
+    let article: any = null;
+    try {
+        article = await prisma.newsArticle.findUnique({
+            where: { slug },
+        });
+    } catch {
+        article = null;
+    }
 
     if (!article || !article.isVerified) {
         return {
@@ -30,9 +36,15 @@ export async function generateMetadata({ params }: NewsArticlePageProps): Promis
 }
 
 export default async function NewsArticlePage({ params }: NewsArticlePageProps) {
-    const article = await prisma.newsArticle.findUnique({
-        where: { slug: params.slug },
-    });
+    const { slug } = await params;
+    let article: any = null;
+    try {
+        article = await prisma.newsArticle.findUnique({
+            where: { slug },
+        });
+    } catch {
+        article = null;
+    }
 
     if (!article || !article.isVerified) {
         notFound();

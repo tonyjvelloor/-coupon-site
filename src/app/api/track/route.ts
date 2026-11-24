@@ -1,4 +1,4 @@
-import { NextResponse } from "next";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
 
@@ -21,22 +21,26 @@ export async function POST(req: Request) {
         }
 
         if (type === "coupon") {
-            await prisma.coupon.update({
-                where: { id },
-                data: { clicks: { increment: 1 } },
-            });
+            if (!String(id).startsWith("fb-")) {
+                await prisma.coupon.update({
+                    where: { id },
+                    data: { clicks: { increment: 1 } },
+                }).catch((err) => console.warn("[api/track] coupon click update skipped:", err));
+            }
             return NextResponse.json({ success: true });
         } else if (type === "store") {
-            await prisma.store.update({
-                where: { id },
-                data: { clicks: { increment: 1 } },
-            });
+            if (!String(id).startsWith("fb-")) {
+                await prisma.store.update({
+                    where: { id },
+                    data: { clicks: { increment: 1 } },
+                }).catch((err) => console.warn("[api/track] store click update skipped:", err));
+            }
             return NextResponse.json({ success: true });
         }
 
         return NextResponse.json({ error: "Invalid type" }, { status: 400 });
     } catch (error) {
-        console.error("Tracking error:", error);
-        return NextResponse.json({ error: "Failed to track click" }, { status: 500 });
+        console.warn("Tracking request error:", error);
+        return NextResponse.json({ error: "Invalid request payload" }, { status: 400 });
     }
 }

@@ -3,8 +3,9 @@ import { notFound, redirect } from "next/navigation";
 import { Metadata } from "next";
 import { contentSplitService } from "@/lib/services/content-split.service";
 import { getSiteUrl, MIN_STORE_OFFERS_FOR_SUBPAGES } from "@/lib/seo-utils";
+import { getFallbackMerchantBySlug } from "@/lib/fallback-catalog";
 
-export const revalidate = 3600;
+export const revalidate = 21600;
 
 interface PageProps {
     params: Promise<{ slug: string }>;
@@ -12,16 +13,22 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { slug } = await params;
-    const store = await prisma.store.findUnique({
-        where: { slug, isActive: true },
-        include: { storeContents: { where: { type: "BUYING_GUIDE" } } },
-    });
+    let store: any = null;
+    try {
+        store = await prisma.store.findUnique({
+            where: { slug, isActive: true },
+            include: { storeContents: { where: { type: "BUYING_GUIDE" } } },
+        });
+    } catch {
+        const fb = getFallbackMerchantBySlug(slug);
+        if (fb) store = { ...fb, storeContents: fb.contents };
+    }
 
     if (!store) return { title: "Store Not Found" };
 
     const siteUrl = getSiteUrl();
     const ogTitle = `${store.name} Buying Guide & Saving Tips`;
-    const guideContent = store.storeContents[0]?.content;
+    const guideContent = store.storeContents.find((c: any) => c.type === "BUYING_GUIDE")?.content;
     const isIndexable =
         (store.activeOfferCount ?? 0) >= MIN_STORE_OFFERS_FOR_SUBPAGES &&
         contentSplitService.shouldSplitGuide(guideContent);
@@ -39,14 +46,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function StoreBuyingGuidePage({ params }: PageProps) {
     const { slug } = await params;
 
-    const store = await prisma.store.findUnique({
-        where: { slug, isActive: true },
-        include: { storeContents: true },
-    });
+    let store: any = null;
+    try {
+        store = await prisma.store.findUnique({
+            where: { slug, isActive: true },
+            include: { storeContents: true },
+        });
+    } catch {
+        const fb = getFallbackMerchantBySlug(slug);
+        if (fb) store = { ...fb, storeContents: fb.contents };
+    }
 
     if (!store) notFound();
 
-    const guideContent = store.storeContents.find(c => c.type === 'BUYING_GUIDE')?.content;
+    const guideContent = store.storeContents.find((c: any) => c.type === 'BUYING_GUIDE')?.content;
     
     // Redirect to embedded hub if threshold not met
     if (!contentSplitService.shouldSplitGuide(guideContent)) {
@@ -66,7 +79,7 @@ export default async function StoreBuyingGuidePage({ params }: PageProps) {
             <div className="bg-white rounded-xl border border-gray-200 p-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">How to Save at {store.name}</h2>
                 <div className="prose max-w-none text-gray-700">
-                    {guideContent.split('\n').map((paragraph, idx) => {
+                    {guideContent.split('\n').map((paragraph: string, idx: number) => {
                         if (paragraph.trim() === '') return null;
                         if (paragraph.startsWith('## ')) {
                             return <h3 key={idx} className="text-xl font-semibold text-gray-900 mt-6 mb-3">{paragraph.replace('## ', '')}</h3>;

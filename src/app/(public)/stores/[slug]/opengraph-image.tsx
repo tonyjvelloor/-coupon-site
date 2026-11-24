@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og';
 import { prisma } from '@/lib/db';
+import { getFallbackCouponsByStoreSlug, getFallbackMerchantBySlug } from '@/lib/fallback-catalog';
 
 export const runtime = 'nodejs';
 export const alt = 'CouponHub Store Deals';
@@ -9,15 +10,27 @@ export const size = {
 };
 export const contentType = 'image/png';
 
-export default async function Image({ params }: { params: { slug: string } }) {
-    const store = await prisma.store.findUnique({
-        where: { slug: params.slug },
-        include: {
-            merchantIdentity: {
-                include: { coupons: { where: { deletedAt: null }, orderBy: { discountValue: 'desc' }, take: 1 } }
+export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params;
+    let store: any = null;
+    try {
+        store = await prisma.store.findUnique({
+            where: { slug },
+            include: {
+                merchantIdentity: {
+                    include: { coupons: { where: { deletedAt: null }, orderBy: { discountValue: 'desc' }, take: 1 } }
+                }
             }
+        });
+    } catch {
+        const fb = getFallbackMerchantBySlug(slug);
+        if (fb) {
+            store = {
+                ...fb,
+                merchantIdentity: { coupons: getFallbackCouponsByStoreSlug(slug) },
+            };
         }
-    });
+    }
 
     if (!store) {
         return new ImageResponse(
@@ -33,6 +46,12 @@ export default async function Image({ params }: { params: { slug: string } }) {
     const coupons = store.merchantIdentity?.coupons || [];
     const bestDeal = coupons.length > 0 ? coupons[0].title : `${store.offerCount || 10}+ Active Deals`;
     const discountValue = coupons.length > 0 && coupons[0].discountValue ? coupons[0].discountValue : 'Save Big';
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.couponhub.store';
+    const resolvedLogo = store.logo
+        ? store.logo.startsWith('http')
+            ? store.logo
+            : `${siteUrl}${store.logo.startsWith('/') ? store.logo : `/${store.logo}`}`
+        : null;
 
     return new ImageResponse(
         (
@@ -77,8 +96,8 @@ export default async function Image({ params }: { params: { slug: string } }) {
                     }}
                 >
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '40px' }}>
-                        {store.logo ? (
-                            <img src={store.logo} alt={store.name} width={120} height={120} style={{ objectFit: 'contain' }} />
+                        {resolvedLogo ? (
+                            <img src={resolvedLogo} alt={store.name} width={120} height={120} style={{ objectFit: 'contain' }} />
                         ) : (
                             <div style={{ fontSize: '80px', fontWeight: 'bold', color: '#4c1d95' }}>{store.name.charAt(0)}</div>
                         )}

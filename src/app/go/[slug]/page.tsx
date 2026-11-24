@@ -3,9 +3,51 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ExternalLink, ShieldCheck, Clock, ArrowRight, Store as StoreIcon } from "lucide-react";
 import RedirectCountdown from "./RedirectCountdown";
+import { FALLBACK_COUPONS, FALLBACK_STORES } from "@/lib/fallback-catalog";
+import { monetizeAffiliateUrl } from "@/lib/coupon-ranking";
 
 interface Props {
     params: Promise<{ slug: string }>;
+}
+
+function getFallbackCampaignLink(cleanSlug: string) {
+    const coupon = FALLBACK_COUPONS.find((c) => c.id === cleanSlug);
+    if (coupon) {
+        return {
+            id: coupon.id,
+            name: coupon.title,
+            destinationUrl: monetizeAffiliateUrl(coupon.affiliateUrl, `go_${coupon.merchantSlug}`) || coupon.affiliateUrl,
+            isActive: true,
+            expiresAt: null,
+            utmSource: null,
+            utmMedium: null,
+            utmCampaign: null,
+            isFallback: true,
+            store: {
+                name: coupon.merchantName,
+                logo: coupon.merchantLogo,
+            },
+        };
+    }
+    const store = FALLBACK_STORES.find((s) => s.slug === cleanSlug || s.id === cleanSlug);
+    if (store) {
+        return {
+            id: store.id,
+            name: `${store.name} Verified Deals`,
+            destinationUrl: monetizeAffiliateUrl(store.website, `go_${store.slug}`) || store.website,
+            isActive: true,
+            expiresAt: null,
+            utmSource: null,
+            utmMedium: null,
+            utmCampaign: null,
+            isFallback: true,
+            store: {
+                name: store.name,
+                logo: store.logo,
+            },
+        };
+    }
+    return null;
 }
 
 export default async function CampaignRedirectPage({ params }: Props) {
@@ -13,16 +55,26 @@ export default async function CampaignRedirectPage({ params }: Props) {
     const cleanSlug = slug.trim();
 
     // Find the campaign link (with fallback for leading hyphens like -off-duty-men)
-    let campaignLink = await prisma.campaignLink.findUnique({
-        where: { slug: cleanSlug },
-        include: { store: true },
-    });
-
-    if (!campaignLink && cleanSlug.startsWith("-")) {
+    let campaignLink: any = null;
+    try {
         campaignLink = await prisma.campaignLink.findUnique({
-            where: { slug: cleanSlug.replace(/^-+/, "") },
+            where: { slug: cleanSlug },
             include: { store: true },
         });
+
+        if (!campaignLink && cleanSlug.startsWith("-")) {
+            campaignLink = await prisma.campaignLink.findUnique({
+                where: { slug: cleanSlug.replace(/^-+/, "") },
+                include: { store: true },
+            });
+        }
+    } catch (err) {
+        console.warn(`[go/${cleanSlug}] DB lookup failed, checking fallback:`, err);
+        campaignLink = getFallbackCampaignLink(cleanSlug);
+    }
+
+    if (!campaignLink) {
+        campaignLink = getFallbackCampaignLink(cleanSlug);
     }
 
     // If not found or inactive, show 404
@@ -35,11 +87,17 @@ export default async function CampaignRedirectPage({ params }: Props) {
         notFound();
     }
 
-    // Increment click count
-    await prisma.campaignLink.update({
-        where: { id: campaignLink.id },
-        data: { clicks: { increment: 1 } },
-    });
+    // Increment click count safely (never fail redirect if DB write fails)
+    if (!campaignLink.isFallback) {
+        try {
+            await prisma.campaignLink.update({
+                where: { id: campaignLink.id },
+                data: { clicks: { increment: 1 } },
+            });
+        } catch (err) {
+            console.warn(`[go/${cleanSlug}] click count update skipped:`, err);
+        }
+    }
 
     // Build final URL with optional UTM parameters
     let finalUrl = campaignLink.destinationUrl.trim();
@@ -161,25 +219,35 @@ export async function generateMetadata({ params }: Props) {
     const { slug } = await params;
     const cleanSlug = slug.trim();
 
-    let campaignLink = await prisma.campaignLink.findUnique({
-        where: { slug: cleanSlug },
-        include: { store: true },
-    });
-
-    if (!campaignLink && cleanSlug.startsWith("-")) {
+    let campaignLink: any = null;
+    try {
         campaignLink = await prisma.campaignLink.findUnique({
-            where: { slug: cleanSlug.replace(/^-+/, "") },
+            where: { slug: cleanSlug },
             include: { store: true },
         });
+
+        if (!campaignLink && cleanSlug.startsWith("-")) {
+            campaignLink = await prisma.campaignLink.findUnique({
+                where: { slug: cleanSlug.replace(/^-+/, "") },
+                include: { store: true },
+            });
+        }
+    } catch {
+        campaignLink = getFallbackCampaignLink(cleanSlug);
     }
 
     if (!campaignLink) {
-        return { title: "Offer Not Found" };
+        campaignLink = getFallbackCampaignLink(cleanSlug);
+    }
+
+    if (!campaignLink) {
+        return { title: "Offer Not Found", robots: { index: false, follow: false } };
     }
 
     return {
         title: campaignLink.name,
         description: `Get the best deal on ${campaignLink.store?.name || "our partner store"}. Verified offer with exclusive savings.`,
+        robots: { index: false, follow: false },
         openGraph: {
             title: campaignLink.name,
             description: `Exclusive offer from ${campaignLink.store?.name || "partner store"}`,
