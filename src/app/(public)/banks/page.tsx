@@ -31,7 +31,7 @@ const FALLBACK_BANKS = [
     { id: "bank-kotak", name: "Kotak Mahindra Bank", slug: "kotak", logo: null, description: "Weekend dining discounts, grocery offers on Blinkit/Swiggy, and travel vouchers.", _count: { bankOffers: 6 } },
 ];
 
-export const revalidate = 3600;
+export const revalidate = 21600; // 6h ISR to minimize Neon Free compute wakeups
 
 export default async function BanksIndexPage() {
     let banks: any[] = [];

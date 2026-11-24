@@ -4,8 +4,9 @@ import Link from "next/link";
 import StoresDirectoryClient from "./StoresDirectoryClient";
 
 import { getSiteUrl } from "@/lib/seo-utils";
+import { FALLBACK_CATEGORIES, FALLBACK_STORES } from "@/lib/fallback-catalog";
 
-export const revalidate = 3600;
+export const revalidate = 21600; // 6h ISR to keep Neon Free compute usage minimal
 
 export const metadata: Metadata = {
     title: "All Stores Directory - Verified Partner Stores & Coupon Codes",
@@ -40,8 +41,8 @@ async function getStoresData() {
             isFeatured: store.isFeatured
         }));
     } catch (err) {
-        console.warn("[StoresPage] getStoresData failed:", err);
-        return [];
+        console.warn("[StoresPage] getStoresData failed, using fallback catalog:", err);
+        return FALLBACK_STORES;
     }
 }
 
@@ -57,8 +58,8 @@ async function getCategoriesData() {
             }
         });
     } catch (err) {
-        console.warn("[StoresPage] getCategoriesData failed:", err);
-        return [];
+        console.warn("[StoresPage] getCategoriesData failed, using fallback categories:", err);
+        return FALLBACK_CATEGORIES.map(({ id, name, slug }) => ({ id, name, slug }));
     }
 }
 

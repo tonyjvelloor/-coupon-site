@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { PublicCoupon } from "./dtos";
 import { cleanCouponCode, rankCoupons, selectDiverseTopCoupons } from "@/lib/coupon-ranking";
+import { FALLBACK_COUPONS, getFallbackCouponsByStoreSlug } from "@/lib/fallback-catalog";
 
 export class CouponRepository {
   /**
@@ -75,7 +76,7 @@ export class CouponRepository {
       return rankCoupons(mapped);
     } catch (err) {
       console.warn(`[CouponRepository] getPublicCouponsByStoreSlug(${slug}) failed:`, err);
-      return [];
+      return rankCoupons(getFallbackCouponsByStoreSlug(slug));
     }
   }
 
@@ -164,7 +165,7 @@ export class CouponRepository {
       return selectDiverseTopCoupons(mapped, limit, maxPerStore);
     } catch (err) {
       console.warn("[CouponRepository] getBestPublicCoupons failed:", err);
-      return [];
+      return selectDiverseTopCoupons(FALLBACK_COUPONS, limit, maxPerStore);
     }
   }
 

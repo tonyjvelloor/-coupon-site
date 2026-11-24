@@ -5,7 +5,7 @@ import { getAllSaleEvents } from "@/lib/events-data";
 import { CURATED_COMPARE_PAIRS } from "@/lib/compare-pairs";
 import { getSiteUrl, getCurrentMonthYear } from "@/lib/seo-utils";
 
-export const revalidate = 3600;
+export const revalidate = 43200; // 12h cache for AI crawlers to save Neon compute hours
 
 export async function GET() {
     const siteUrl = getSiteUrl();

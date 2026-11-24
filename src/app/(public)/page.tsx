@@ -13,7 +13,7 @@ const UpcomingSalesModule = dynamic(() => import("@/components/modules/homepage/
 const CategoriesModule = dynamic(() => import("@/components/modules/homepage/CategoriesModule").then(mod => mod.CategoriesModule), { ssr: true });
 const NewsletterModule = dynamic(() => import("@/components/modules/homepage/NewsletterModule").then(mod => mod.NewsletterModule), { ssr: true });
 
-export const revalidate = 3600; // Enable edge caching to save DB compute
+export const revalidate = 21600; // 6h edge cache to keep Neon Free compute usage low
 
 export const metadata: Metadata = {
     title: "CouponHub | Verified Coupons, Bank Offers & Sale Guides in India (Nov 2026)",

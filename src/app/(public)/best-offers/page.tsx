@@ -5,7 +5,7 @@ import { Sparkles, Tag, ShieldCheck, ArrowRight } from "lucide-react";
 import { getSiteUrl, getCurrentMonthYear } from "@/lib/seo-utils";
 import { cleanCouponCode, formatDiscountBadge, getOfferBadgeLabel } from "@/lib/coupon-ranking";
 
-export const revalidate = 3600;
+export const revalidate = 21600; // 6h ISR to minimize Neon Free compute wakeups
 
 export const metadata = {
     title: "Best Coupons & Verified Promo Codes Today",

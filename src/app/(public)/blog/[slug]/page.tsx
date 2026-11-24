@@ -18,7 +18,7 @@ interface BlogPostPageProps {
     }>;
 }
 
-export const revalidate = 3600; // 1 hour ISR
+export const revalidate = 21600; // 6h ISR to minimize Neon Free compute wakeups
 
 export async function generateStaticParams() {
     try {

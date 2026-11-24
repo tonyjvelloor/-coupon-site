@@ -10,7 +10,7 @@ import SEOTextAndFAQ from "@/components/ui/SEOTextAndFAQ";
 import InternalLinks from "@/components/ui/InternalLinks";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 
-export const revalidate = 900; // 15 minutes ISR
+export const revalidate = 21600; // 6h ISR to minimize Neon Free compute wakeups
 
 interface PageProps {
     params: Promise<{ slug: string }>;

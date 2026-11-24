@@ -1,18 +1,7 @@
 import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
-import Link from "next/link";
-import {
-    Store as StoreIcon,
-    ExternalLink,
-    Truck,
-    RefreshCw,
-    CreditCard,
-    GraduationCap,
-} from "lucide-react";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
-import MerchantNav from "@/components/ui/MerchantNav";
-import TrendingWidget from "@/components/ui/TrendingWidget";
-import { AdBannerSidebar } from "@/components/ui/AdBanner";
+import { getFallbackMerchantBySlug } from "@/lib/fallback-catalog";
 
 interface LayoutProps {
     params: Promise<{ slug: string }>;
@@ -21,32 +10,28 @@ interface LayoutProps {
 
 export default async function StoreLayout({ params, children }: LayoutProps) {
     const { slug } = await params;
-    
-    const store = await prisma.store.findUnique({
-        where: { slug, isActive: true },
-        include: {
-            storeCategories: { include: { category: true } },
-            storeContents: true,
-        }
-    });
 
-    if (!store) {
-        notFound();
+    let storeName: string | null = null;
+    try {
+        const store = await prisma.store.findUnique({
+            where: { slug, isActive: true },
+            select: { name: true },
+        });
+        storeName = store?.name || null;
+    } catch {
+        const fallback = getFallbackMerchantBySlug(slug);
+        storeName = fallback?.name || null;
     }
 
-    const hasFaq = store.storeContents.some(c => c.type === 'FAQ');
-    const hasGuide = store.storeContents.some(c => c.type === 'BUYING_GUIDE');
-
-    const shippingInfo = store.storeContents.find(c => c.type === 'SHIPPING')?.content || null;
-    const returnPolicy = store.storeContents.find(c => c.type === 'RETURNS')?.content || null;
-    const paymentMethods = store.storeContents.find(c => c.type === 'PAYMENTS')?.content || null;
-    const studentDiscounts = store.storeContents.find(c => c.type === 'STUDENT')?.content || null;
+    if (!storeName) {
+        notFound();
+    }
 
     return (
         <div>
             <Breadcrumbs items={[
                 { name: "Stores", href: "/stores" },
-                { name: store.name }
+                { name: storeName }
             ]} />
             {children}
         </div>

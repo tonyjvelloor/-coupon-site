@@ -12,7 +12,7 @@ interface PageProps {
     params: Promise<{ slug: string }>;
 }
 
-export const revalidate = 900;
+export const revalidate = 21600; // 6h ISR to minimize Neon Free compute wakeups
 
 export async function generateStaticParams() {
     try {

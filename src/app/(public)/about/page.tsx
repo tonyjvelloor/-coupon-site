@@ -6,7 +6,7 @@ import { getAllBlogPosts } from "@/lib/blog-data";
 
 import { getSiteUrl } from "@/lib/seo-utils";
 
-export const revalidate = 3600;
+export const revalidate = 43200; // 12h ISR to minimize Neon Free compute wakeups
 
 export const metadata = {
     title: "About Us",

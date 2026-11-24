@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 import { getSiteUrl } from "@/lib/seo-utils";
+import { FALLBACK_CATEGORIES } from "@/lib/fallback-catalog";
 
 export const metadata: Metadata = {
     title: "All Shopping Categories - Coupons & Offers",
@@ -33,7 +34,7 @@ const iconMap: Record<string, React.ElementType> = {
     Dumbbell,
 };
 
-export const revalidate = 3600;
+export const revalidate = 21600; // 6h ISR to keep Neon Free compute usage minimal
 
 export default async function CategoriesPage() {
     let categories: any[] = [];
@@ -47,7 +48,11 @@ export default async function CategoriesPage() {
             },
         });
     } catch (err) {
-        console.warn("[CategoriesPage] DB query failed:", err);
+        console.warn("[CategoriesPage] DB query failed, using fallback categories:", err);
+    }
+
+    if (categories.length === 0) {
+        categories = FALLBACK_CATEGORIES;
     }
 
     return (

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     alternates: { canonical: `${getSiteUrl()}/blog` },
 };
 
-export const revalidate = 3600; // Revalidate hourly during festive season
+export const revalidate = 21600; // 6h ISR to minimize Neon Free compute wakeups
 
 export default async function BlogListingPage() {
     const posts = await getAllBlogPosts();

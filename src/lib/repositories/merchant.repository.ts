@@ -1,57 +1,63 @@
 import { prisma } from "@/lib/db";
 import { PublicMerchant } from "./dtos";
+import { getFallbackMerchantBySlug } from "@/lib/fallback-catalog";
 
 export class MerchantRepository {
   /**
    * Retrieves a canonical merchant by slug, returning a Public DTO.
    */
   async getPublicMerchantBySlug(slug: string): Promise<PublicMerchant | null> {
-    const store = await prisma.store.findUnique({
-      where: { slug, isActive: true },
-      include: {
-        storeContents: true,
-        merchantHistories: true,
-        storeCategories: { include: { category: true } }
+    try {
+      const store = await prisma.store.findUnique({
+        where: { slug, isActive: true },
+        include: {
+          storeContents: true,
+          merchantHistories: true,
+          storeCategories: { include: { category: true } }
+        }
+      });
+
+      if (!store) {
+        return null;
       }
-    });
 
-    if (!store) {
-      return null;
+      return {
+        id: store.id,
+        name: store.name,
+        slug: store.slug,
+        description: store.description,
+        seoTitle: store.seoTitle,
+        seoDescription: store.seoDescription,
+        logo: store.logo,
+        website: store.website,
+        cashbackRate: store.cashbackRate,
+        cashbackType: store.cashbackType,
+        offerCount: store.offerCount,
+        activeOfferCount: store.activeOfferCount,
+        isFeatured: store.isFeatured,
+        healthScore: store.healthScore,
+        contents: store.storeContents.map(c => ({
+          id: c.id,
+          type: c.type,
+          content: c.content,
+          updatedAt: c.updatedAt
+        })),
+        histories: store.merchantHistories.map(h => ({
+          id: h.id,
+          title: h.title,
+          type: h.type,
+          date: h.date
+        })),
+        categories: store.storeCategories.map(sc => ({
+          id: sc.category.id,
+          name: sc.category.name,
+          slug: sc.category.slug
+        }))
+      };
+    } catch (err) {
+      console.warn(`[MerchantRepository] getPublicMerchantBySlug(${slug}) failed, checking fallback:`, err);
+      return getFallbackMerchantBySlug(slug);
     }
-
-    return {
-      id: store.id,
-      name: store.name,
-      slug: store.slug,
-      description: store.description,
-      seoTitle: store.seoTitle,
-      seoDescription: store.seoDescription,
-      logo: store.logo,
-      website: store.website,
-      cashbackRate: store.cashbackRate,
-      cashbackType: store.cashbackType,
-      offerCount: store.offerCount,
-      activeOfferCount: store.activeOfferCount,
-      isFeatured: store.isFeatured,
-      healthScore: store.healthScore,
-      contents: store.storeContents.map(c => ({
-        id: c.id,
-        type: c.type,
-        content: c.content,
-        updatedAt: c.updatedAt
-      })),
-      histories: store.merchantHistories.map(h => ({
-        id: h.id,
-        title: h.title,
-        type: h.type,
-        date: h.date
-      })),
-      categories: store.storeCategories.map(sc => ({
-        id: sc.category.id,
-        name: sc.category.name,
-        slug: sc.category.slug
-      }))
-    };
   }
 
   /**

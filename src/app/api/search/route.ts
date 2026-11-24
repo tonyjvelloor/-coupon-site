@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { FALLBACK_CATEGORIES, FALLBACK_COUPONS, FALLBACK_STORES } from "@/lib/fallback-catalog";
 
 // In-memory cache to eliminate database load for hot search terms
 interface CacheEntry {
@@ -8,7 +9,7 @@ interface CacheEntry {
 }
 
 const searchCache = new Map<string, CacheEntry>();
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes to minimize Neon compute wakeups
 const MAX_CACHE_ENTRIES = 500;
 
 function cleanCache() {
@@ -157,15 +158,58 @@ export async function GET(request: Request) {
       expiresAt: Date.now() + CACHE_TTL_MS,
     });
 
-    // 4. Return with Edge CDN caching headers
+    // 4. Return with Edge CDN caching headers (30m CDN cache to save Neon Free compute hours)
     return NextResponse.json(responseData, {
       headers: {
-        "Cache-Control": "public, s-maxage=180, stale-while-revalidate=360",
+        "Cache-Control": "public, s-maxage=1800, stale-while-revalidate=3600",
         "X-Cache": "MISS",
       },
     });
   } catch (error) {
-    console.error("Search API Error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    console.warn("Search API DB fallback triggered:", error);
+    const stores = FALLBACK_STORES.filter(
+      (s) => s.name.toLowerCase().includes(query) || s.slug.includes(query)
+    )
+      .slice(0, 8)
+      .map((s) => ({
+        name: s.name,
+        slug: s.slug,
+        logo: s.logo,
+        activeOfferCount: s.offerCount,
+      }));
+    const categories = FALLBACK_CATEGORIES.filter((c) =>
+      c.name.toLowerCase().includes(query)
+    )
+      .slice(0, 5)
+      .map((c) => ({ name: c.name, slug: c.slug }));
+    const coupons = FALLBACK_COUPONS.filter(
+      (c) =>
+        c.title.toLowerCase().includes(query) ||
+        (c.code && c.code.toLowerCase().includes(query)) ||
+        c.merchantName.toLowerCase().includes(query)
+    )
+      .slice(0, 5)
+      .map((c) => ({
+        id: c.id,
+        title: c.title,
+        description: c.description,
+        code: c.code,
+        discountValue: c.discountValue,
+        store: {
+          name: c.merchantName,
+          logo: c.merchantLogo,
+          slug: c.merchantSlug,
+        },
+      }));
+
+    return NextResponse.json(
+      { stores, categories, coupons },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=600, stale-while-revalidate=1800",
+          "X-Cache": "FALLBACK",
+        },
+      }
+    );
   }
 }
